@@ -3,7 +3,6 @@
 #include <iostream>
 #include <algorithm>
 
-
 //------------------------------------------------------------
 Creature::Creature(Chromozome newChromozome,Configuration* config)
 	:creatureGraphBin(newChromozome,config)

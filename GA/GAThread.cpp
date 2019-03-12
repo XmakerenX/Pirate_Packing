@@ -8,6 +8,9 @@
 #include <cstdio>
 #include <ctime>
 #include <string>
+#include "Encoding/BinaryEncoding.h"
+#include "Encoding/PermutationEncoding.h"
+#include "CreatureNew.h"
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(int containerWidth, int containerHeight, int nItems, int _guiWidth)
@@ -20,9 +23,13 @@ GAThread::GAThread(int containerWidth, int containerHeight, int nItems, int _gui
 // run
 //-----------------------------------------------------------------------------------------------
 void GAThread::run()
-{
+{    
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
 	configuration.Reset();
+    
+    CreatureNew<BinaryEncoding> c1(&configuration);
+    CreatureNew<PermutationEncoding> c2(&configuration);
+    
 	//Configuration configuration(300, 400, 100); 	//----Init a configuration ---//
         
 	int curX = 0;
