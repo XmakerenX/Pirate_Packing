@@ -70,13 +70,13 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(Creature& c);
+	/*void PrintSolution(Creature& c);
 	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
 	void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
 	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
 	void selectSurvivors(std::vector<Creature>& population);
+	*/
 	void HybridGeneticAlgorithm(Configuration& configuration);
-
 	Configuration configuration;
 	int overallMaximumFitness;
 	int generationMaximumFitness;
