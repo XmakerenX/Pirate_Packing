@@ -3,6 +3,7 @@
 #include "Creature.h"
 class Breeder
 {
+	/*
 private: 
 	static void mateParents(Creature& parent1, Creature& parent2, std::vector<Creature>& population);
 	static void createChildren(Creature& parent1, Creature& parent2, int PMX_StartIndex, int PMX_EndIndex, std::vector<Creature>& population);
@@ -11,7 +12,7 @@ private:
 
 public:
 	static std::vector<Creature> generateNextGeneration(std::vector<Creature>&currentPopulation);
-
+	*/
 
 };
 
