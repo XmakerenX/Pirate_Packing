@@ -9,6 +9,9 @@
 typedef QVector3D QPoint3D;
 typedef QVector3D RGB;
 
+
+struct Dimensions {	int w, h, d;};
+
 struct BoxInfo
 {
     BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength)
