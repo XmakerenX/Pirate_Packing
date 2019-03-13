@@ -1,13 +1,14 @@
 #pragma once
 #include "Item.h"
 #include <vector>
+#include "../includes/structs.h"
 
 class Item;
 class Configuration
 {
 	
 public:
-	Configuration(int _container_width, int _container_height, int _numberOfItems);
+	Configuration(Dimensions dim, int _numberOfItems);
 	Configuration();
 	~Configuration();
 
@@ -17,6 +18,8 @@ public:
         
 	const int container_width;
 	const int container_height;
+	const int container_depth;
+
 	const int numberOfItems;
 	std::vector<Item> items;
 };
