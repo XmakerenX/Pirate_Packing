@@ -13,10 +13,11 @@
 #include "CreatureNew.h"
 
 //------------------------------------------------------------------------------------------
-GAThread::GAThread(int containerWidth, int containerHeight, int nItems, int _guiWidth)
-	:overallMaximumFitness(0), generationMaximumFitness(0), configuration(containerWidth, containerHeight, nItems)
+GAThread::GAThread(Dimensions containerDimensions, int nItems, int _guiWidth)
+	:overallMaximumFitness(0), generationMaximumFitness(0), configuration(containerDimensions, nItems)
 {
 	guiWidth = _guiWidth;
+	
 }
 
 //-----------------------------------------------------------------------------------------------
