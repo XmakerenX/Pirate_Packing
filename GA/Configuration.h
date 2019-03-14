@@ -7,7 +7,7 @@ class Configuration
 {
 	
 public:
-	Configuration(int _container_width, int _container_height, int _numberOfItems);
+	Configuration(int _container_width, int _container_height, int _container_depth,int _numberOfItems);
 	Configuration();
 	~Configuration();
 
@@ -17,6 +17,7 @@ public:
         
 	const int container_width;
 	const int container_height;
+    const int container_depth;
 	const int numberOfItems;
 	std::vector<Item> items;
 };

@@ -1,7 +1,10 @@
 #include "Configuration.h"
 
-Configuration::Configuration(int _container_width, int _container_height, int _numberOfItems)
-	:container_width(_container_width), container_height(_container_height), numberOfItems(_numberOfItems)
+Configuration::Configuration(int _container_width, int _container_height, int _container_depth,int _numberOfItems)
+	:container_width(_container_width), 
+	container_height(_container_height),
+	container_depth(_container_depth),
+	numberOfItems(_numberOfItems)
 {
 	items = generateItems();
 	for (int i = 0; i < numberOfItems; i++)
@@ -22,7 +25,7 @@ void Configuration::Reset()
 	}
 }
 //----------------------------------------------------------------------------------------------------------
-Configuration::Configuration() :container_width(0), container_height(0), numberOfItems(0)
+Configuration::Configuration() :container_width(0), container_height(0), container_depth(0), numberOfItems(0)
 {
 
 	//this constructor is needed in order to perfom
