@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(2D_Lego_Packing_Solver)
+project(Pirate_Packing)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -43,9 +43,10 @@ if (WIN32)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
 	add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
-	#add_executable(2D_Lego_Packing_Solver_console ${qttest_SRC} mainConsole.cpp)
+	add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
+target_link_libraries(Pirate_Packing_console Qt5::Widgets)
  
