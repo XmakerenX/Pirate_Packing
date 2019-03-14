@@ -1,7 +1,7 @@
 #include "BinaryEncoding.h"
 
 //-----------------------------------------------------------------------------------------------
-// BinaryEncoding
+// Name : BinaryEncoding
 // Input: Configuration of the problem 
 // Output: A random Binary encdoing for a solution for the problem
 // Action: Creates a random Binary encdoing for a solution for the given problem
@@ -9,7 +9,8 @@
 BinaryEncoding::BinaryEncoding(Configuration* conf)
     :configuration(conf)
 {
-    long unsigned int maxDimensionValue = std::max(conf->container_width, conf->container_height, conf->container_depth);
+    long unsigned int maxDimensionValue = std::max(conf->container_width, conf->container_height);
+    maxDimensionValue = std::max(maxDimensionValue, conf->container_depth);
     long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     // 1 bit for if item is in container
     // 3 bits for the item orientaion in the container
@@ -20,7 +21,7 @@ BinaryEncoding::BinaryEncoding(Configuration* conf)
 }
 
 //-----------------------------------------------------------------------------------------------
-// BinaryEncoding
+// Name : BinaryEncoding
 // Input: Configuration of the problem and the encdoing chromozome
 // Output: Binary encdoing built with the given chromozome
 // Action:  Creates a Binary encdoing with the given chromozome
@@ -33,7 +34,7 @@ BinaryEncoding::BinaryEncoding(Configuration* config, const DynamicBitSet& _chro
 }
 
 //-----------------------------------------------------------------------------------------------
-// BinaryEncoding
+// Name : BinaryEncoding
 // Input: Configuration of the problem and the encdoing chromozome
 // Output: Binary encdoing built with the given chromozome
 // Action:  Creates a Binary encdoing with the given chromozome
@@ -46,7 +47,7 @@ BinaryEncoding::BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozom
 }
 
 //-----------------------------------------------------------------------------------------------
-// generateChromosome
+// Name : generateChromosome
 // Input: totalBitsNum - number of bits for the chromosome
 // Output: A random DynamicBitSet of size totalBitsNum
 // Action: Creates a random DynamicBitSet with size totalBitsNum
@@ -90,7 +91,7 @@ DynamicBitSet BinaryEncoding::generateChromosome(long unsigned int totalBitsNum)
 }
 
 //-----------------------------------------------------------------------------------------------
-// repairChromosome
+// Name : repairChromosome
 // Input: this encdoing chromozome with possible invalid values
 // Output: this encdoing chromozome with valid values
 // Action: checks for invalid values in chromozome amd fixes them
@@ -100,9 +101,9 @@ void BinaryEncoding::repairChromosome()
 {
     
     // get how many bits are used to hold the coordinate number
-    long unsigned int coordinateBits = std::ceil(std::log2(std::max(configuration->container_width, 
-                                                                    configuration->container_height,
-                                                                    configuration->container_depth)));
+    long unsigned int maxDimensionValue = std::max(configuration->container_width, configuration->container_height);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->container_depth);
+    long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
     
     for (int i = 0; i < configuration->items.size(); i++)
@@ -133,9 +134,9 @@ void BinaryEncoding::repairChromosome()
             DynamicBitSet xValue = (itemValues & xMask) >> 2*coordinateBits;
             // get the item x coordinate
             unsigned int x = xValue.to_ulong();
-            unsigned int itemWidth = configuration->items[i].width;
-            unsigned int itemHeight = configuration->items[i].height;
-            unsigned int itemDepth  = configuration->items[i].depth;
+            long unsigned int itemWidth = configuration->items[i].width;
+            long unsigned int itemHeight = configuration->items[i].height;
+            long unsigned int itemDepth  = configuration->items[i].depth;
             // swap item width and height if item is vertical orientation
             DynamicBitSet seven(itemValues.size(), 7);
             DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
@@ -146,36 +147,7 @@ void BinaryEncoding::repairChromosome()
                 std::uniform_int_distribution<unsigned int> orientaionDist(0, 5);
                 orientaion = orientaionDist(Random::default_engine.getGenerator());
             }
-            switch(orientaion)
-            {
-                // Case 0:  X,Y,Z
-                case 1: // Z,Y,X
-                {
-                    std::swap(itemWidth, itemDepth);
-                }break;
-                
-                case 2: // Y,Z,X
-                {
-                    std::swap(itemWidth, itemHeight);
-                    std::swap(itemHeight, itemDepth);
-                }break;
-                
-                case 3: // X,Z,Y
-                {
-                    std::swap(itemHeight, itemDepth);
-                }break;
-                
-                case 4: // Y,X,Z
-                {
-                    std::swap(itemWidth, itemHeight);
-                }break;
-                
-                case 5: // Z,X,Y
-                {
-                    std::swap(itemWidth, itemHeight);
-                    std::swap(itemWidth, itemDepth);
-                }break;
-            }
+            adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
             
                         
             // repair if needed the x and y coordinates
@@ -204,7 +176,47 @@ void BinaryEncoding::repairChromosome()
 }
 
 //-----------------------------------------------------------------------------------------------
-// mutate
+// Name : adjustDimensionsToOrientation
+// Input: item orientaion and refernces to its width,height and depth
+// Output: width,height and depth swapped according to item orientaion
+// Action: swaps width,height and depth based on the orientation value
+//-----------------------------------------------------------------------------------------------
+void BinaryEncoding::adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth)
+{
+    switch(orientation)
+    {
+        // Case 0:  X,Y,Z
+        case 1: // Z,Y,X
+        {
+            std::swap(width, depth);
+        }break;
+                
+        case 2: // Y,Z,X
+        {
+            std::swap(width, height);
+            std::swap(height, depth);
+        }break;
+                
+        case 3: // X,Z,Y
+        {
+            std::swap(height, depth);
+        }break;
+                
+        case 4: // Y,X,Z
+        {
+            std::swap(width, height);
+        }break;
+                
+        case 5: // Z,X,Y
+        {
+            std::swap(width, height);
+            std::swap(width, depth);
+        }break;
+    }
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : mutate
 // Input: mutationChange - the chance for a bit to flip
 // Output: the this chromozome is mutated
 // Action: mutate the chromozome based on the chance of  mutationChange per bit to flip
@@ -222,7 +234,7 @@ void BinaryEncoding::mutate(float mutationChange)
 }
 
 //-----------------------------------------------------------------------------------------------
-// crossover
+// Name : crossover
 // Input: BinaryEncoding to make the corssover with
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
@@ -245,15 +257,13 @@ std::vector<BinaryEncoding> BinaryEncoding::crossover(BinaryEncoding parent2)
     DynamicBitSet flippedMask = mask;
     flippedMask.flip();
         
-    DynamicBitSet chromozomeX = parent1 & flippedMask; // upper  part
-    DynamicBitSet chromozomeY = parent22 & mask;          // bottom part
+    DynamicBitSet chromozomeX = parent1 & flippedMask;      // upper  part
+    DynamicBitSet chromozomeY = parent2.chromozome & mask;  // bottom part
     DynamicBitSet child = chromozomeX | chromozomeY;
-    //mutateChild(child);
     
-    chromozomeX = parent22 & flippedMask; // upper  part
-    chromozomeY = parent1 & mask;          // bottom part
+    chromozomeX = parent2.chromozome & flippedMask;         // upper  part
+    chromozomeY = parent1 & mask;                           // bottom part
     DynamicBitSet child2 = chromozomeX | chromozomeY;
-    //mutateChild(child2);
     
     std::vector<BinaryEncoding> children;
     children.emplace_back(configuration, child);
@@ -262,16 +272,114 @@ std::vector<BinaryEncoding> BinaryEncoding::crossover(BinaryEncoding parent2)
     return children;
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name : calculateFittness
+// Input: this chromozome
+// Output: fitness score for this encdoing solution
+// Action: calcuate the fitness score fro this encdoing
+//         if there is no overlap between boxes thes score is 50% value and 50% positionScore
+//         if there is overlap the score is only the positionScore
+//         positionScore is made out of how much overlaping volume there was and how well
+//         positioned are the boxes
+//-----------------------------------------------------------------------------------------------
 int BinaryEncoding::calculateFittness()
 {
-    return 0;
+    // get how many bits are used to hold the coordinate number
+    long unsigned int maxDimensionValue = std::max(configuration->container_width, configuration->container_height);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->container_depth);
+    long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
+    long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
+    
+    long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
+    itemMaskValue--;
+    DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
+    
+    std::vector<Box> itemBoxes;
+    int fitness = 0;
+    for (int i = 0; i < configuration->items.size(); i++)
+    {
+        // get the item bits 
+        DynamicBitSet itemValues = chromozome & itemMask;
+        // shift them to lower parts of the bit string
+        itemValues = itemValues >> bitsPerItem * i;
+        if (itemValues[3 + 3 * coordinateBits] == 1)
+        {
+            fitness += configuration->items[i].value;
+            // get the X,Y,Z coordinates
+            long unsigned int zMaskValue = std::pow(2, coordinateBits);
+            zMaskValue--;
+            DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
+            long unsigned int z = (itemValues & zMask).to_ulong();
+            DynamicBitSet yMask = zMask << coordinateBits;
+            long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
+            DynamicBitSet xMask = yMask << coordinateBits;
+            long unsigned int x = ((itemValues & xMask) >> coordinateBits*2).to_ulong();
+            // get Item Dimension
+            long unsigned int itemWidth = configuration->items[i].width;
+            long unsigned int itemHeight = configuration->items[i].height;
+            long unsigned int itemDepth = configuration->items[i].depth;
+            
+            DynamicBitSet seven(itemValues.size(), 7);
+            DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
+            int orientaion = orientationBits.to_ulong();
+            adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
+            itemBoxes.emplace_back(x,y,z, x + itemWidth, y + itemHeight, z + itemDepth);
+        }
+               
+        itemMask = itemMask << bitsPerItem;
+    }
+    
+    bool overlapped = false;
+    int overlappedVolume = 0;
+    int positionScore = 0;
+    for (int i = 0; i < itemBoxes.size(); i++)
+    {
+        for (int j = i + 1; j < itemBoxes.size(); j++)
+        {
+            Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
+            
+            // calcuate how much volume is overlapping between boxes
+            if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
+            {
+                overlapped = true;
+                overlappedVolume -= box.getWidth() * box.getHeight() * box.getDepth();
+            }
+            
+            // calcuate how much free spapce is between boxes
+            if (box.getWidth() < 0 && box.getHeight() < 0 && box.getDepth() < 0)
+            {
+                positionScore -= box.getWidth() * box.getHeight() * box.getDepth();
+            }
+            
+            // give bonus for boxes that have no space between them
+            if (box.getWidth() == 0 || box.getHeight() == 0 || box.getDepth() < 0)
+            {
+                positionScore += (box.getWidth() * box.getHeight() * box.getDepth())/6;
+            }
+        }
+    }
+    
+    if (!overlapped)
+        return fitness*0.5 + positionScore*0.5;
+    else
+        return positionScore;
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name : getBoxPositions
+// Input: this chromozome
+// Output: vector of the positions of the boxes inside the container
+// Action: Decode the encdoing and returns where are the boxes inside the container
+//-----------------------------------------------------------------------------------------------
 std::vector<BoxInfo> BinaryEncoding::getBoxPositions()
 {
     return std::vector<BoxInfo>();
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name : getConfiguration
+// Action: return the configuration used in this encdoing
+//-----------------------------------------------------------------------------------------------
 Configuration* BinaryEncoding::getConfiguration() const
 {
     return this->configuration;
