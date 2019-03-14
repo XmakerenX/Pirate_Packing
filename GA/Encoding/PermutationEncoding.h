@@ -11,7 +11,6 @@ class PermutationEncoding
 {
     
 public:
-    //PermutationEncoding() {};
     PermutationEncoding(Configuration* config);
     void mutate(float mutationChange);
     PermutationEncoding crossover(PermutationEncoding parent2);
