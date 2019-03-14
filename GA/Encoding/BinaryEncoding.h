@@ -8,6 +8,7 @@
 #include "../../includes/structs.h"
 #include "../GA_Random.h"
 #include "../Configuration.h"
+#include "../Creature.h"
 
 typedef boost::dynamic_bitset<> DynamicBitSet;
 
@@ -54,8 +55,8 @@ public:
     BinaryEncoding(Configuration* config, const DynamicBitSet& _chromozome);
     BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozome);
     
-    void mutate(float mutationChange);
-    std::vector<BinaryEncoding> crossover(BinaryEncoding parent2);
+    void mutate(float mutationChance);
+    void crossover(BinaryEncoding parent2, std::vector<Creature<BinaryEncoding>> population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;

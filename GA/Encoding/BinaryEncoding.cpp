@@ -9,8 +9,8 @@
 BinaryEncoding::BinaryEncoding(Configuration* conf)
     :configuration(conf)
 {
-    long unsigned int maxDimensionValue = std::max(conf->container_width, conf->container_height);
-    maxDimensionValue = std::max(maxDimensionValue, conf->container_depth);
+    long unsigned int maxDimensionValue = std::max(conf->dim.w, conf->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, conf->dim.d);
     long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     // 1 bit for if item is in container
     // 3 bits for the item orientaion in the container
@@ -101,8 +101,8 @@ void BinaryEncoding::repairChromosome()
 {
     
     // get how many bits are used to hold the coordinate number
-    long unsigned int maxDimensionValue = std::max(configuration->container_width, configuration->container_height);
-    maxDimensionValue = std::max(maxDimensionValue, configuration->container_depth);
+    long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
     long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
     
@@ -134,9 +134,9 @@ void BinaryEncoding::repairChromosome()
             DynamicBitSet xValue = (itemValues & xMask) >> 2*coordinateBits;
             // get the item x coordinate
             unsigned int x = xValue.to_ulong();
-            long unsigned int itemWidth = configuration->items[i].width;
-            long unsigned int itemHeight = configuration->items[i].height;
-            long unsigned int itemDepth  = configuration->items[i].depth;
+            long unsigned int itemWidth = configuration->items[i].dim.w;
+            long unsigned int itemHeight = configuration->items[i].dim.h;
+            long unsigned int itemDepth  = configuration->items[i].dim.d;
             // swap item width and height if item is vertical orientation
             DynamicBitSet seven(itemValues.size(), 7);
             DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
@@ -151,12 +151,12 @@ void BinaryEncoding::repairChromosome()
             
                         
             // repair if needed the x and y coordinates
-            if (x + itemWidth > configuration->container_width)
-                x = configuration->container_width - itemWidth;
-            if (y + itemHeight > configuration->container_height)
-                y = configuration->container_height - itemHeight;
-            if (z + itemDepth > configuration->container_depth)
-                z = configuration->container_depth - itemDepth;
+            if (x + itemWidth > configuration->dim.w)
+                x = configuration->dim.w - itemWidth;
+            if (y + itemHeight > configuration->dim.h)
+                y = configuration->dim.h - itemHeight;
+            if (z + itemDepth > configuration->dim.d)
+                z = configuration->dim.d - itemDepth;
             
             DynamicBitSet newOrientation(chromozome.size(), orientaion);
             newOrientation << coordinateBits*3;
@@ -217,13 +217,13 @@ void BinaryEncoding::adjustDimensionsToOrientation(int orientation, long unsigne
 
 //-----------------------------------------------------------------------------------------------
 // Name : mutate
-// Input: mutationChange - the chance for a bit to flip
+// Input: mutationChance - the chance for a bit to flip
 // Output: the this chromozome is mutated
-// Action: mutate the chromozome based on the chance of  mutationChange per bit to flip
+// Action: mutate the chromozome based on the chance of  mutationChance per bit to flip
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::mutate(float mutationChange)
+void BinaryEncoding::mutate(float mutationChance)
 {
-    std::vector<float> mutateVec = {mutationChange, 1 - mutationChange};
+    std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
     
     for (int i = 0; i < chromozome.size(); i++)
@@ -239,7 +239,7 @@ void BinaryEncoding::mutate(float mutationChange)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-std::vector<BinaryEncoding> BinaryEncoding::crossover(BinaryEncoding parent2)
+void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<Creature<BinaryEncoding>> population)
 {
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
@@ -265,11 +265,12 @@ std::vector<BinaryEncoding> BinaryEncoding::crossover(BinaryEncoding parent2)
     chromozomeY = parent1 & mask;                           // bottom part
     DynamicBitSet child2 = chromozomeX | chromozomeY;
     
+    population.emplace_back(BinaryEncoding(configuration, child), configuration);
+    population.emplace_back(BinaryEncoding(configuration, child2), configuration);
+    
     std::vector<BinaryEncoding> children;
     children.emplace_back(configuration, child);
     children.emplace_back(configuration, child2);
-    
-    return children;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -285,8 +286,8 @@ std::vector<BinaryEncoding> BinaryEncoding::crossover(BinaryEncoding parent2)
 int BinaryEncoding::calculateFittness()
 {
     // get how many bits are used to hold the coordinate number
-    long unsigned int maxDimensionValue = std::max(configuration->container_width, configuration->container_height);
-    maxDimensionValue = std::max(maxDimensionValue, configuration->container_depth);
+    long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
     long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
     
@@ -315,9 +316,9 @@ int BinaryEncoding::calculateFittness()
             DynamicBitSet xMask = yMask << coordinateBits;
             long unsigned int x = ((itemValues & xMask) >> coordinateBits*2).to_ulong();
             // get Item Dimension
-            long unsigned int itemWidth = configuration->items[i].width;
-            long unsigned int itemHeight = configuration->items[i].height;
-            long unsigned int itemDepth = configuration->items[i].depth;
+            long unsigned int itemWidth = configuration->items[i].dim.w;
+            long unsigned int itemHeight = configuration->items[i].dim.h;
+            long unsigned int itemDepth = configuration->items[i].dim.d;
             
             DynamicBitSet seven(itemValues.size(), 7);
             DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;

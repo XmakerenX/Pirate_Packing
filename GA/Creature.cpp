@@ -63,7 +63,26 @@ bool Creature<Encoding>::operator==(const Creature<Encoding>& b)
 }
 //------------------------------------------------------------------------------------
 template <class Encoding>
-int Creature<Encoding>::getFittness()
+void Creature<Encoding>::mate(const Creature& parent2, std::vector<Creature> population)
+{
+    encoding.crossover(parent2.encoding, population);
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+void Creature<Encoding>::mutate(float mutationChance)
+{
+    encoding.mutate(mutationChance);
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+void Creature<Encoding>::updateFitness()
+{
+    fitness = encoding.calculateFittness();
+}
+
+//------------------------------------------------------------------------------------
+template <class Encoding>
+int Creature<Encoding>::getFittness() const
 {
     return fitness;
 }

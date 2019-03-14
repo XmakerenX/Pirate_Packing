@@ -22,12 +22,12 @@ PermutationEncoding::PermutationEncoding(Configuration* conf, Chromozome chrom)
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
 }
-void PermutationEncoding::mutate(float mutationChange)
+void PermutationEncoding::mutate(float mutationChance)
 {
     
 }
 
-std::vector<PermutationEncoding> PermutationEncoding::crossover(PermutationEncoding parent2)
+void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<Creature<PermutationEncoding>> population)
 {
 	//genereate crossing points
 	int PMX_StartIndex ,  PMX_EndIndex;
@@ -42,12 +42,8 @@ std::vector<PermutationEncoding> PermutationEncoding::crossover(PermutationEncod
 	createTwoChildren(child1Chromozome, child2Chromozome, PMX_StartIndex, PMX_EndIndex,
 						this->chromozome, parent2.chromozome);
 
-	//return children
-	std::vector<PermutationEncoding> children;
-	children.push_back(PermutationEncoding(this->configuration, child1Chromozome));
-	children.push_back(PermutationEncoding(this->configuration, child2Chromozome));
-	
-	return children;
+    population.emplace_back(PermutationEncoding(this->configuration, child1Chromozome), configuration);
+    population.emplace_back(PermutationEncoding(this->configuration, child2Chromozome), configuration);
 }
 //------------------------------------------------------------------
 void PermutationEncoding::initializeCrossOverPoints(int& startPos, int& endPos)

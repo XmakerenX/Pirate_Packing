@@ -14,14 +14,17 @@ public:
     Creature(Creature&& move);
 	~Creature();
         
-    
 	Creature& operator=(const Creature& c);
 	Creature& operator=(Creature&& c);
         
 	bool operator== (const Creature& b);
     
     //functions:
-    int getFittness();
+    void mate(const Creature& parent2, std::vector<Creature> population);
+    void mutate(float mutationChance);
+    void updateFitness();
+    
+    int getFittness() const;
 	Configuration* getConfiguration();
 
     std::vector<BoxInfo> getboxesPositions();
