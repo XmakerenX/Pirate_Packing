@@ -2,9 +2,9 @@
 //
 
 #include "includes/stdafx.h"
-#include "Configuration.h"
-#include "Creature.h"
-#include "Breeder.h"
+#include "GA/Configuration.h"
+#include "GA/Creature.h"
+#include "GA/Breeder.h"
 #include <vector>
 #include <algorithm>
 #include <cstdio>
@@ -98,15 +98,15 @@ void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configurat
 		}
 	}
 	std::cout << "Saving best GA creature as .BMP files..." << '\n';
-	BmpCreatreSaver bmpSaverForGA(population[index].creatureGraphBin, "GABest.bmp");
+	//BmpCreatreSaver bmpSaverForGA(population[index].creatureGraphBin, "GABest.bmp");
 	std::cout << "Saving greedy creature as .BMP files..." << '\n';
-	BmpCreatreSaver bmpSaverforGreedy(Creature(greedyChromozome, &configuration).creatureGraphBin, "greedy.bmp");
+	//BmpCreatreSaver bmpSaverforGreedy(Creature(greedyChromozome, &configuration).creatureGraphBin, "greedy.bmp");
 	std::cout << "Finished." << '\n';
 }
 //-----------------------------------------------------------------------------------------------
 void getDataFromGeneration(std::vector<Creature>& population, double& avgFittness,double& overallMaximum,double& generationMaximum,Configuration& configuration)
 {
-	for (Creature indiviual : population)
+	for (Creature& indiviual : population)
 	{
 		//get data
 		double currentFittness = (double)indiviual.fitness / (configuration.container_width * configuration.container_height);
@@ -122,11 +122,11 @@ void getDataFromGeneration(std::vector<Creature>& population, double& avgFittnes
 //Creates an array of random creatures
 std::vector<Creature> generateFirstGeneration(Configuration& configuration)
 {
-	std::vector<Creature> randomCreatures(populationSize);
-	randomCreatures.clear();
+	std::vector<Creature> randomCreatures;
+    randomCreatures.reserve(populationSize);
 	for (int i = 0; i < populationSize; i++)
 	{
-		randomCreatures.push_back(Creature::createRandomCreature(configuration));
+        randomCreatures.emplace_back(Creature::createRandomChromozome(configuration), &configuration);
 	}
 	return randomCreatures;
 }
