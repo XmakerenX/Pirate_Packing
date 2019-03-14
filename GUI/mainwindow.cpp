@@ -27,13 +27,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->logo_image->setScaledContents(true);
 
 }
-
+//------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
 	delete ui;
 }
-
-
+//------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_2_clicked()
 {
 	QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"), "/path/to/file/", tr("data Files (*.txt)"));
@@ -41,7 +40,7 @@ void MainWindow::on_pushButton_2_clicked()
 	//todo: validate file
 
 }
-
+//------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_3_clicked()
 {
 	//sol = new solution_viewer_window(this);

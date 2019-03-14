@@ -2,7 +2,7 @@
 #include "GA_Random.h"
 
 /*
-	Item reffers to a 2D lego rectengle
+	Item reffers to a 3D Treasure box
 */
 //------------------------------------------------------------------------------------------
 Item::Item(const Configuration& configuration,int id)
@@ -33,8 +33,7 @@ Item::Item(const Configuration& configuration,int id)
 
 	
 }
-
-//--------------------------------------
+//------------------------------------------------------------------------------------
 Item::Item(Dimensions dim, int item_value, int item_id)
 {
 	QVector3D dim2(1, 1, 1);
@@ -50,7 +49,7 @@ Item::Item(Dimensions dim, int item_value, int item_id)
 	this->color.g = colorDist(Random::default_engine.getGenerator());
 	this->color.b = colorDist(Random::default_engine.getGenerator());
 }
-//--------------------------------------
+//------------------------------------------------------------------------------------
 Item::~Item()
 {
 }
