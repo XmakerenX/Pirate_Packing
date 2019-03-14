@@ -7,9 +7,9 @@
 //------------------------------------------------------------------------------------------
 Item::Item(const Configuration& configuration,int id)
 {
-	std::uniform_int_distribution<int> itemWidthDist(1, configuration.container_width);
-	std::uniform_int_distribution<int> itemHeightDist(1, configuration.container_height);
-	std::uniform_int_distribution<int> itemDepthDist(1, configuration.container_depth);
+	std::uniform_int_distribution<int> itemWidthDist(1, configuration.dim.w);
+	std::uniform_int_distribution<int> itemHeightDist(1, configuration.dim.h);
+	std::uniform_int_distribution<int> itemDepthDist(1, configuration.dim.d);
 	std::uniform_int_distribution<int> itemValueDist(1, 10000);
 
 	std::uniform_int_distribution<int> colorDist(0, 255);
@@ -21,10 +21,10 @@ Item::Item(const Configuration& configuration,int id)
 	//generate dimensions
 	do
 	{
-		this->width  = itemWidthDist(Random::default_engine.getGenerator());
-		this->height = itemHeightDist(Random::default_engine.getGenerator());
-		this->depth  = itemDepthDist(Random::default_engine.getGenerator());
-	} while (width * height*depth > (configuration.container_width * configuration.container_height*configuration.container_depth) / 6);
+		dim.w  = itemWidthDist(Random::default_engine.getGenerator());
+		dim.h = itemHeightDist(Random::default_engine.getGenerator());
+		dim.d  = itemDepthDist(Random::default_engine.getGenerator());
+	} while (dim.w * dim.h * dim.d > (configuration.dim.w * configuration.dim.h * configuration.dim.d) / 6);
 
 	//Set color to be random
 	this->color.r = colorDist(Random::default_engine.getGenerator());
@@ -34,12 +34,9 @@ Item::Item(const Configuration& configuration,int id)
 	
 }
 //------------------------------------------------------------------------------------
-Item::Item(Dimensions dim, int item_value, int item_id)
+Item::Item(Dimensions _dim, int item_value, int item_id)
+    :dim(_dim)
 {
-	QVector3D dim2(1, 1, 1);
-	this->width =  dim.w;
-	this->height = dim.h;
-	this->depth =  dim.d;
 	this->value = item_value;
 	this->id = item_id;
 

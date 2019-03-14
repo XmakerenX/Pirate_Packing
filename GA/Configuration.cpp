@@ -1,9 +1,8 @@
 #include "Configuration.h"
 
-Configuration::Configuration(Dimensions dim, int _numberOfItems)
-	:container_width(dim.w), container_height(dim.h),container_depth(dim.d), numberOfItems(_numberOfItems)
+Configuration::Configuration(Dimensions _dim, int _numberOfItems)
+	:dim(_dim), numberOfItems(_numberOfItems)
 {
-	
 	items = generateItems();//This generate an empty vector of items
 	for (int i = 0; i < numberOfItems; i++)//this creates items and put it inside the vector
 	{
@@ -23,7 +22,7 @@ void Configuration::Reset()
 	}
 }
 //------------------------------------------------------------------------------------
-Configuration::Configuration() :container_width(0), container_height(0),container_depth(0),numberOfItems(0)
+Configuration::Configuration() : dim(0,0,0), numberOfItems(0)
 {
 	//this constructor is needed in order to perfom
 	//Configuration c1 = c2;

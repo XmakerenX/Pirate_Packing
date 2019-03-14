@@ -8,7 +8,7 @@ class Configuration
 {
 	
 public:
-	Configuration(Dimensions dim, int _numberOfItems);
+	Configuration(Dimensions _dim, int _numberOfItems);
 	Configuration();
 	~Configuration();
 
@@ -16,11 +16,9 @@ public:
 
 	static std::vector<Item> generateItems(){return std::vector<Item>();};
         
-	const long unsigned int container_width;
-	const long unsigned int container_height;
-	const long unsigned int container_depth;
-
+    const Dimensions dim;
 	const int numberOfItems;
+    
 	std::vector<Item> items;
 };
 

@@ -10,7 +10,21 @@ typedef QVector3D QPoint3D;
 typedef QVector3D RGB;
 
 
-struct Dimensions {	int w, h, d;};
+struct Dimensions 
+{
+    Dimensions()
+        :w(0), h(0), d(0)
+    {}
+    Dimensions(long unsigned int _w, long unsigned int _h, long unsigned int _d)
+        :w(_w), h(_h), d(_d)
+    {}
+    
+    Dimensions(const Dimensions& copy)
+        :w(copy.w), h(copy.h), d(copy.d)
+    {}
+    
+    long unsigned int w, h, d;
+};
 
 struct BoxInfo
 {
