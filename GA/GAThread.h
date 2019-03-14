@@ -12,7 +12,7 @@
 #include "Creature.h"
 #include "Breeder.h"
 #include "GA_Random.h"
-
+#include "../includes/structs.h"
 //-----------------------------------------------------------------------------------------------
 // Structures
 //-----------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ struct Rect
 class GAThread : public QThread
 {
 public:
-	GAThread(int containerWidth, int containerHeight, int nItems, int _guiWidth);
+	GAThread::GAThread(Dimensions containerDimensions, int nItems, int _guiWidth);
 
 	Q_OBJECT
 	void run() override;
@@ -70,13 +70,13 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(Creature& c);
+	/*void PrintSolution(Creature& c);
 	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
 	void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
 	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
 	void selectSurvivors(std::vector<Creature>& population);
+	*/
 	void HybridGeneticAlgorithm(Configuration& configuration);
-
 	Configuration configuration;
 	int overallMaximumFitness;
 	int generationMaximumFitness;

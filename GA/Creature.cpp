@@ -1,83 +1,92 @@
 #include "Creature.h"
-#include "GraphBin.h"
-#include <iostream>
-#include <algorithm>
 
-//------------------------------------------------------------
-Creature::Creature(Chromozome newChromozome,Configuration* config)
-	:creatureGraphBin(newChromozome,config)
+template <class Encoding>
+//constructor that creates a random creature based on the configuration;
+Creature<Encoding>::Creature(Configuration* config)
+	:encoding(config), configuration(config)
 {
-	this->chromozome = newChromozome;
-	this->configuration = config;
-	this->fitness = calculateFittness();
+    
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+//constructor that creates a creature based of a premade encoding
+Creature<Encoding>::Creature(Encoding& encoding, Configuration* config)
+    :encoding(config), configuration(config)
+{
+   
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+//constructor that creates a creature based of a premade encoding
+Creature<Encoding>::Creature(Encoding&& encoding, Configuration* config)
+    :encoding(config), configuration(config)
+{
+    
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+Creature<Encoding>::Creature(const Creature<Encoding>& copy)
+    :encoding(copy.encoding.getConfiguration()), configuration(copy.configuration)
+{
+    
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+Creature<Encoding>::Creature(Creature&& move)
+    :encoding(move.encoding.getConfiguration()), configuration(move.configuration)
+{
+    
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+Creature<Encoding>::~Creature()
+{
+    
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>    
+Creature<Encoding>& Creature<Encoding>::operator=(const Creature<Encoding>& c)
+{
+    return *this;
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+Creature<Encoding>& Creature<Encoding>::operator=(Creature<Encoding>&& c)
+{
+    return *this;
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+bool Creature<Encoding>::operator==(const Creature<Encoding>& b)
+{
+    return false;
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+int Creature<Encoding>::getFittness()
+{
+    return fitness;
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+Configuration* Creature<Encoding>:: getConfiguration()
+{
+	return this->configuration;
+}
+//------------------------------------------------------------------------------------
+template <class Encoding>
+std::vector<BoxInfo> Creature<Encoding>::getboxesPositions()
+{
+    return std::vector<BoxInfo>();
+}
+//------------------------------------------------------------------------------------
+// Force instantiation of BinaryEncoding and PermutationEncoding
+#include "Encoding/BinaryEncoding.h"
+#include "Encoding/PermutationEncoding.h"
+#include "Configuration.h"
+template class Creature<BinaryEncoding>;
+template class Creature<PermutationEncoding>;
 
-}
-//------------------------------------------------------------
-Creature::Creature(const Creature& c)
-	:creatureGraphBin(c.creatureGraphBin)
-{
-	this->chromozome = c.chromozome;
-	this->configuration = c.configuration;
-	this->fitness = c.fitness;
-}
-//------------------------------------------------------------
-Creature::Creature(Creature&& move)
-	:chromozome(std::move(move.chromozome)), creatureGraphBin(std::move(move.creatureGraphBin))
-{
-	this->configuration = move.configuration;
-	this->fitness = move.fitness;
-}
-//------------------------------------------------------------
-Creature::~Creature()
-{}
-//------------------------------------------------------------
-Creature& Creature::operator=(const Creature& c)
-{
-	this->chromozome = c.chromozome;
-	this->creatureGraphBin = c.creatureGraphBin;
-	this->configuration = c.configuration;
-	this->fitness = c.fitness;
-	            
-	return *this;
-}
-//------------------------------------------------------------
-Creature& Creature::operator=(Creature&& c)
-{
-	this->chromozome = std::move(c.chromozome);
-	this->creatureGraphBin = std::move(c.creatureGraphBin);
-	this->configuration = c.configuration;
-	this->fitness = c.fitness;
-	    
-	return *this;
-}
 
-//------------------------------------------------------------
-bool Creature::operator== (const Creature& b)
-{
-	for (int i = 0; i < chromozome.size(); i++)
-	{
-		if (chromozome[i] != b.chromozome[i])
-		{
-			return false;
-		}
-	}
-	return true;
-}
-//------------------------------------------------------------
-int Creature::calculateFittness()
-{
-	return creatureGraphBin.cellsFilled;
-}	
-//------------------------------------------------------------
-Chromozome Creature::createRandomChromozome(Configuration& configuration)
-{ 
-	Chromozome randomChromozome;
-	randomChromozome.reserve(configuration.numberOfItems);
-	for (int i = 0; i < configuration.numberOfItems; i++)
-	{
-		randomChromozome.push_back(i);
-	}
-	std::random_shuffle(randomChromozome.begin(), randomChromozome.end());
-        return randomChromozome;
-}
-//------------------------------------------------------------
+
+

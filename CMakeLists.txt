@@ -10,19 +10,18 @@ set(CMAKE_AUTOUIC ON)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(boost)
+include_directories(${Boost_INCLUDE_DIRS}) 
 
 set(qttest_SRC  
   #GA:
   GA/Encoding/BinaryEncoding.cpp
   GA/Encoding/PermutationEncoding.cpp
   GA/Breeder.cpp
-  GA/BreederNew.cpp
   GA/Configuration.cpp
   GA/Creature.cpp
-  GA/CreatureNew.cpp
   GA/GA_Random.cpp
   GA/GAThread.cpp
-  GA/GraphBin.cpp
   GA/Item.cpp
   #GUI:
   GUI/mainwindow.cpp
@@ -32,14 +31,14 @@ set(qttest_SRC
 
 # Tell CMake to create the executable
 if (WIN32)
-	set(qttest_SRC ${qttest_SRC} resources/2D_Lego_Packing_Solver.rc)
-	set_source_files_properties(favicon.ico 2D_Lego_Packing_Solver.rc2 PROPERTIES LANGUAGE RC)
+	#set(qttest_SRC ${qttest_SRC} resources/2D_Lego_Packing_Solver.rc)
+	#set_source_files_properties(favicon.ico 2D_Lego_Packing_Solver.rc2 PROPERTIES LANGUAGE RC)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
-		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+		#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	else()
 		add_executable(Pirate_Packing_gui WIN32 ${qttest_SRC} mainGUI.cpp)
-		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+		#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
 	add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)

@@ -10,31 +10,33 @@
 #include <string>
 #include "Encoding/BinaryEncoding.h"
 #include "Encoding/PermutationEncoding.h"
-#include "CreatureNew.h"
+#include "Creature.h"
 
 //------------------------------------------------------------------------------------------
-GAThread::GAThread(int containerWidth, int containerHeight, int nItems, int _guiWidth)
-	:overallMaximumFitness(0), generationMaximumFitness(0), configuration(containerWidth, containerHeight, nItems)
+GAThread::GAThread(Dimensions containerDimensions, int nItems, int _guiWidth)
+	:overallMaximumFitness(0), generationMaximumFitness(0), configuration(containerDimensions, nItems)
 {
 	guiWidth = _guiWidth;
+	
 }
 
 //-----------------------------------------------------------------------------------------------
 // run
 //-----------------------------------------------------------------------------------------------
 void GAThread::run()
-{    
+{
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
 	configuration.Reset();
-    
-    CreatureNew<BinaryEncoding> c1(&configuration);
-    CreatureNew<PermutationEncoding> c2(&configuration);
-    
+
+	Creature<BinaryEncoding> c1(&configuration);
+	Creature<PermutationEncoding> c2(&configuration);
+
 	//Configuration configuration(300, 400, 100); 	//----Init a configuration ---//
-        
+
 	int curX = 0;
 	int curY = 0;
 	int maxY = 0;
+	/*
 	itemsRects.clear();
 	generationsRects.clear();
 	std::cout << "item size :" << configuration.items.size() << "\n";
@@ -55,7 +57,7 @@ void GAThread::run()
 			maxY = tempItems[i].height;
 	}
 	emit itemRectsUpdate(curY + maxY);
-	
+
 	emit GAStarted();
 	HybridGeneticAlgorithm(configuration);     //apply genetic algorithm on this configuration
 	emit GAFinished();
@@ -67,23 +69,23 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
 	overallMaximumFitness = 0;
 	//----Genetic algorithm: first generation ------//
 	std::vector<Creature> population = generateFirstGeneration(configuration);
-	
+
 	//----Genetic algorithm: create multiple  generations
 	for (int gen = 0; gen < numberOfGenerations; gen++)
 	{
 		//start timer
 		std::clock_t start; double duration; start = std::clock();
-	
+
 		//create new population based on the current one
 		population = Breeder::generateNextGeneration(population);
 		selectSurvivors(population);
-	
+
 		//get data from this generation
 		getDataFromGeneration(population, configuration);
-	
+
 		//stop timer
 		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	
+
 		//print data about this generation
 		std::cout << "Gen:" << gen << "\n\t";
 		double avgFittness = (double)(currentGenPopulationFitness / populationSize) / (configuration.container_width * configuration.container_height);
@@ -115,7 +117,7 @@ void GAThread::PrintSolution(Creature& c)
 	const std::vector<Item> items = c.configuration->items;
 	const std::vector<Position> itemPositions =  c.creatureGraphBin.itemsPosition;
 	std::vector<Rect> rects;
-	
+
 	for (int i = 0 ; i < itemPositions.size(); i++)
 	{
 		int itemIndex = c.creatureGraphBin.chromozome[i];
@@ -123,7 +125,7 @@ void GAThread::PrintSolution(Creature& c)
 		int yPos = c.configuration->container_height - itemPositions[i].pos_y;
 		rects.emplace_back(xPos , yPos - items[itemIndex].height, xPos + items[itemIndex].width, yPos, items[itemIndex].color);
 	}
-	
+
 	generationsRects.emplace_back(std::move(rects));
 }
 //-----------------------------------------------------------------------------------------------
@@ -141,8 +143,8 @@ void GAThread::printFinalDataAndSaveResulsts(std::vector<Creature>& population, 
 		int otherSize = a.height*a.width;
 		return (thisSize > otherSize);
 	});
-	
-	
+
+
 	for (int i = 0; i < configuration.numberOfItems; i++)
 	{
 		greedyChromozome.push_back(allItems[i].id);
@@ -194,4 +196,6 @@ void GAThread::selectSurvivors(std::vector<Creature>& population)
 {
 	std::sort(population.begin(),population.end(), [](const Creature& a, const Creature& b){return (a.fitness > b.fitness);});
 	population.erase(population.begin() + populationSize, population.end());
+}
+*/
 }

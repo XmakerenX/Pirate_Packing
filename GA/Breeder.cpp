@@ -7,28 +7,18 @@
 //------------------------------------------------------------------------------------------
 // input: a pair of parents and the population vector
 // output children created by crossovering the parents inserted to the population vector
-void Breeder::mateParents(Creature& parent1, Creature& parent2, std::vector<Creature>& population)
+
+
+/*
+void Breeder::mateParents(Creature& parent1, Creature & parent2, std::vector<Creature>& population)
 {
-	Configuration* conf = parent1.configuration;
-	std::uniform_int_distribution<int> cromozomesIndexes(0, conf->numberOfItems-1);
-	int PMX_StartIndex;
-	int PMX_EndIndex;
-
-	do { 
-		//get the first index
-		PMX_StartIndex = cromozomesIndexes(Random::default_engine.getGenerator());
-		//get the second unique index
-		do
-		{
-			PMX_EndIndex = cromozomesIndexes(Random::default_engine.getGenerator());
-		} while (PMX_EndIndex == PMX_StartIndex);
-	} while ((PMX_EndIndex - PMX_StartIndex) <= (conf->numberOfItems/2));//dont allow too big crossing points
-
-	createChildren(parent1, parent2, PMX_StartIndex, PMX_EndIndex, population);
+	Configuration* conf = parent1.getConfiguration();
+	//todo: mate parents and push the children into the population
 }
 //------------------------------------------------------------------------------------------
 std::vector<Creature> Breeder::generateNextGeneration(std::vector<Creature> &currentPopulation)
 {
+	/*
 	// set the probabilities for each Creature to be chosen
 	std::vector<int> fitness;
 	fitness.reserve(currentPopulation.size());
@@ -167,3 +157,4 @@ void Breeder::mutateChild(Chromozome& chromozome)
 	chromozome[gene_1] = chromozome[gene_2];
 	chromozome[gene_2] = temp;
 }
+*/
