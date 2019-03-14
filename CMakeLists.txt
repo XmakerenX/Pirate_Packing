@@ -10,7 +10,11 @@ set(CMAKE_AUTOUIC ON)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
-find_package(boost)
+if (WIN32)
+    find_package(boost)
+else()
+    find_package(Boost)
+endif(WIN32)
 include_directories(${Boost_INCLUDE_DIRS}) 
 
 set(qttest_SRC  
