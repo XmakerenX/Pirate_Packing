@@ -76,7 +76,6 @@ std::vector<BoxInfo> CreatureNew<Encoding>::getboxesPositions()
 // Force instantiation of BinaryEncoding and PermutationEncoding
 #include "Encoding/BinaryEncoding.h"
 #include "Encoding/PermutationEncoding.h"
-#include "Configuration.h"
 template class CreatureNew<BinaryEncoding>;
 template class CreatureNew<PermutationEncoding>;
 
