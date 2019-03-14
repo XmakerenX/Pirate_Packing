@@ -1,7 +1,7 @@
 #ifndef GUI_UTILS
 #define GUI_UTILS
 #include <QCoreApplication>
-#include <String>
+#include <string>
 
 class GuiUtils
 {

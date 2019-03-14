@@ -47,7 +47,7 @@ struct Rect
 class GAThread : public QThread
 {
 public:
-	GAThread::GAThread(Dimensions containerDimensions, int nItems, int _guiWidth);
+	GAThread(Dimensions containerDimensions, int nItems, int _guiWidth);
 
 	Q_OBJECT
 	void run() override;

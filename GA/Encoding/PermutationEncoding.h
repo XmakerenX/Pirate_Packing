@@ -20,8 +20,8 @@ public:
     Configuration* getConfiguration() const;
     
 private:
-	void PermutationEncoding::initializeCrossOverPoints(int& startPos, int& endPos);
-	PermutationEncoding::PermutationEncoding(Configuration* conf, Chromozome chrom);
+    PermutationEncoding(Configuration* conf, Chromozome chrom);
+	void initializeCrossOverPoints(int& startPos, int& endPos);
 	void createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
 						   Chromozome parent1_chromozome, Chromozome parent2_chromozome);
 	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap);
