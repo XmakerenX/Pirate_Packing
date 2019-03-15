@@ -226,7 +226,9 @@ void BinaryCreature::mutate(float mutationChance)
     std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
     
-    for (int i = 0; i < chromozome.size(); i++)
+	unsigned int choromozomeSize = chromozome.size();
+   
+	for (int i = 0; i <choromozomeSize; i++)
     {
         if (mutateDist(Random::default_engine.getGenerator()) == 0)
             chromozome.flip(i);
