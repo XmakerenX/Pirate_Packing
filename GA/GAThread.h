@@ -13,6 +13,9 @@
 #include "Breeder.h"
 #include "GA_Random.h"
 #include "../includes/structs.h"
+#include "Encoding/BinaryEncoding.h"
+#include "Encoding/PermutationEncoding.h"
+#include "Creature.h"
 //-----------------------------------------------------------------------------------------------
 // Structures
 //-----------------------------------------------------------------------------------------------
@@ -70,12 +73,12 @@ signals:
 	void GAFinished();
 
 private:
-	/*void PrintSolution(Creature& c);
-	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
-	void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
-	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<Creature>& population);
-	*/
+	void PrintSolution(BinaryEncoding& c);
+	std::vector<BinaryEncoding> generateFirstGeneration(Configuration& configuration);
+	void printFinalDataAndSaveResulsts(std::vector<BinaryEncoding>& population, Configuration& configuration);
+	void getDataFromGeneration(std::vector<BinaryEncoding>& population, Configuration& configuration);
+	void selectSurvivors(std::vector<BinaryEncoding>& population);
+
 	void HybridGeneticAlgorithm(Configuration& configuration);
 	Configuration configuration;
 	int overallMaximumFitness;
