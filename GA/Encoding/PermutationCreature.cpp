@@ -22,11 +22,30 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
 }
+//----------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance)
 {
-    
-}
+	std::vector<float> mutateVec = { mutationChance, 1 - mutationChance };
+	std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
 
+	if (mutateDist(Random::default_engine.getGenerator()) == 0)
+	{
+		std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
+		int index1, index2;
+		//get the first index
+		index1 = IndexeshDist(Random::default_engine.getGenerator());
+
+		//get the second unique index
+		do { index2 = IndexeshDist(Random::default_engine.getGenerator()); } while (index1 == index2);
+
+		//switch between the indexes
+		int temp = this->chromozome[index1];
+		this->chromozome[index1] = this->chromozome[index2];
+		this->chromozome[index2] = temp;
+	}
+
+}
+//----------------------------------------------------------------------------
 void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature> population)
 {
 	//genereate crossing points
@@ -49,8 +68,7 @@ void PermutationCreature::crossover(PermutationCreature parent2, std::vector<Per
 //------------------------------------------------------------------
 void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 {
-	Configuration* conf = this->configuration;
-	std::uniform_int_distribution<int> cromozomesIndexes(0, conf->numberOfItems - 1);
+	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration ->numberOfItems - 1);
 	int PMX_StartIndex, PMX_EndIndex;
 	do {
 		//get the first index
@@ -60,7 +78,7 @@ void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 		{
 			PMX_EndIndex = cromozomesIndexes(Random::default_engine.getGenerator());
 		} while (PMX_EndIndex == PMX_StartIndex);
-	} while ((PMX_EndIndex - PMX_StartIndex) >= (conf->numberOfItems / 2));//dont allow too big crossing points   
+	} while ((PMX_EndIndex - PMX_StartIndex) >= (this->configuration->numberOfItems / 2));//dont allow too big crossing points   
 	
 	startPos = std::min(PMX_StartIndex, PMX_EndIndex);
 	endPos = std::max(PMX_StartIndex, PMX_EndIndex);
@@ -147,7 +165,7 @@ Configuration* PermutationCreature::getConfiguration() const
 //-----------------------------------------------------------------------------------------------
 void PermutationCreature::setFitness(int newFitness)
 {
-    fitness = newFitness;
+    this->fitness = newFitness;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -156,5 +174,5 @@ void PermutationCreature::setFitness(int newFitness)
 //-----------------------------------------------------------------------------------------------
 int PermutationCreature::getFitness() const
 {
-    return fitness;
+    return this->fitness;
 }
