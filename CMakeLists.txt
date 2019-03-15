@@ -48,13 +48,10 @@ if (WIN32)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
 	add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
-	add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+	#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
-target_link_libraries(Pirate_Packing_console Qt5::Widgets)
-# Copy resources folder to the build folder
-add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:Pirate_Packing_gui>/resources)
+#target_link_libraries(Pirate_Packing_console Qt5::Widgets)
+ 
