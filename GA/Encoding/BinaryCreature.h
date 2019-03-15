@@ -55,7 +55,7 @@ public:
     BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
     
     void mutate(float mutationChance);
-    void crossover(BinaryCreature parent2, std::vector<BinaryCreature> population);
+    void crossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;

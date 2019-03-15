@@ -18,6 +18,8 @@ BinaryCreature::BinaryCreature(Configuration* conf)
     // Binary string will look like this : 1 333 XXXX XXXX XXXX
     long unsigned int totalBitsNum = configuration->items.size()*4 + 3 * configuration->items.size() * coordinateBits;
     chromozome = generateChromosome(totalBitsNum);
+    repairChromosome();
+    calculateFittness();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -233,6 +235,7 @@ void BinaryCreature::mutate(float mutationChance)
         if (mutateDist(Random::default_engine.getGenerator()) == 0)
             chromozome.flip(i);
     }
+    repairChromosome();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -241,7 +244,7 @@ void BinaryCreature::mutate(float mutationChance)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreature> population)
+void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
 {
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
@@ -361,7 +364,7 @@ int BinaryCreature::calculateFittness()
     if (!overlapped)
         fitness = value*0.5 + positionScore*0.5;
     else
-        fitness =  positionScore;
+        fitness =  overlappedVolume*0.5 + positionScore*0.5;
     
     return fitness;
 }
@@ -374,7 +377,59 @@ int BinaryCreature::calculateFittness()
 //-----------------------------------------------------------------------------------------------
 std::vector<BoxInfo> BinaryCreature::getBoxPositions()
 {
-    return std::vector<BoxInfo>();
+    // get how many bits are used to hold the coordinate number
+    long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
+    long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
+    long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
+    
+    long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
+    itemMaskValue--;
+    DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
+    
+    std::vector<BoxInfo> itemInfo;
+    std::vector<Item>& items = configuration->items;
+    int value = 0;
+    for (int i = 0; i < configuration->items.size(); i++)
+    {
+        // get the item bits 
+        DynamicBitSet itemValues = chromozome & itemMask;
+        // shift them to lower parts of the bit string
+        itemValues = itemValues >> bitsPerItem * i;
+        if (itemValues[3 + 3 * coordinateBits] == 1)
+        {
+            value += items[i].value;
+            // get the X,Y,Z coordinates
+            long unsigned int zMaskValue = std::pow(2, coordinateBits);
+            zMaskValue--;
+            DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
+            long unsigned int z = (itemValues & zMask).to_ulong();
+            DynamicBitSet yMask = zMask << coordinateBits;
+            long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
+            DynamicBitSet xMask = yMask << coordinateBits;
+            long unsigned int x = ((itemValues & xMask) >> coordinateBits*2).to_ulong();
+            // get Item Dimension
+            long unsigned int itemWidth =items[i].dim.w;
+            long unsigned int itemHeight = items[i].dim.h;
+            long unsigned int itemDepth = items[i].dim.d;
+            
+            DynamicBitSet seven(itemValues.size(), 7);
+            DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
+            int orientaion = orientationBits.to_ulong();
+            adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
+            itemInfo.emplace_back(QPoint3D(x,y,z),
+                                  RGB(items[i].color.r / 256.0f,
+                                      items[i].color.g / 256.0f,
+                                      items[i].color.b / 256.0f),
+                                  itemWidth,
+                                  itemHeight,
+                                  itemDepth);
+        }
+               
+        itemMask = itemMask << bitsPerItem;
+    }
+    
+    return itemInfo;
 }
 
 //-----------------------------------------------------------------------------------------------
