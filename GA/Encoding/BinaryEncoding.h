@@ -56,15 +56,18 @@ public:
     BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozome);
     
     void mutate(float mutationChance);
-    void crossover(BinaryEncoding parent2, std::vector<Creature<BinaryEncoding>> population);
+    void crossover(BinaryEncoding parent2, std::vector<BinaryEncoding> population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
+    void setFitness(int newFitness);
+    int getFitness() const;
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
     void repairChromosome();
     void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
     
+    int fitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;

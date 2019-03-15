@@ -27,7 +27,7 @@ void PermutationEncoding::mutate(float mutationChance)
     
 }
 
-void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<Creature<PermutationEncoding>> population)
+void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<PermutationEncoding> population)
 {
 	//genereate crossing points
 	int PMX_StartIndex ,  PMX_EndIndex;
@@ -42,8 +42,9 @@ void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<Cre
 	createTwoChildren(child1Chromozome, child2Chromozome, PMX_StartIndex, PMX_EndIndex,
 						this->chromozome, parent2.chromozome);
 
-    population.emplace_back(PermutationEncoding(this->configuration, child1Chromozome), configuration);
-    population.emplace_back(PermutationEncoding(this->configuration, child2Chromozome), configuration);
+    
+    population.emplace_back(this->configuration, child1Chromozome);
+    population.emplace_back(this->configuration, child2Chromozome);
 }
 //------------------------------------------------------------------
 void PermutationEncoding::initializeCrossOverPoints(int& startPos, int& endPos)
@@ -125,7 +126,8 @@ int PermutationEncoding::swapRepetition(std::unordered_map<int, int>& hash, int 
 //---------------------------------------------
 int PermutationEncoding::calculateFittness()
 {
-    return 0;
+    fitness = 0;
+    return fitness;
 }
 
 std::vector<BoxInfo> PermutationEncoding::getBoxPositions()
@@ -139,3 +141,20 @@ Configuration* PermutationEncoding::getConfiguration() const
     return this->configuration;
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name : setFitness
+// sets the value of the fitness
+//-----------------------------------------------------------------------------------------------
+void PermutationEncoding::setFitness(int newFitness)
+{
+    fitness = newFitness;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : getFitness
+// Action: return the fitness of this encdoing
+//-----------------------------------------------------------------------------------------------
+int PermutationEncoding::getFitness() const
+{
+    return fitness;
+}

@@ -7,20 +7,20 @@
 
 //------------------------------------------------------------------------------------------
 template <class encoding>
-std::vector<Creature<encoding>> Breeder<encoding>::generateNextGeneration(std::vector<Creature<encoding>> &currentPopulation)
+std::vector<encoding> Breeder<encoding>::generateNextGeneration(std::vector<encoding>&currentPopulation)
 {
     float mutationChance = 0.2;
     int min = std::numeric_limits<int>::max();
     for (int i = 0; i < currentPopulation.size(); i++)
     {
-        if (currentPopulation[i].fitness < min)
-            min = currentPopulation[i].fitness;
+        if (currentPopulation[i].getFitness() < min)
+            min = currentPopulation[i].getFitness();
     }
     
     if (min < 0)
     {
         for (int i = 0; i < currentPopulation.size(); i++)
-            currentPopulation[i].fitness -= (min + 1);
+            currentPopulation[i].setFitness(currentPopulation[i].getFitness() - (min + 1));
     }
     
 	// set the probabilities for each Creature to be chosen
@@ -28,12 +28,12 @@ std::vector<Creature<encoding>> Breeder<encoding>::generateNextGeneration(std::v
 	fitness.reserve(currentPopulation.size());
 	for (unsigned int i = 0; i < currentPopulation.size(); i++)
 	{
-		fitness.push_back(currentPopulation[i].fitness);
+		fitness.push_back(currentPopulation[i].getFitness());
 	}
 	// roulette will choose random pop based on the probabilities vector 
 	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
 	
-	std::vector<Creature<encoding>> newPopulation;
+	std::vector<encoding> newPopulation;
 	int currentPopulationSize = currentPopulation.size();
 	newPopulation.reserve(currentPopulationSize*2);
 	
@@ -44,16 +44,23 @@ std::vector<Creature<encoding>> Breeder<encoding>::generateNextGeneration(std::v
 		do { parent2Index = roulette(Random::default_engine.getGenerator()); }
 		while (parent2Index == parent1Index);
 		            
-        currentPopulation[parent1Index].mate(currentPopulation[parent2Index], newPopulation);
+        currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation);
         newPopulation[newPopulation.size() - 1].mutate(mutationChance);
-        newPopulation[newPopulation.size() - 1].updateFitness();
+        newPopulation[newPopulation.size() - 1].calculateFittness();
         newPopulation[newPopulation.size() - 2].mutate(mutationChance);
-        newPopulation[newPopulation.size() - 2].updateFitness();
+        newPopulation[newPopulation.size() - 2].calculateFittness();
 	}
 	
-    std::sort(currentPopulation.begin(),currentPopulation.end(), [](const Creature<encoding>& a, const Creature<encoding>& b){return (a.fitness > b.fitness);});
+    std::sort(currentPopulation.begin(),currentPopulation.end(), [](const encoding& a, const encoding& b){return (a.getFitness() > b.getFitness());});
 	for (int i = 0; i < 5; i++)
 		newPopulation.push_back(currentPopulation[i]);
 	        
 	return newPopulation;
 }
+
+//------------------------------------------------------------------------------------
+// Force instantiation of BinaryEncoding and PermutationEncoding
+#include "Encoding/BinaryEncoding.h"
+#include "Encoding/PermutationEncoding.h"
+template class Breeder<BinaryEncoding>;
+template class Breeder<PermutationEncoding>;

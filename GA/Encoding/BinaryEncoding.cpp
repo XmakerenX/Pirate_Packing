@@ -239,7 +239,7 @@ void BinaryEncoding::mutate(float mutationChance)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<Creature<BinaryEncoding>> population)
+void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<BinaryEncoding> population)
 {
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
@@ -265,12 +265,8 @@ void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<Creature<Bina
     chromozomeY = parent1 & mask;                           // bottom part
     DynamicBitSet child2 = chromozomeX | chromozomeY;
     
-    population.emplace_back(BinaryEncoding(configuration, child), configuration);
-    population.emplace_back(BinaryEncoding(configuration, child2), configuration);
-    
-    std::vector<BinaryEncoding> children;
-    children.emplace_back(configuration, child);
-    children.emplace_back(configuration, child2);
+    population.emplace_back(configuration, child);
+    population.emplace_back(configuration, child2);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -296,7 +292,7 @@ int BinaryEncoding::calculateFittness()
     DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
     
     std::vector<Box> itemBoxes;
-    int fitness = 0;
+    int value = 0;
     for (int i = 0; i < configuration->items.size(); i++)
     {
         // get the item bits 
@@ -305,7 +301,7 @@ int BinaryEncoding::calculateFittness()
         itemValues = itemValues >> bitsPerItem * i;
         if (itemValues[3 + 3 * coordinateBits] == 1)
         {
-            fitness += configuration->items[i].value;
+            value += configuration->items[i].value;
             // get the X,Y,Z coordinates
             long unsigned int zMaskValue = std::pow(2, coordinateBits);
             zMaskValue--;
@@ -361,9 +357,11 @@ int BinaryEncoding::calculateFittness()
     }
     
     if (!overlapped)
-        return fitness*0.5 + positionScore*0.5;
+        fitness = value*0.5 + positionScore*0.5;
     else
-        return positionScore;
+        fitness =  positionScore;
+    
+    return fitness;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -386,3 +384,20 @@ Configuration* BinaryEncoding::getConfiguration() const
     return this->configuration;
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name : setFitness
+// sets the value of the fitness
+//-----------------------------------------------------------------------------------------------
+void BinaryEncoding::setFitness(int newFitness)
+{
+    fitness = newFitness;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : getFitness
+// Action: return the fitness of this encdoing
+//-----------------------------------------------------------------------------------------------
+int BinaryEncoding::getFitness() const
+{
+    return fitness;
+}
