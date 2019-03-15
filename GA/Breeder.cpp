@@ -1,13 +1,7 @@
 #include "Breeder.h"
-#include "GA_Random.h"
-#include <algorithm>    
 #include <iostream>
 #include <random>
-#include <vector>
-#include <numeric>
-#include <set>
-#include <algorithm>
-#include <limits>
+
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
