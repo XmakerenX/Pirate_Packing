@@ -1,10 +1,7 @@
 #include "Breeder.h"
-#include <numeric>
-#include <set>
-#include <algorithm>
-#include <limits>
-#include "GA_Random.h"
-#include <algorithm>    
+#include <iostream>
+#include <random>
+
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
@@ -15,8 +12,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	
 	//create roulette wheel to choose parents
 	roulette = createSelectionRoulette(currentPopulation,fitness);	//Note: the Probabilities for each Creature to be chosen in the
-																	//roulette are chsoen in corelation with his fittness
-
+																//roulette are chsoen in corelation with his fittness
 	//create next generation population
 	std::vector<Creature> newPopulation;
 	createNextGenerationPopulation(currentPopulation, roulette, newPopulation);
@@ -25,8 +21,9 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	return newPopulation;
 }
 //------------------------------------------------------------------------------------
+
 template <class Creature>
-std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::vector<Creature>&currentPopulation, std::vector<int>& fitness)
+std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::vector<Creature>& currentPopulation, std::vector<int>& fitness)
 {
 	//normalize populationFittnesses
 	normalizePopulationFittnesses(currentPopulation);
@@ -34,14 +31,15 @@ std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::
 	fitness.reserve(currentPopulation.size());
 	for (Creature& creature : currentPopulation)
 	{
-		fitness.push_back(currentPopulation[i].getFitness());
+		fitness.push_back(creature.getFitness());
 	}
 	// roulette will choose random pop based on the probabilities vector 
-	return std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
+	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
+	return roulette;
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>&currentPopulation)
+void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
 {
 	int min = std::numeric_limits<int>::max();
 	//get minimum fittness in population
@@ -58,9 +56,9 @@ void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>&curr
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::createNextGenerationPopulation(std::vector<Creature>&currentPopulation,
-													   std::discrete_distribution<int>& roulette,
-													   std::vector<Creature>&newPopulation){
+void Breeder<Creature>::createNextGenerationPopulation(std::vector<Creature>& currentPopulation, std::discrete_distribution<int>& roulette,
+	std::vector<Creature>& newPopulation)
+{
 	float mutationChance = 0.2;
 	int currentPopulationSize = currentPopulation.size();
 	newPopulation.reserve(currentPopulationSize * 2);

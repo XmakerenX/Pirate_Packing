@@ -15,6 +15,7 @@ if (WIN32)
 else()
     find_package(Boost)
 endif(WIN32)
+
 include_directories(${Boost_INCLUDE_DIRS}) 
 
 set(qttest_SRC  
@@ -54,4 +55,7 @@ endif(WIN32)
 # Use the Widgets module from Qt 5.
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
 #target_link_libraries(Pirate_Packing_console Qt5::Widgets)
- 
+# Copy resources folder to the build folder
+add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:Pirate_Packing_gui>/resources)
