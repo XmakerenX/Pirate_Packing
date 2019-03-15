@@ -1,9 +1,8 @@
 #pragma once
 #include <vector>
-#include "Creature.h"
-template <class encoding>
+template <class Creature>
 class Breeder
 {
 public:
-	static std::vector<encoding> generateNextGeneration(std::vector<encoding>&currentPopulation);
+	static std::vector<Creature> generateNextGeneration(std::vector<Creature>&currentPopulation);
 };

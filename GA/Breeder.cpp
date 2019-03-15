@@ -6,8 +6,8 @@
 #include "GA_Random.h"
 
 //------------------------------------------------------------------------------------------
-template <class encoding>
-std::vector<encoding> Breeder<encoding>::generateNextGeneration(std::vector<encoding>&currentPopulation)
+template <class Creature>
+std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation)
 {
     float mutationChance = 0.2;
     int min = std::numeric_limits<int>::max();
@@ -33,7 +33,7 @@ std::vector<encoding> Breeder<encoding>::generateNextGeneration(std::vector<enco
 	// roulette will choose random pop based on the probabilities vector 
 	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
 	
-	std::vector<encoding> newPopulation;
+	std::vector<Creature> newPopulation;
 	int currentPopulationSize = currentPopulation.size();
 	newPopulation.reserve(currentPopulationSize*2);
 	
@@ -51,7 +51,7 @@ std::vector<encoding> Breeder<encoding>::generateNextGeneration(std::vector<enco
         newPopulation[newPopulation.size() - 2].calculateFittness();
 	}
 	
-    std::sort(currentPopulation.begin(),currentPopulation.end(), [](const encoding& a, const encoding& b){return (a.getFitness() > b.getFitness());});
+    std::sort(currentPopulation.begin(),currentPopulation.end(), [](const Creature& a, const Creature& b){return (a.getFitness() > b.getFitness());});
 	for (int i = 0; i < 5; i++)
 		newPopulation.push_back(currentPopulation[i]);
 	        
@@ -59,8 +59,8 @@ std::vector<encoding> Breeder<encoding>::generateNextGeneration(std::vector<enco
 }
 
 //------------------------------------------------------------------------------------
-// Force instantiation of BinaryEncoding and PermutationEncoding
-#include "Encoding/BinaryEncoding.h"
-#include "Encoding/PermutationEncoding.h"
-template class Breeder<BinaryEncoding>;
-template class Breeder<PermutationEncoding>;
+// Force instantiation of BinaryCreature and PermutationCreature
+#include "Encoding/BinaryCreature.h"
+#include "Encoding/PermutationCreature.h"
+template class Breeder<BinaryCreature>;
+template class Breeder<PermutationCreature>;

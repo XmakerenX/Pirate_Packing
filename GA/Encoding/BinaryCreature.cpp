@@ -1,12 +1,12 @@
-#include "BinaryEncoding.h"
+#include "BinaryCreature.h"
 
 //-----------------------------------------------------------------------------------------------
-// Name : BinaryEncoding
+// Name : BinaryCreature
 // Input: Configuration of the problem 
 // Output: A random Binary encdoing for a solution for the problem
 // Action: Creates a random Binary encdoing for a solution for the given problem
 //-----------------------------------------------------------------------------------------------
-BinaryEncoding::BinaryEncoding(Configuration* conf)
+BinaryCreature::BinaryCreature(Configuration* conf)
     :configuration(conf)
 {
     long unsigned int maxDimensionValue = std::max(conf->dim.w, conf->dim.h);
@@ -21,26 +21,26 @@ BinaryEncoding::BinaryEncoding(Configuration* conf)
 }
 
 //-----------------------------------------------------------------------------------------------
-// Name : BinaryEncoding
+// Name : BinaryCreature
 // Input: Configuration of the problem and the encdoing chromozome
 // Output: Binary encdoing built with the given chromozome
 // Action:  Creates a Binary encdoing with the given chromozome
 // * copies the _chromozome
 //-----------------------------------------------------------------------------------------------
-BinaryEncoding::BinaryEncoding(Configuration* config, const DynamicBitSet& _chromozome)
+BinaryCreature::BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome)
     :chromozome(_chromozome), configuration(config)
 {
     
 }
 
 //-----------------------------------------------------------------------------------------------
-// Name : BinaryEncoding
+// Name : BinaryCreature
 // Input: Configuration of the problem and the encdoing chromozome
 // Output: Binary encdoing built with the given chromozome
 // Action:  Creates a Binary encdoing with the given chromozome
 // * moves the _chromozome
 //-----------------------------------------------------------------------------------------------
-BinaryEncoding::BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozome)
+BinaryCreature::BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome)
     :chromozome(std::move(_chromozome)), configuration(config)
 {
     
@@ -52,7 +52,7 @@ BinaryEncoding::BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozom
 // Output: A random DynamicBitSet of size totalBitsNum
 // Action: Creates a random DynamicBitSet with size totalBitsNum
 //-----------------------------------------------------------------------------------------------
-DynamicBitSet BinaryEncoding::generateChromosome(long unsigned int totalBitsNum)
+DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
 {
     // get max value of long unsigned int
     long unsigned int  maxNum = 0;
@@ -97,7 +97,7 @@ DynamicBitSet BinaryEncoding::generateChromosome(long unsigned int totalBitsNum)
 // Action: checks for invalid values in chromozome amd fixes them
 // * invalid values are X,Y,Z that puts the item outside the container
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::repairChromosome()
+void BinaryCreature::repairChromosome()
 {
     
     // get how many bits are used to hold the coordinate number
@@ -181,7 +181,7 @@ void BinaryEncoding::repairChromosome()
 // Output: width,height and depth swapped according to item orientaion
 // Action: swaps width,height and depth based on the orientation value
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth)
+void BinaryCreature::adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth)
 {
     switch(orientation)
     {
@@ -221,7 +221,7 @@ void BinaryEncoding::adjustDimensionsToOrientation(int orientation, long unsigne
 // Output: the this chromozome is mutated
 // Action: mutate the chromozome based on the chance of  mutationChance per bit to flip
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::mutate(float mutationChance)
+void BinaryCreature::mutate(float mutationChance)
 {
     std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
@@ -235,11 +235,11 @@ void BinaryEncoding::mutate(float mutationChance)
 
 //-----------------------------------------------------------------------------------------------
 // Name : crossover
-// Input: BinaryEncoding to make the corssover with
+// Input: BinaryCreature to make the corssover with
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<BinaryEncoding> population)
+void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreature> population)
 {
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
@@ -279,7 +279,7 @@ void BinaryEncoding::crossover(BinaryEncoding parent2, std::vector<BinaryEncodin
 //         positionScore is made out of how much overlaping volume there was and how well
 //         positioned are the boxes
 //-----------------------------------------------------------------------------------------------
-int BinaryEncoding::calculateFittness()
+int BinaryCreature::calculateFittness()
 {
     // get how many bits are used to hold the coordinate number
     long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
@@ -370,7 +370,7 @@ int BinaryEncoding::calculateFittness()
 // Output: vector of the positions of the boxes inside the container
 // Action: Decode the encdoing and returns where are the boxes inside the container
 //-----------------------------------------------------------------------------------------------
-std::vector<BoxInfo> BinaryEncoding::getBoxPositions()
+std::vector<BoxInfo> BinaryCreature::getBoxPositions()
 {
     return std::vector<BoxInfo>();
 }
@@ -379,7 +379,7 @@ std::vector<BoxInfo> BinaryEncoding::getBoxPositions()
 // Name : getConfiguration
 // Action: return the configuration used in this encdoing
 //-----------------------------------------------------------------------------------------------
-Configuration* BinaryEncoding::getConfiguration() const
+Configuration* BinaryCreature::getConfiguration() const
 {
     return this->configuration;
 }
@@ -388,7 +388,7 @@ Configuration* BinaryEncoding::getConfiguration() const
 // Name : setFitness
 // sets the value of the fitness
 //-----------------------------------------------------------------------------------------------
-void BinaryEncoding::setFitness(int newFitness)
+void BinaryCreature::setFitness(int newFitness)
 {
     fitness = newFitness;
 }
@@ -397,7 +397,7 @@ void BinaryEncoding::setFitness(int newFitness)
 // Name : getFitness
 // Action: return the fitness of this encdoing
 //-----------------------------------------------------------------------------------------------
-int BinaryEncoding::getFitness() const
+int BinaryCreature::getFitness() const
 {
     return fitness;
 }

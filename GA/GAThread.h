@@ -4,18 +4,15 @@
 #include <iostream>
 #include <QThread>
 #include <cmath>
-
 #include <chrono>
 #include <random>
 
-#include "Configuration.h"
-#include "Creature.h"
-#include "Breeder.h"
-#include "GA_Random.h"
 #include "../includes/structs.h"
-#include "Encoding/BinaryEncoding.h"
-#include "Encoding/PermutationEncoding.h"
-#include "Creature.h"
+#include "GA_Random.h"
+#include "Configuration.h"
+#include "Breeder.h"
+#include "Encoding/BinaryCreature.h"
+#include "Encoding/PermutationCreature.h"
 //-----------------------------------------------------------------------------------------------
 // Structures
 //-----------------------------------------------------------------------------------------------
@@ -73,11 +70,11 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(BinaryEncoding& c);
-	std::vector<BinaryEncoding> generateFirstGeneration(Configuration& configuration);
-	void printFinalDataAndSaveResulsts(std::vector<BinaryEncoding>& population, Configuration& configuration);
-	void getDataFromGeneration(std::vector<BinaryEncoding>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<BinaryEncoding>& population);
+	void PrintSolution(BinaryCreature& c);
+	std::vector<BinaryCreature> generateFirstGeneration(Configuration& configuration);
+	void printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& population, Configuration& configuration);
+	void getDataFromGeneration(std::vector<BinaryCreature>& population, Configuration& configuration);
+	void selectSurvivors(std::vector<BinaryCreature>& population);
 
 	void HybridGeneticAlgorithm(Configuration& configuration);
 	Configuration configuration;

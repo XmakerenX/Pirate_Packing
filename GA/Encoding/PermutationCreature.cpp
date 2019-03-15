@@ -1,11 +1,11 @@
-#include "PermutationEncoding.h"
+#include "PermutationCreature.h"
 #include <algorithm>    //for std::max
 #include <string>
 
 //input:  Configuration
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
-PermutationEncoding::PermutationEncoding(Configuration* conf)
+PermutationCreature::PermutationCreature(Configuration* conf)
     :configuration(conf)
 {
 	chromozome.reserve(conf->numberOfItems);
@@ -16,18 +16,18 @@ PermutationEncoding::PermutationEncoding(Configuration* conf)
 //input:  Configuration,  chromozome vector
 //output: A new encoding based on the given chromozome
 //action: Creates a random encoding based on the configuration
-PermutationEncoding::PermutationEncoding(Configuration* conf, Chromozome chrom)
+PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	:configuration(conf)
 {
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
 }
-void PermutationEncoding::mutate(float mutationChance)
+void PermutationCreature::mutate(float mutationChance)
 {
     
 }
 
-void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<PermutationEncoding> population)
+void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature> population)
 {
 	//genereate crossing points
 	int PMX_StartIndex ,  PMX_EndIndex;
@@ -47,7 +47,7 @@ void PermutationEncoding::crossover(PermutationEncoding parent2, std::vector<Per
     population.emplace_back(this->configuration, child2Chromozome);
 }
 //------------------------------------------------------------------
-void PermutationEncoding::initializeCrossOverPoints(int& startPos, int& endPos)
+void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 {
 	Configuration* conf = this->configuration;
 	std::uniform_int_distribution<int> cromozomesIndexes(0, conf->numberOfItems - 1);
@@ -66,7 +66,7 @@ void PermutationEncoding::initializeCrossOverPoints(int& startPos, int& endPos)
 	endPos = std::max(PMX_StartIndex, PMX_EndIndex);
 }
 //--------------------------------------------------------------------------------------------------
-void PermutationEncoding::createTwoChildren(Chromozome& child1, Chromozome& child2,int min,int max,
+void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2,int min,int max,
 					   Chromozome parent1_chromozome, Chromozome parent2_chromozome)
 {
 
@@ -113,7 +113,7 @@ void PermutationEncoding::createTwoChildren(Chromozome& child1, Chromozome& chil
 	}
 }
 //---------------------------------------------
-int PermutationEncoding::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
+int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
 {
 	int newValue = hash[valueToSwap];
 	// make sure new value not needed to swaped as well
@@ -124,19 +124,19 @@ int PermutationEncoding::swapRepetition(std::unordered_map<int, int>& hash, int 
 	return newValue;
 }
 //---------------------------------------------
-int PermutationEncoding::calculateFittness()
+int PermutationCreature::calculateFittness()
 {
     fitness = 0;
     return fitness;
 }
 
-std::vector<BoxInfo> PermutationEncoding::getBoxPositions()
+std::vector<BoxInfo> PermutationCreature::getBoxPositions()
 {
     return std::vector<BoxInfo>();
 }
 
 
-Configuration* PermutationEncoding::getConfiguration() const
+Configuration* PermutationCreature::getConfiguration() const
 {
     return this->configuration;
 }
@@ -145,7 +145,7 @@ Configuration* PermutationEncoding::getConfiguration() const
 // Name : setFitness
 // sets the value of the fitness
 //-----------------------------------------------------------------------------------------------
-void PermutationEncoding::setFitness(int newFitness)
+void PermutationCreature::setFitness(int newFitness)
 {
     fitness = newFitness;
 }
@@ -154,7 +154,7 @@ void PermutationEncoding::setFitness(int newFitness)
 // Name : getFitness
 // Action: return the fitness of this encdoing
 //-----------------------------------------------------------------------------------------------
-int PermutationEncoding::getFitness() const
+int PermutationCreature::getFitness() const
 {
     return fitness;
 }

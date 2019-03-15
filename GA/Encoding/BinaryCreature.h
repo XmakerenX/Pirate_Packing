@@ -8,7 +8,6 @@
 #include "../../includes/structs.h"
 #include "../GA_Random.h"
 #include "../Configuration.h"
-#include "../Creature.h"
 
 typedef boost::dynamic_bitset<> DynamicBitSet;
 
@@ -48,15 +47,15 @@ struct Box
     long unsigned int front;
 };
 
-class BinaryEncoding 
+class BinaryCreature 
 {
 public:
-    BinaryEncoding(Configuration* config);
-    BinaryEncoding(Configuration* config, const DynamicBitSet& _chromozome);
-    BinaryEncoding(Configuration* config, DynamicBitSet&& _chromozome);
+    BinaryCreature(Configuration* config);
+    BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome);
+    BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
     
     void mutate(float mutationChance);
-    void crossover(BinaryEncoding parent2, std::vector<BinaryEncoding> population);
+    void crossover(BinaryCreature parent2, std::vector<BinaryCreature> population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
