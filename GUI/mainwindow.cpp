@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	//Init UI:
 	ui->setupUi(this);
-	delete ui->mainToolBar; // get rid of the useless tool bar
-
 
 	//Set icon:
 	std::string iconPath = GuiUtils::getFullPath("favicon.ico");
@@ -25,6 +23,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	std::string logoPath =  GuiUtils::getFullPath("PiratePackingLogo.png");
 	ui->logo_image->setPixmap(QPixmap(logoPath.c_str()));
 	ui->logo_image->setScaledContents(true);
+    
+    viewer = new SolutionViewer(ui->page_2);
+    viewer->setGeometry(QRect(210,130, 320, 240));
+    
+    // enable anit-aliasing so boxes will look less shit
+    QSurfaceFormat format;
+    format.setSamples(4);
+    viewer->setFormat(format);
+    
+    viewer->show();
 
 }
 //------------------------------------------------------------------------------------
@@ -43,7 +51,12 @@ void MainWindow::on_pushButton_2_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_3_clicked()
 {
-	//sol = new solution_viewer_window(this);
-	//sol->show();
-	//this->hide();
+    std::cout << "on_pushButton_3_clicked\n";
+    QStackedWidget* stackedWidget = this->centralWidget()->findChild<QStackedWidget*>("stackedWidget");
+    stackedWidget->setCurrentIndex(1);
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_startButton_clicked()
+{
+    std::cout << "start button clicked\n";
 }

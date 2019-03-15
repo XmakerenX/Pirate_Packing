@@ -27,6 +27,9 @@ set(qttest_SRC
   GA/GAThread.cpp
   GA/Item.cpp
   #GUI:
+  GUI/OpenGL/Mesh.cpp
+  GUI/OpenGL/Object.cpp
+  GUI/OpenGL/Solutionviewer.cpp
   GUI/mainwindow.cpp
   #Include:
   includes/stdafx.cpp
