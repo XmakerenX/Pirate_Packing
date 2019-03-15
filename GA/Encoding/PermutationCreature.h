@@ -14,7 +14,7 @@ public:
     PermutationCreature(Configuration* config);
     PermutationCreature(Configuration* conf, Chromozome chrom);
     void mutate(float mutationChance);
-	void crossover(PermutationCreature parent2, std::vector<PermutationCreature> population);
+	void crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;

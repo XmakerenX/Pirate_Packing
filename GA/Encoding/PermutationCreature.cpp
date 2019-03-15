@@ -46,7 +46,7 @@ void PermutationCreature::mutate(float mutationChance)
 
 }
 //----------------------------------------------------------------------------
-void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature> population)
+void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population)
 {
 	//genereate crossing points
 	int PMX_StartIndex ,  PMX_EndIndex;
