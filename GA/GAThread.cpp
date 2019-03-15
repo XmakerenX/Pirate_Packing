@@ -9,10 +9,9 @@
 #include <string>
 
 //------------------------------------------------------------------------------------------
-GAThread::GAThread(Dimensions containerDimensions, int nItems, int _guiWidth)
+GAThread::GAThread(Dimensions containerDimensions, int nItems)
 	:configuration(containerDimensions, nItems), overallMaximumFitness(0), generationMaximumFitness(0)
 {
-	guiWidth = _guiWidth;
 	
 }
 
@@ -70,7 +69,8 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
  		}
  		PrintSolution(population[maxI]);
  		//double areaCovered = (double)generationMaximumFitness / (configuration.container_width * configuration.container_height);
- 		//emit rectsReady(generationsRects.size() - 1, generationMaximumFitness, areaCovered, currentGenPopulationFitness);
+ 		//emit boxesReady(generationBoxes[generationBoxes.size() - 1]);
+        emit boxesReady(this ,generationBoxes.size() - 1);
  	}
  	//----------------------------------------------------------------------------------------------------------------------------------
  
@@ -80,19 +80,8 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
 //-----------------------------------------------------------------------------------------------
 void GAThread::PrintSolution(BinaryCreature& c)
 {
-// 	const std::vector<Item> items = c.configuration->items;
-// 	const std::vector<Position> itemPositions =  c.creatureGraphBin.itemsPosition;
-// 	std::vector<Rect> rects;
-// 
-// 	for (int i = 0 ; i < itemPositions.size(); i++)
-// 	{
-// 		int itemIndex = c.creatureGraphBin.chromozome[i];
-// 		int xPos = itemPositions[i].pos_x;
-// 		int yPos = c.configuration->container_height - itemPositions[i].pos_y;
-// 		rects.emplace_back(xPos , yPos - items[itemIndex].height, xPos + items[itemIndex].width, yPos, items[itemIndex].color);
-// 	}
-// 
-// 	generationsRects.emplace_back(std::move(rects));
+    std::cout << "fitness " << c.getFitness() << "\n";
+    generationBoxes.emplace_back(c.getBoxPositions());
 }
 //-----------------------------------------------------------------------------------------------
 void GAThread::printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& population, Configuration& configuration)

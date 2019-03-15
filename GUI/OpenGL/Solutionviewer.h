@@ -12,13 +12,15 @@
 #include "Mesh.h"
 #include "Object.h"
 #include "../../includes/structs.h"
+#include "../GA/GAThread.h"
 
 class SolutionViewer : public QOpenGLWidget
 {
 public:
     SolutionViewer(QWidget *parent);
     virtual ~SolutionViewer() override;
-    void updateSolutionViewer(const std::vector<BoxInfo>& boxesToShow);
+    //void updateSolutionViewer(const std::vector<BoxInfo>& boxesToShow);
+    void updateSolutionViewer(GAThread* ga, int index);
 
 protected:
     void initializeGL() override;

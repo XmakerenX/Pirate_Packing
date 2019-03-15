@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "GUI_utils.h"
-
-
 #include <QFileDialog>
 #include <QPixmap>
 #include <QString>
@@ -33,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     viewer->setFormat(format);
     
     viewer->show();
+    
+    GA = new GAThread(Dimensions(10,10,10), 4);
+    connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
+    connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
+    connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 
 }
 //------------------------------------------------------------------------------------
@@ -59,4 +62,15 @@ void MainWindow::on_pushButton_3_clicked()
 void MainWindow::on_startButton_clicked()
 {
     std::cout << "start button clicked\n";
+    GA->start();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::updateGAStarted()
+{
+    ui->startButton->setEnabled(false);
+}
+//------------------------------------------------------------------------------------
+void MainWindow::updateGAFinished()
+{
+    ui->startButton->setEnabled(true);
 }

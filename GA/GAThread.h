@@ -47,25 +47,20 @@ struct Rect
 class GAThread : public QThread
 {
 public:
-	GAThread(Dimensions containerDimensions, int nItems, int _guiWidth);
+	GAThread(Dimensions containerDimensions, int nItems);
 
+    std::vector<std::vector<BoxInfo>>& getBoxesInfo()
+    {
+        return generationBoxes;
+    }
+    
 	Q_OBJECT
 	void run() override;
+    
 
-public:
-	const std::vector<std::vector<Rect>>& getRects()
-	{
-		return generationsRects;
-	}
-
-	const std::vector<Rect>& getItemRects()
-	{
-		return itemsRects;
-	}
-
+    
 signals:
-	void rectsReady(int index, int overallMaximumFitness, double areaCovered, int currentGenPopulationFitness);
-	void itemRectsUpdate(int newHeight);
+	void boxesReady(GAThread* ga, int index);
 	void GAStarted();
 	void GAFinished();
 
@@ -82,13 +77,9 @@ private:
 	int generationMaximumFitness;
 	int currentGenPopulationFitness;
 
-	int guiWidth;
+    std::vector<std::vector<BoxInfo>> generationBoxes;
 
-	std::vector<std::vector<Rect>> generationsRects;
-	std::vector<Rect> itemsRects;
-
-	std::default_random_engine generator;
-	const int numberOfGenerations = 80;
+	const int numberOfGenerations = 200;
 	const int populationSize = 100;
 };
 
