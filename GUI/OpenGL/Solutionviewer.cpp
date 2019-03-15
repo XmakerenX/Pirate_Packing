@@ -38,16 +38,14 @@ SolutionViewer::~SolutionViewer()
 // Name : updateSolutionViewer
 //-----------------------------------------------------------------------------
 void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
-//void SolutionViewer::updateSolutionViewer(const std::vector<BoxInfo>& boxesToShow)
 {
     m_boxes.clear();    
     std::vector<BoxInfo>& boxesToShow = (ga->getBoxesInfo())[index];
     
-    
     for (const BoxInfo& curBoxInfo : boxesToShow)
     {
         QVector3D boxScale(curBoxInfo.boxWidth, curBoxInfo.boxHeight, curBoxInfo.boxLength);
-        QVector3D pos = QVector3D(-10.0f, -10.0f, -10.0f) + curBoxInfo.startingPoint + boxScale;
+        QVector3D pos = QVector3D(-10.0f, -10.0f, -10.0f) + curBoxInfo.startingPoint*2 + boxScale;
         m_boxes.emplace_back(pos,
                              QVector3D(0.0f, 0.0f, 0.0f),
                              boxScale,
