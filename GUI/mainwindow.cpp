@@ -32,10 +32,10 @@ MainWindow::MainWindow(QWidget *parent) :
     
     viewer->show();
     
-    GA = new GAThread(Dimensions(10,10,10), 10);
+    GA = new GAThread(Dimensions(10,10,10), 100);
     connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
-    connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
-    connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
+    connect(GA, &GAThread::GAStarted, this,    &MainWindow::updateGAStarted);
+    connect(GA, &GAThread::GAFinished, this,   &MainWindow::updateGAFinished);
 
 }
 //------------------------------------------------------------------------------------
