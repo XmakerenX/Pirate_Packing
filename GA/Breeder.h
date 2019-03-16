@@ -11,6 +11,7 @@ public:
 	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation);
 private:
 	static void normalizePopulationFittnesses(std::vector<Creature>& currentPopulation);
+	static std::discrete_distribution<int> createFairFittnesesForRouletteSelection(std::vector<Creature>& currentPopulation);
 	static std::discrete_distribution<int> createSelectionRoulette(std::vector<Creature>& currentPopulation);
 
 };
