@@ -1,5 +1,4 @@
 #include "Breeder.h"
-#include <algorithm>
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
@@ -8,8 +7,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	//create roulette wheel to choose parents
 	//Note: the Probabilities for each Creature to be chosen in the
 	//      roulette are chsoen in corelation with his fittness
-	//std::discrete_distribution<int> roulette = createFairFittnesesForRouletteSelection(currentPopulation);
-	std::discrete_distribution<int> roulette = createSelectionRoulette(currentPopulation);
+	std::discrete_distribution<int> roulette = createSelectionRoulette(currentPopulation);	
 
 	//create next generation population
 	float mutationChance = 0.2;
@@ -55,56 +53,25 @@ std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::
 	}
 	// roulette will choose random pop based on the probabilities vector 
 	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
+    
 	return roulette;
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
- void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
+void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
 {
 	int min = std::numeric_limits<int>::max();
 	//get minimum fittness in population
-	for (Creature& creature : currentPopulation) 
-	{
-		min = std::min(min, creature.getFitness()); 
-	}
+	for (Creature& creature : currentPopulation)  {  min = std::min(min, creature.getFitness()); }
 	
 	if (min < 0)  
 	{
 		//normalize fittness 
 		for (Creature& creature : currentPopulation)
 		{
-			creature.setFitness(creature.getFitness() - (min-1));
+			creature.setFitness(creature.getFitness() - (min + 1));
 		}
 	}
-}
-//------------------------------------------------------------------------------------
-//While applying the GA algorithm, one might want to consider the fact that weak creatures (realitve to their generation)
-//may have, despite being consider weak, a good attribute that could amend the gene pool, this method constructs a fair roulette
-//which gives a low, yet fair cahnce for 
-template <class Creature>
-std::discrete_distribution<int>  Breeder<Creature>::createFairFittnesesForRouletteSelection(std::vector<Creature>& currentPopulation)
-{
-	normalizePopulationFittnesses(currentPopulation);
-	int min = std::numeric_limits<int>::max();
-	int max = std::numeric_limits<int>::max();
-
-	//get minimum fittness in population
-	for (Creature& creature : currentPopulation)
-	{
-		min = std::min(min, creature.getFitness());
-		max = std::max(max, creature.getFitness());
-	}
-	std::vector<int> fitness;
-	fitness.reserve(currentPopulation.size());
-	for (Creature& creature : currentPopulation)
-	{
-		int score =creature.getFitness() -min;
-		score += (max - min) / 3;
-		fitness.push_back(creature.getFitness());
-	}
-	// roulette will choose random pop based on the probabilities vector 
-	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
-	return roulette;
 }
 //------------------------------------------------------------------------------------
 // Force instantiation of BinaryCreature and PermutationCreature
