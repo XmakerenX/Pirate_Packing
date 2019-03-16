@@ -2,6 +2,8 @@
 #include <algorithm>    //for std::max
 #include <string>
 
+bool*** booleanGraphsSpaces;
+
 //input:  Configuration
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
@@ -11,6 +13,7 @@ PermutationCreature::PermutationCreature(Configuration* conf)
 	chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {	chromozome.push_back(i); }
 	std::random_shuffle(chromozome.begin(), chromozome.end());
+	calculateFittness();
 }
 //------------------------------------------------------------------
 //input:  Configuration,  chromozome vector
@@ -21,6 +24,7 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 {
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
+	calculateFittness();
 }
 //----------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance)
@@ -144,13 +148,120 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 //---------------------------------------------
 int PermutationCreature::calculateFittness()
 {
-    fitness = 0;
+	fitness = 0;
+
+		//allocation of a 3d boolean array:
+		Configuration* conf = this->configuration;
+		Dimensions containerDim = conf->dim;
+		int i, j, k;
+	    booleanGraphsSpaces = new bool **[containerDim.d]();
+		for (i = 0; i < containerDim.d; i++)
+		{
+			booleanGraphsSpaces[i] = new bool *[containerDim.w]();
+			for (j = 0; j < containerDim.w; j++)
+				booleanGraphsSpaces[i][j] = new bool[containerDim.h]();
+		}
+
+
+		for (int i = 0; i < containerDim.d; i++)
+		{
+			for (int j = 0; j < containerDim.w; j++)
+			{
+				for (int k = 0; k < containerDim.h; k++)
+				{
+					booleanGraphsSpaces[i][j][k] = false;
+				}
+			}
+		}
+
+
+		//continue placing items untill its not possible
+		for (int i = 0; i < configuration->numberOfItems; i++)
+		{
+			try//try fitting a lego
+			{
+				int currentItemIndex = chromozome[i];
+				Item item = configuration->items[currentItemIndex];
+				this->boxesPositions.push_back(bottomLeftFill(item));
+				fitness += item.value;
+			}
+			catch (CantFitException cantfitEx) // break if you can't
+			{
+				continue;
+			}
+		}
+		//free memory
+		for (int i = 0; i < containerDim.d; i++)
+		{
+			for (int j = 0; j < containerDim.w; j++)
+				delete[] booleanGraphsSpaces[i][j];
+			delete[] booleanGraphsSpaces[i];
+		}
+		delete[] booleanGraphsSpaces;
+
     return fitness;
 }
+BoxInfo PermutationCreature::bottomLeftFill(Item item)
+{
+	BoxInfo placedPosition(QPoint3D(0,0,0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f), item.dim.h, item.dim.w, item.dim.d);
+	Dimensions containerDim = configuration->dim;
 
+	int max_d = containerDim.d - item.dim.d;
+	int max_h = containerDim.h - item.dim.h;
+	int max_w = containerDim.w - item.dim.w;
+
+	//search row by row from the leftest corner to find a match
+	for (int i = 0; i < max_d;i++)
+	{
+		for (int k = 0; k <max_w; k++)
+		{	
+			for (int j = 0; j <max_h; j++)
+			{
+				if (isIndexFit(i, j,k, item))
+				{
+					
+					placedPosition.startingPoint = QPoint3D(j, k, i);
+					return placedPosition;
+				}
+			}
+		}
+	}
+	throw CantFitException();
+}
+//--------------------------------------------------------------------------------
+bool PermutationCreature::isIndexFit(int i, int j, int k, Item item)
+{
+	Dimensions dim = item.dim;
+	int max_d = i + dim.d;
+	int max_h = j + dim.h;
+	int max_w = k + dim.w;
+
+	for (int d = i; d < max_d; d++)
+	{
+		for (int h = j; h < max_h; h++)
+		{
+			for (int w = k; w < max_w; w++)
+			{
+				if (booleanGraphsSpaces[d][h][w]) return false;
+			}
+		}
+	}
+
+	for (int d = i; d < max_d; d++)
+	{
+		for (int h = j; h < max_h; h++)
+		{
+			for (int w = k; w < max_w; w++)
+			{
+				booleanGraphsSpaces[d][h][w] = true;
+			}
+		}
+	}
+	return true;
+}
 std::vector<BoxInfo> PermutationCreature::getBoxPositions()
 {
-    return std::vector<BoxInfo>();
+	return this->boxesPositions;
 }
 
 
