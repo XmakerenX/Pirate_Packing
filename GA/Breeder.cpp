@@ -62,14 +62,17 @@ void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& cur
 {
 	int min = std::numeric_limits<int>::max();
 	//get minimum fittness in population
-	for (Creature& creature : currentPopulation)  {  min = std::min(min, creature.getFitness()); }
+	for (Creature& creature : currentPopulation)
+	{
+		min = std::min(min, creature.getFitness()); 
+	}
 	
-	if (min < 0)  
+	if (min < 0)
 	{
 		//normalize fittness 
 		for (Creature& creature : currentPopulation)
 		{
-			creature.setFitness(creature.getFitness() - (min + 1));
+			creature.setFitness(creature.getFitness() - min + 1);
 		}
 	}
 }
