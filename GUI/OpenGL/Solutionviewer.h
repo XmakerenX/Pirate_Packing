@@ -12,7 +12,7 @@
 #include "Mesh.h"
 #include "Object.h"
 #include "../../includes/structs.h"
-#include "../GA/GAThread.h"
+#include "../../GA/GAThread.h"
 
 class SolutionViewer : public QOpenGLWidget
 {
