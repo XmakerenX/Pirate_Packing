@@ -65,11 +65,11 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(BinaryCreature& c);
-	std::vector<BinaryCreature> generateFirstGeneration(Configuration& configuration);
-	void printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& population, Configuration& configuration);
-	void getDataFromGeneration(std::vector<BinaryCreature>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<BinaryCreature>& population);
+	void PrintSolution(PermutationCreature& c);
+	std::vector<PermutationCreature> generateFirstGeneration(Configuration& configuration);
+	void printFinalDataAndSaveResulsts(std::vector<PermutationCreature>& population, Configuration& configuration);
+	void getDataFromGeneration(std::vector<PermutationCreature>& population, Configuration& configuration);
+	void selectSurvivors(std::vector<PermutationCreature>& population);
 
 	void HybridGeneticAlgorithm(Configuration& configuration);
 	Configuration configuration;

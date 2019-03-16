@@ -33,7 +33,7 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
 {
 	overallMaximumFitness = 0;
 	//----Genetic algorithm: first generation ------//
-	std::vector<BinaryCreature> population = generateFirstGeneration(configuration);
+	std::vector<PermutationCreature> population = generateFirstGeneration(configuration);
  
  	//----Genetic algorithm: create multiple  generations
  	for (int gen = 0; gen < numberOfGenerations; gen++)
@@ -42,7 +42,7 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
  		std::clock_t start; double duration; start = std::clock();
  
  		//create new population based on the current one
- 		population = Breeder<BinaryCreature>::generateNextGeneration(population);
+ 		population = Breeder<PermutationCreature>::generateNextGeneration(population);
  		selectSurvivors(population);
  
  		//get data from this generation
@@ -78,13 +78,13 @@ void GAThread::HybridGeneticAlgorithm(Configuration& configuration)
  	printFinalDataAndSaveResulsts(population, configuration);
 }
 //-----------------------------------------------------------------------------------------------
-void GAThread::PrintSolution(BinaryCreature& c)
+void GAThread::PrintSolution(PermutationCreature& c)
 {
     std::cout << "fitness " << c.getFitness() << "\n";
     generationBoxes.emplace_back(c.getBoxPositions());
 }
 //-----------------------------------------------------------------------------------------------
-void GAThread::printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& population, Configuration& configuration)
+void GAThread::printFinalDataAndSaveResulsts(std::vector<PermutationCreature>& population, Configuration& configuration)
 {
 // 	Chromozome greedyChromozome;
 // 	std::vector<Item> allItems;
@@ -122,7 +122,7 @@ void GAThread::printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& popula
 // 	std::cout << "Finished." << '\n';
 }
 //-----------------------------------------------------------------------------------------------
-void GAThread::getDataFromGeneration(std::vector<BinaryCreature>& population, Configuration& configuration)
+void GAThread::getDataFromGeneration(std::vector<PermutationCreature>& population, Configuration& configuration)
 {
 // 	generationMaximumFitness = 0;
 // 	currentGenPopulationFitness = 0;
@@ -136,9 +136,9 @@ void GAThread::getDataFromGeneration(std::vector<BinaryCreature>& population, Co
 }
 
 //Creates an array of random creatures
-std::vector<BinaryCreature> GAThread::generateFirstGeneration(Configuration& configuration)
+std::vector<PermutationCreature> GAThread::generateFirstGeneration(Configuration& configuration)
 {
-	std::vector<BinaryCreature> randomCreatures;
+	std::vector<PermutationCreature> randomCreatures;
 	randomCreatures.reserve(populationSize);
 	for (int i = 0; i < populationSize; i++)
 	{
@@ -147,8 +147,8 @@ std::vector<BinaryCreature> GAThread::generateFirstGeneration(Configuration& con
 	return randomCreatures;
 }
 //---------------------------------------------------------
-void GAThread::selectSurvivors(std::vector<BinaryCreature>& population)
+void GAThread::selectSurvivors(std::vector<PermutationCreature>& population)
 {
-	std::sort(population.begin(),population.end(), [](const BinaryCreature& a, const BinaryCreature& b){return (a.getFitness() > b.getFitness());});
+	std::sort(population.begin(),population.end(), [](const PermutationCreature& a, const PermutationCreature& b){return (a.getFitness() > b.getFitness());});
 	population.erase(population.begin() + populationSize, population.end());
 }
