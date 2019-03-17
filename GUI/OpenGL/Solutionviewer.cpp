@@ -4,6 +4,7 @@
 // Name : SolutionViewer (constructor)
 //-----------------------------------------------------------------------------
 SolutionViewer::SolutionViewer(QWidget *parent)
+    :containerDim(10, 10, 10)
 {
     this->setParent(parent);
 
@@ -13,6 +14,7 @@ SolutionViewer::SolutionViewer(QWidget *parent)
     containerTexture = nullptr;
     boxTexture = nullptr;
     container = nullptr;
+    setContainerDimensions(containerDim);
 }
 
 SolutionViewer::~SolutionViewer()
@@ -67,6 +69,17 @@ void SolutionViewer::mouseReleaseEvent(QMouseEvent * event)
 }
 
 //-----------------------------------------------------------------------------
+// Name : setContainerDimensions
+//-----------------------------------------------------------------------------
+void SolutionViewer::setContainerDimensions(Dimensions dim)
+{
+    containerDim = dim;
+    if (container)
+        container->SetScale(QVector3D(dim.w, dim.h, dim.d));
+    m_camera.SetPostion(QVector3D(dim.w * 2, dim.h * 2, dim.d * 2));
+}
+
+//-----------------------------------------------------------------------------
 // Name : updateSolutionViewer
 //-----------------------------------------------------------------------------
 void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
@@ -77,7 +90,8 @@ void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
     for (const BoxInfo& curBoxInfo : boxesToShow)
     {
         QVector3D boxScale(curBoxInfo.boxWidth, curBoxInfo.boxHeight, curBoxInfo.boxLength);
-        QVector3D pos = QVector3D(-10.0f, -10.0f, -10.0f) + curBoxInfo.startingPoint*2 + boxScale;
+        QVector3D containerZeroPoint((float)containerDim.w * -1, (float)containerDim.h * -1, (float)containerDim.d * -1);
+        QVector3D pos = containerZeroPoint + curBoxInfo.startingPoint * 2 + boxScale;
         m_boxes.emplace_back(pos,
                              QVector3D(0.0f, 0.0f, 0.0f),
                              boxScale,
@@ -193,13 +207,16 @@ void SolutionViewer::initializeGL()
     containerTexture = new QOpenGLTexture(QImage("resources/textures/container.png"));
     boxTexture = new QOpenGLTexture(QImage("resources/textures/box.png"));
     // init container object
-    container = new Object(QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(10.0f, 10.0f, 10.0f), QVector3D(0.0f, 0.0f, 0.0f), containerMesh);
+    container = new Object(QVector3D(0.0f, 0.0f, 0.0f),
+                           QVector3D(0.0f, 0.0f, 0.0f),
+                           QVector3D(containerDim.w, containerDim.h, containerDim.d),
+                           QVector3D(0.0f, 0.0f, 0.0f),
+                           containerMesh);
 
     m_boxesShader->release();
     
     // init the camera
     m_camera.SetFOV(60.0f);
-    m_camera.SetPostion(QVector3D( 20.0f, 20.0f, 20.0f));
     m_camera.SetLookAt(QVector3D( 0.0f, 0.0f, 0.0f));
 }
 
@@ -209,7 +226,7 @@ void SolutionViewer::initializeGL()
 void SolutionViewer::resizeGL(int w, int h)
 {
     // set the camera projection matrix parameters
-    m_camera.SetViewPort(0, 0, w, h, 0.01f, 100.0f); // doesn't really set viewPort
+    m_camera.SetViewPort(0, 0, w, h, 0.01f, 1000.0f); // doesn't really set viewPort
     //TODO: is there a need to set the viewport? or is it handled by Qt?
 }
 

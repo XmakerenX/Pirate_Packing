@@ -26,6 +26,7 @@ public:
     void mouseMoveEvent(QMouseEvent * event) override;
     void mouseReleaseEvent(QMouseEvent * event) override;
     
+    void setContainerDimensions(Dimensions dim);
     void updateSolutionViewer(GAThread* ga, int index);
 
 protected:
@@ -46,7 +47,7 @@ private:
     QOpenGLTexture* boxTexture;
 
     std::vector<Object> m_boxes;
-
+    Dimensions containerDim;
     Object* container;
 };
 
