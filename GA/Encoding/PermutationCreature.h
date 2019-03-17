@@ -29,7 +29,7 @@ private:
 						   Chromozome parent1_chromozome, Chromozome parent2_chromozome);
 	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap);
 
-	BoxInfo PermutationCreature::bottomLeftFill(Item item);
+	BoxInfo bottomLeftFill(Item item);
 	bool isIndexFit(int i, int j,int k, Item item);
 
     int fitness = 0;

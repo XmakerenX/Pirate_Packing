@@ -28,6 +28,8 @@ set(qttest_SRC
   GA/GAThread.cpp
   GA/Item.cpp
   #GUI:
+  GUI/OpenGL/Camera.cpp
+  GUI/OpenGL/FreeCam.cpp
   GUI/OpenGL/Mesh.cpp
   GUI/OpenGL/Object.cpp
   GUI/OpenGL/Solutionviewer.cpp

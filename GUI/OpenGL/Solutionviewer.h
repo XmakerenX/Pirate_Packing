@@ -8,18 +8,24 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QMatrix4x4>
+#include <QMouseEvent>
 #include <vector>
-#include "Mesh.h"
-#include "Object.h"
 #include "../../includes/structs.h"
 #include "../../GA/GAThread.h"
+#include "Mesh.h"
+#include "Object.h"
+#include "FreeCam.h"
 
 class SolutionViewer : public QOpenGLWidget
 {
 public:
     SolutionViewer(QWidget *parent);
     virtual ~SolutionViewer() override;
-    //void updateSolutionViewer(const std::vector<BoxInfo>& boxesToShow);
+    
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent * event) override;
+    void mouseReleaseEvent(QMouseEvent * event) override;
+    
     void updateSolutionViewer(GAThread* ga, int index);
 
 protected:
@@ -30,7 +36,9 @@ protected:
 private:
     QOpenGLShaderProgram* m_boxesShader;
 
-    QMatrix4x4 m_projection;
+    FreeCam m_camera;
+    QPoint oldMousePoint;
+    QPoint currentMousePoint;
 
     Mesh* boxMesh;
     Mesh* containerMesh;

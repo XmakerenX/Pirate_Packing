@@ -35,6 +35,38 @@ SolutionViewer::~SolutionViewer()
 }
 
 //-----------------------------------------------------------------------------
+// Name : mousePressEvent
+//-----------------------------------------------------------------------------
+void SolutionViewer::mousePressEvent(QMouseEvent* event) 
+{
+    oldMousePoint = event->pos();
+    currentMousePoint = event->pos();
+}
+
+//-----------------------------------------------------------------------------
+// Name : mouseMoveEvent
+//-----------------------------------------------------------------------------
+void SolutionViewer::mouseMoveEvent(QMouseEvent * event) 
+{
+    currentMousePoint = event->pos();
+    
+    float X = (currentMousePoint.x() - oldMousePoint.x()) / 3;
+    float Y = (currentMousePoint.y() - oldMousePoint.y()) / 3;
+    m_camera.RotateAroundPoint(QVector3D(0,0,0), X, Y);
+    
+    oldMousePoint = currentMousePoint;
+    this->update();
+}
+
+//-----------------------------------------------------------------------------
+// Name : mouseReleaseEvent
+//-----------------------------------------------------------------------------
+void SolutionViewer::mouseReleaseEvent(QMouseEvent * event)
+{
+    
+}
+
+//-----------------------------------------------------------------------------
 // Name : updateSolutionViewer
 //-----------------------------------------------------------------------------
 void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
@@ -162,15 +194,13 @@ void SolutionViewer::initializeGL()
     boxTexture = new QOpenGLTexture(QImage("resources/textures/box.png"));
     // init container object
     container = new Object(QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(10.0f, 10.0f, 10.0f), QVector3D(0.0f, 0.0f, 0.0f), containerMesh);
-    // init cubes objects
-    std::vector<BoxInfo> boxesInfo;
-    boxesInfo.emplace_back(QVector3D(-10.0f, -10.0f, -10.0f), QVector3D(1.0f, 0.0f, 0.0f), 5, 1, 1);
-    boxesInfo.emplace_back(QVector3D(-0.0f, -10.0f, -10.0f), QVector3D(0.0f, 0.0f, 1.0f), 5, 1, 1);
-    boxesInfo.emplace_back(QVector3D(-10.0f, -10.0f, -8.0f), QVector3D(1.0f, 0.0f, 1.0f), 3, 4, 5);
-    boxesInfo.emplace_back(QVector3D(-4.0f, -10.0f, -8.0f), QVector3D(0.0f, 1.0f, 1.0f), 7, 1, 2);
-    //updateSolutionViewer(boxesInfo);
 
     m_boxesShader->release();
+    
+    // init the camera
+    m_camera.SetFOV(60.0f);
+    m_camera.SetPostion(QVector3D( 20.0f, 20.0f, 20.0f));
+    m_camera.SetLookAt(QVector3D( 0.0f, 0.0f, 0.0f));
 }
 
 //-----------------------------------------------------------------------------
@@ -178,11 +208,8 @@ void SolutionViewer::initializeGL()
 //-----------------------------------------------------------------------------
 void SolutionViewer::resizeGL(int w, int h)
 {
-    m_projection.setToIdentity();
-    m_projection.perspective(60.0f,         // Field Of View
-                             w / float(h),  // Ratio
-                             0.01f,         // Near plane
-                             100.0f);       // Far plane
+    // set the camera projection matrix parameters
+    m_camera.SetViewPort(0, 0, w, h, 0.01f, 100.0f); // doesn't really set viewPort
     //TODO: is there a need to set the viewport? or is it handled by Qt?
 }
 
@@ -196,9 +223,8 @@ void SolutionViewer::paintGL()
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_boxesShader->bind();
-    QMatrix4x4 viewMatrix, projectionViewMatrix;
-    viewMatrix.lookAt(QVector3D( 20.0f, 20.0f, 20.0f), QVector3D(-0.0f,-0.0f,-0.0f), QVector3D(0.0f,1.0f,0.0f));
-    projectionViewMatrix = m_projection * viewMatrix;
+    QMatrix4x4 projectionViewMatrix = m_camera.GetProjMatrix() * m_camera.GetViewMatrix();
+    
     // Render container
     containerTexture->bind();
     container->Draw(m_boxesShader, projectionViewMatrix);
