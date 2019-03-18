@@ -26,10 +26,28 @@ public:
     void updateGAStarted();
     void updateGAFinished();
 
+private slots:
+	void on_radioButton_HybridGenetics_clicked();
+
+	void on_radioButton_pureGenetics_clicked();
+
+	void on_populationSizeTextBox_textChanged();
+
+	void on_numberOfGenerationTextBox_textChanged(const QString &arg1);
+
+	void on_elitisimSizeTextBox_textChanged(const QString &arg1);
+
+	void on_mutationRateTextBox_textChanged(const QString &arg1);
+	void on_confirmButton_clicked();
+	void on_backButton_clicked();
+
+
 private:
 	Ui::MainWindow *ui;
     SolutionViewer* viewer;
     GAThread * GA;
+
+	void setForms();
 };
 
 #endif // MAINWINDOW_H
