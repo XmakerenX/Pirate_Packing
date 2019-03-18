@@ -9,6 +9,7 @@
 typedef QVector3D QPoint3D;
 typedef QVector3D RGB;
 
+enum GA_Method { PureGenetic, HybridGenetic};
 
 struct Dimensions 
 {
