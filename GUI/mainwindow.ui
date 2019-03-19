@@ -269,7 +269,7 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:backButton;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>Back</string>
@@ -285,8 +285,7 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:background;
-background-color:rgb(72, 101, 130)</string>
+       <string notr="true">background-color:rgb(72, 101, 130)</string>
       </property>
       <property name="text">
        <string/>
@@ -325,8 +324,7 @@ background-color:rgb(72, 101, 130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id: radioButton_HybridGenetics;
-color: rgb(255, 255, 255);</string>
+       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>Hybrid Genetics </string>
@@ -372,8 +370,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:radioButton_pureGenetics;
-color: rgb(255, 255, 255);</string>
+       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>Pure genetics</string>
@@ -479,7 +476,7 @@ color: rgb(255, 255, 255);</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:confirmButton;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>Confirm</string>
@@ -546,7 +543,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:numberOfGenerationTextBox;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>80</string>
@@ -570,7 +567,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:elitisimSizeTextBox;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>5</string>
@@ -594,7 +591,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:populationSizeTextBox;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>100</string>
@@ -618,7 +615,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">id:mutationRateTextBox;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>0.2</string>
@@ -753,7 +750,7 @@ background-color: rgb(72,101,130)</string>
      <x>0</x>
      <y>0</y>
      <width>813</width>
-     <height>26</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
