@@ -10,28 +10,20 @@
 #include <QString>
 #include <iostream>
 
-MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) 
+:	QMainWindow(parent),
+	ui(new Ui::MainWindow),
+	containerDim(10, 10, 10)
 {
 	//Init UI:
 	ui->setupUi(this);
 
 	setForms();
 
-
-    // enable anit-aliasing so boxes will look less shit
-    QSurfaceFormat format;
-    format.setSamples(4);
-    viewer->setFormat(format);
-    viewer->show();
-    Dimensions containerDim(10, 10, 10);
-    viewer->setContainerDimensions(containerDim);
-    GA = new GAThread(containerDim, 100);
-    connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
-    connect(GA, &GAThread::GAStarted, this,    &MainWindow::updateGAStarted);
-    connect(GA, &GAThread::GAFinished, this,   &MainWindow::updateGAFinished);
-
+	GA = new GAThread(containerDim, 100);
+	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
+	connect(GA, &GAThread::GAStarted, this,    &MainWindow::updateGAStarted);
+	connect(GA, &GAThread::GAFinished, this,   &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -45,7 +37,6 @@ void MainWindow::setForms()
 		//Set icon:
 		std::string iconPath = GuiUtils::getFullPath("favicon.ico");
 		this->setWindowIcon(QIcon(iconPath.c_str()));
-
 		//Set image:
 		std::string logoPath = GuiUtils::getFullPath("PiratePackingLogo.png");
 		ui->logo_image->setPixmap(QPixmap(logoPath.c_str()));
@@ -54,17 +45,22 @@ void MainWindow::setForms()
 	
 	//Form - Settings 
 		ui->populationSizeTextBox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
+		ui->populationSizeTextBox->setMaxLength(5);
 		ui->numberOfGenerationTextBox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
-		ui->elitisimSizeTextBox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
-		ui->mutationRateTextBox->setValidator(new QRegExpValidator(QRegExp("[0-9]\.[0-9]*"), this));
-	
+		ui->numberOfGenerationTextBox->setMaxLength(5);
+		ui->elitisimSizeTextBox->setValidator(new QRegExpValidator(QRegExp("[0-9][0-9]"), this));
+		ui->mutationRateTextBox->setValidator(new QRegExpValidator(QRegExp("([0][.][0-9][1-9]|1)"), this));
 	//########################################################
 	
 	//Form - Solution 
 		viewer = new SolutionViewer(ui->page_2);
 		viewer->setGeometry(QRect(210, 130, 320, 240));
-
-
+		viewer->setContainerDimensions(containerDim);
+		// enable anit-aliasing so boxes will look less shit
+		QSurfaceFormat format;
+		format.setSamples(4);
+		viewer->setFormat(format);
+		viewer->show();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_2_clicked()
@@ -100,9 +96,8 @@ void MainWindow::on_confirmButton_clicked()
 	textBoxesArray[1] = QString(ui->elitisimSizeTextBox->text());
 	textBoxesArray[2] = QString(ui->numberOfGenerationTextBox->text());
 	textBoxesArray[3] = QString(ui->mutationRateTextBox->text());
-
-
-	boolean validSettings = true;
+    
+	bool validSettings = true;
 	for (QString str : textBoxesArray)
 	{
 		if (str == "") validSettings = false;
@@ -159,86 +154,4 @@ void MainWindow::on_radioButton_pureGenetics_clicked()
 {
 	ui->radioButton_HybridGenetics->setChecked(false);
 	ui->radioButton_pureGenetics->setChecked(true);
-}
-
-void MainWindow::on_populationSizeTextBox_textChanged()
-{
-	QString text = ui->populationSizeTextBox->text();
-
-	if (text.length() >= 6)
-	{
-		ui->populationSizeTextBox->setText(text.mid(0, text.length() - 1));
-	}
-	if (text.startsWith("0"))
-	{
-		ui->populationSizeTextBox->setText(text.mid(1, text.length()));
-	}
-
-}
-//--------------------------------------------------------------------------
-
-void MainWindow::on_numberOfGenerationTextBox_textChanged(const QString &arg1)
-{
-	QString text = ui->numberOfGenerationTextBox->text();
-
-	if (text.length() >= 6)
-	{
-		ui->numberOfGenerationTextBox->setText(text.mid(0, text.length() - 1));
-	}
-	if (text.startsWith("0"))
-	{
-		ui->numberOfGenerationTextBox->setText(text.mid(1, text.length()));
-	}
-}
-
-void MainWindow::on_elitisimSizeTextBox_textChanged(const QString &arg1)
-{
-	QString text = ui->elitisimSizeTextBox->text();
-	try {
-		int a = text.toInt();
-		if (a>100)
-		{
-			ui->elitisimSizeTextBox->setText(text.mid(0, text.length() - 1));
-		}
-	}
-	catch (...)
-	{
-
-	}
-	if (text.startsWith("0"))
-	{
-		ui->elitisimSizeTextBox->setText(text.mid(1, text.length()));
-	}
-}
-
-void MainWindow::on_mutationRateTextBox_textChanged(const QString &arg1)
-{
-	QString text = ui->mutationRateTextBox->text();
-	if (text == "") return;
-	if (text == "0") return;
-	if (text == "1") return;
-
-	if (!text.startsWith("0"))
-	{
-		if (text.startsWith("1"))
-		{
-			ui->mutationRateTextBox->setText("1");
-			return;
-		}
-		else
-		{
-			ui->mutationRateTextBox->setText("");
-		}
-	}
-	else
-	{
-		if (text.startsWith("0."))
-		{
-			return;
-		}
-		else
-		{
-			ui->mutationRateTextBox->setText("0.");
-		}
-	}
 }

@@ -21,30 +21,21 @@ public:
 	void on_pushButton_2_clicked();
 
 	void on_pushButton_3_clicked();
-    void on_startButton_clicked();
+	void on_startButton_clicked();
     
-    void updateGAStarted();
-    void updateGAFinished();
+	void updateGAStarted();
+	void updateGAFinished();
 
-private slots:
+public slots:
 	void on_radioButton_HybridGenetics_clicked();
-
 	void on_radioButton_pureGenetics_clicked();
-
-	void on_populationSizeTextBox_textChanged();
-
-	void on_numberOfGenerationTextBox_textChanged(const QString &arg1);
-
-	void on_elitisimSizeTextBox_textChanged(const QString &arg1);
-
-	void on_mutationRateTextBox_textChanged(const QString &arg1);
 	void on_confirmButton_clicked();
 	void on_backButton_clicked();
-
-
+    
 private:
 	Ui::MainWindow *ui;
     SolutionViewer* viewer;
+    Dimensions containerDim;
     GAThread * GA;
 
 	void setForms();
