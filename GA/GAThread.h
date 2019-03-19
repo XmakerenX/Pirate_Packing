@@ -48,12 +48,8 @@ class GAThread : public QThread
 {
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
-
-    std::vector<std::vector<BoxInfo>>& getBoxesInfo()
-    {
-        return generationBoxes;
-    }
-    
+	std::vector<std::vector<BoxInfo>>& getBoxesInfo();  
+	void emitBoxReady(int generationBoxesSize);
 	Q_OBJECT
 	void run() override;
     
@@ -65,22 +61,7 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(PermutationCreature& c);
-	std::vector<PermutationCreature> generateFirstGeneration(Configuration& configuration);
-	void printFinalDataAndSaveResulsts(std::vector<PermutationCreature>& population, Configuration& configuration);
-	void getDataFromGeneration(std::vector<PermutationCreature>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<PermutationCreature>& population);
-
-	void HybridGeneticAlgorithm(Configuration& configuration);
 	Configuration configuration;
-	int overallMaximumFitness;
-	int generationMaximumFitness;
-	int currentGenPopulationFitness;
-
-    std::vector<std::vector<BoxInfo>> generationBoxes;
-
-	const int numberOfGenerations = 200;
-	const int populationSize = 100;
 };
 
 #endif // GATHREAD_H
