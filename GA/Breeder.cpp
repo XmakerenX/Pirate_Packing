@@ -45,37 +45,33 @@ template <class Creature>
 std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::vector<Creature>& currentPopulation)
 {
 	//normalize populationFittnesses
-	normalizePopulationFittnesses(currentPopulation);
-
-	std::vector<int> fitness;
-	fitness.reserve(currentPopulation.size());
-	for (Creature& creature : currentPopulation)
-	{
-		fitness.push_back(creature.getFitness());
-	}
+	std::vector<int> fitness = normalizePopulationFittnesses(currentPopulation);
 	// roulette will choose random pop based on the probabilities vector 
 	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
 	return roulette;
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
+std::vector<int>  Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
 {
+    std::vector<int> normalizedFitness;
+    normalizedFitness.reserve(currentPopulation.size());
 	int min = std::numeric_limits<int>::max();
 	//get minimum fittness in population
 	for (Creature& creature : currentPopulation)
 	{
+		normalizedFitness.push_back(creature.getFitness());
 		min = std::min(min, creature.getFitness());
 	}
 
 	if (min < 0)
 	{
 		//normalize fittness 
-		for (Creature& creature : currentPopulation)
-		{
-			creature.setFitness(creature.getFitness() - (min - 1));
-		}
+		for (int& fitness : normalizedFitness)
+			fitness -= (min - 1);
 	}
+	
+	return normalizedFitness;
 }
 //------------------------------------------------------------------------------------
 //While applying the GA algorithm, one might want to consider the fact that weak creatures (realitve to their generation)
