@@ -13,6 +13,8 @@
 #include "Breeder.h"
 #include "Encoding/BinaryCreature.h"
 #include "Encoding/PermutationCreature.h"
+#include "GA_Core.h"
+
 //-----------------------------------------------------------------------------------------------
 // Structures
 //-----------------------------------------------------------------------------------------------
@@ -62,6 +64,8 @@ signals:
 
 private:
 	Configuration configuration;
+        GA_Core<PermutationCreature> hybrid;
+        GA_Core<BinaryCreature> binary;
 };
 
 #endif // GATHREAD_H

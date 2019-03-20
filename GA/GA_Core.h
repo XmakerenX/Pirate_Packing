@@ -9,30 +9,31 @@
 
 #include "../includes/structs.h"
 #include "GA_Random.h"
-#include "GAThread.h"
 #include "Configuration.h"
 #include "Breeder.h"
-
-
 
 template <class Creature>
 class GA_Core
 {
 public:
-	static void HybridGeneticAlgorithm(Configuration& configuration, GAThread* callingThread);
-	static std::vector<std::vector<BoxInfo>>& getBoxesInfo();
-
+	void initGeneticAlgorithm(Configuration& configuration);
+	bool nextGeneration(Configuration& configuration);
+	std::vector<std::vector<BoxInfo>>& getBoxesInfo();
+	int getBoxesInfoIndex();
+        
 private:
-	static void PrintSolution(Creature& c);
-	static std::vector<Creature> generateFirstGeneration(Configuration& configuration);
-	static void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
-	static void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
-	static void selectSurvivors(std::vector<Creature>& population);
+	void PrintSolution(Creature& c);
+	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
+	void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
+	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
+	void selectSurvivors(std::vector<Creature>& population);
 
-	static Configuration configuration;
-	static int overallMaximumFitness;
-	static int generationMaximumFitness;
-	static int currentGenPopulationFitness;
-
-	static std::vector<std::vector<BoxInfo>> generationBoxes;
+	//Configuration configuration;
+	int overallMaximumFitness;
+	int generationMaximumFitness;
+	int currentGenPopulationFitness;
+	
+	std::vector<std::vector<BoxInfo>> generationBoxes;
+	std::vector<Creature> population;
+	unsigned int gen;
 };

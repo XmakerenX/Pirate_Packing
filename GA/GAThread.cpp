@@ -3,7 +3,6 @@
 #include "Breeder.h"
 #include "GA_Random.h"
 #include "GA_Settings.h"
-#include "GA_Core.h"
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
@@ -12,27 +11,25 @@ GAThread::GAThread(Dimensions containerDimensions, int nItems)
 
 }
 //----------------------------------------------------------------------
- std::vector<std::vector<BoxInfo>>& GAThread::getBoxesInfo()
+std::vector<std::vector<BoxInfo>>& GAThread::getBoxesInfo()
 {
 	switch (GA_Settings::method)
 	{
 		case GA_Method::HybridGenetic:
 		{
-			return GA_Core<PermutationCreature>::getBoxesInfo();
-			break;
+			return hybrid.getBoxesInfo();
 		}
-	case GA_Method::PureGenetic:
+		case GA_Method::PureGenetic:
 		{
-			return GA_Core<BinaryCreature>::getBoxesInfo();
-			break;
+			return binary.getBoxesInfo();
 		}
 	}
 };
- //---------------------------------------------------------------------
- void GAThread::emitBoxReady(int generationBoxesSize)
- {
-		 emit boxesReady(this, generationBoxesSize);
- }
+//---------------------------------------------------------------------
+void GAThread::emitBoxReady(int generationBoxesSize)
+{
+    emit boxesReady(this, generationBoxesSize);
+}
 //-----------------------------------------------------------------------------------------------
 // run
 //-----------------------------------------------------------------------------------------------
@@ -45,16 +42,18 @@ void GAThread::run()
 	{
 		case GA_Method::HybridGenetic:
 		{
-			GA_Core<PermutationCreature>::HybridGeneticAlgorithm(configuration,this);     //apply genetic algorithm on this configuration
+			// apply hybrid genetic algorithm on this configuration
+			hybrid.initGeneticAlgorithm(configuration);
+			while (hybrid.nextGeneration(configuration))
+				emit boxesReady(this, hybrid.getBoxesInfoIndex());
 			break;
 		}
 		case GA_Method::PureGenetic:
 		{
-			GA_Core<BinaryCreature>::HybridGeneticAlgorithm(configuration, this);     //apply genetic algorithm on this configuration
-			break;
-		}
-	defualt:
-		{
+			// apply pure genetic algorithm on this configuration
+			binary.initGeneticAlgorithm(configuration);
+			while(binary.nextGeneration(configuration))
+				emit boxesReady(this, binary.getBoxesInfoIndex());
 			break;
 		}
 	}
