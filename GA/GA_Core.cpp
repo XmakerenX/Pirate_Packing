@@ -21,18 +21,22 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	//----Genetic algorithm: create next generation
 	//start timer
 	std::clock_t start; double duration; start = std::clock();
+    
 	//create new population based on the current one
 	population = Breeder<Creature>::generateNextGeneration(population);
 	selectSurvivors(population);
+    
 	//get data from this generation
-	getDataFromGeneration(population, configuration);\
+	getDataFromGeneration(population, configuration);
 	//stop timer
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+    
 	//print data about this generation
 	std::cout << "Gen:" << gen << "\n\t";
-	//double avgFittness = (double)(currentGenPopulationFitness / populationSize) / (configuration.container_width * configuration.container_height);
-	//double maxFittness = (double)generationMaximumFitness / (configuration.container_width * configuration.container_height);
-	//std::cout << "Average fittness: " << avgFittness << "\tBest fittness: " << maxFittness << "  \tTime passed: " << duration << "\n";
+	int avgFittness = currentGenPopulationFitness / GA_Settings::populationSize;
+	int maxFittness = generationMaximumFitness;
+	std::cout << "Average fittness: " << avgFittness << "\tBest fittness: " << maxFittness << "  \tTime passed: " << duration << "\n";
+    
 	int maxFitness = 0;
 	int maxI = 0;
 	for (int i = 0; i < population.size(); i++)
@@ -106,15 +110,15 @@ void GA_Core<Creature>::printFinalDataAndSaveResulsts(std::vector<Creature>& pop
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration)
 {
-	// 	generationMaximumFitness = 0;
-	// 	currentGenPopulationFitness = 0;
-	// 	for (Creature& indiviual : population)
-	// 	{
-	// 		//get data
-	// 		currentGenPopulationFitness += indiviual.fitness;
-	// 		generationMaximumFitness = std::max(generationMaximumFitness, indiviual.fitness);
-	// 	}
-	// 	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
+	generationMaximumFitness = 0;
+	currentGenPopulationFitness = 0;
+	for (Creature& indiviual : population)
+	{
+		//get data
+		currentGenPopulationFitness += indiviual.getFitness();
+		generationMaximumFitness = std::max(generationMaximumFitness, indiviual.getFitness());
+	}
+	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
 }
 //-----------------------------------------------------------------------------------------	
 //Creates an array of random creatures
