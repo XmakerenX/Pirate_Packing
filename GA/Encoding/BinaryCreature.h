@@ -18,17 +18,17 @@ struct Box
     {}
 
 
-    long unsigned int getWidth()
+    long int getWidth()
     {
         return right - left;
     }
     
-    long unsigned int getHeight()
+    long int getHeight()
     {
         return top - bottom;
     }
     
-    long unsigned int getDepth()
+    long int getDepth()
     {
         return front - back;
     }
@@ -39,12 +39,12 @@ struct Box
                    std::min(a.right, b.right), std::min(a.top, b.top), std::min(a.front, b.front));
     }
     
-    long unsigned int left;
-    long unsigned int bottom;
-    long unsigned int back;
-    long unsigned int right;
-    long unsigned int top;
-    long unsigned int front;
+    long  int left;
+    long  int bottom;
+    long  int back;
+    long  int right;
+    long  int top;
+    long  int front;
 };
 
 class BinaryCreature 
@@ -65,6 +65,9 @@ private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
     void repairChromosome();
     void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
+    
+    void onePointCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
+    void uniformCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
     
     int fitness;
     std::vector<BoxInfo> boxesPositions;

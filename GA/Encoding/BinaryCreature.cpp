@@ -155,13 +155,15 @@ void BinaryCreature::repairChromosome()
             // repair if needed the x and y coordinates
             if (x + itemWidth > configuration->dim.w)
                 x = configuration->dim.w - itemWidth;
+            
             if (y + itemHeight > configuration->dim.h)
                 y = configuration->dim.h - itemHeight;
+            
             if (z + itemDepth > configuration->dim.d)
                 z = configuration->dim.d - itemDepth;
             
             DynamicBitSet newOrientation(chromozome.size(), orientaion);
-            newOrientation << coordinateBits*3;
+            newOrientation = newOrientation << coordinateBits*3;
             DynamicBitSet newX(chromozome.size(), x);
             newX = newX << coordinateBits*2;
             DynamicBitSet newY(chromozome.size(), y);
@@ -246,9 +248,20 @@ void BinaryCreature::mutate(float mutationChance)
 //-----------------------------------------------------------------------------------------------
 void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
 {
+    uniformCrossover(parent2, population);
+    //onePointCrossover(parent2, population);
+}
+//-----------------------------------------------------------------------------------------------
+// Name : onePointCrossover
+// Input: BinaryCreature to make the corssover with
+// Output: vector with 2 children made from the 2 parents
+// Action: Creates 2 children from this and parent2 using single point crossover
+//-----------------------------------------------------------------------------------------------
+void BinaryCreature::onePointCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
+{
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
-    
+        
     std::uniform_int_distribution<int> joinBitDist(1, parent1.size() - 1);
     int joinBitLocation = joinBitDist(Random::default_engine.getGenerator());
     //int joinBitLocation = (rand() % parent1.size());
@@ -269,6 +282,47 @@ void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreatur
     chromozomeX = parent2.chromozome & flippedMask;         // upper  part
     chromozomeY = parent1 & mask;                           // bottom part
     DynamicBitSet child2 = chromozomeX | chromozomeY;
+    
+    population.emplace_back(configuration, child);
+    population.emplace_back(configuration, child2);
+}
+//-----------------------------------------------------------------------------------------------
+// Name : uniformCrossover
+// Input: BinaryCreature to make the corssover with
+// Output: vector with 2 children made from the 2 parents
+// Action: Creates 2 children from this and parent2 using unifrom crossover
+//-----------------------------------------------------------------------------------------------
+void BinaryCreature::uniformCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
+{
+    DynamicBitSet& parent1 = chromozome;
+    DynamicBitSet& parent22 = parent2.chromozome;
+    
+    DynamicBitSet child = DynamicBitSet(chromozome.size(), 0);
+    DynamicBitSet child2 = DynamicBitSet(chromozome.size(), 0);
+    
+    for (int i = 0; i < chromozome.size(); i++)
+    {
+        std::uniform_int_distribution<int> joinBitDist(1, 2);     
+        if (joinBitDist(Random::default_engine.getGenerator()) == 1)
+        {
+            child[i] = parent1[i];
+            //child2[i] = parent22[i];
+        }
+        else
+        {
+            child[i] = parent22[i];
+            //child2[i] = parent1[i];
+        }
+        
+        if (joinBitDist(Random::default_engine.getGenerator()) == 1)
+        {
+            child2[i] = parent1[i];
+        }
+        else
+        {
+            child2[i] = parent22[i];
+        }
+    }
     
     population.emplace_back(configuration, child);
     population.emplace_back(configuration, child2);
@@ -339,32 +393,37 @@ int BinaryCreature::calculateFittness()
         for (int j = i + 1; j < itemBoxes.size(); j++)
         {
             Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
+            int boxWidth = box.getWidth();
+            int boxHeight = box.getHeight();
+            int boxDepth = box.getDepth();
             
             // calcuate how much volume is overlapping between boxes
             if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
             {
                 overlapped = true;
-                overlappedVolume -= box.getWidth() * box.getHeight() * box.getDepth();
+                overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth());
             }
             
             // calcuate how much free spapce is between boxes
             if (box.getWidth() < 0 && box.getHeight() < 0 && box.getDepth() < 0)
             {
-                positionScore -= box.getWidth() * box.getHeight() * box.getDepth();
+                positionScore -= std::abs(box.getWidth()) * std::abs(box.getHeight()) * std::abs(box.getDepth());
             }
             
             // give bonus for boxes that have no space between them
             if (box.getWidth() == 0 || box.getHeight() == 0 || box.getDepth() < 0)
             {
-                positionScore += (box.getWidth() * box.getHeight() * box.getDepth())/6;
+                positionScore += (std::abs(box.getWidth()) * std::abs(box.getHeight()) * std::abs(box.getDepth()))/6;
             }
         }
     }
     
     if (!overlapped)
         fitness = value*0.5 + positionScore*0.5;
+        //fitness = positionScore;
     else
         fitness =  overlappedVolume*0.5 + positionScore*0.5;
+        //fitness =  overlappedVolume*0.5 + positionScore * 0.5;
     
     return fitness;
 }
