@@ -13,6 +13,8 @@
 #include "Breeder.h"
 #include "Encoding/BinaryCreature.h"
 #include "Encoding/PermutationCreature.h"
+#include "GA_Core.h"
+
 //-----------------------------------------------------------------------------------------------
 // Structures
 //-----------------------------------------------------------------------------------------------
@@ -48,12 +50,8 @@ class GAThread : public QThread
 {
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
-
-    std::vector<std::vector<BoxInfo>>& getBoxesInfo()
-    {
-        return generationBoxes;
-    }
-    
+	std::vector<std::vector<BoxInfo>>& getBoxesInfo();  
+	void emitBoxReady(int generationBoxesSize);
 	Q_OBJECT
 	void run() override;
     
@@ -65,22 +63,9 @@ signals:
 	void GAFinished();
 
 private:
-	void PrintSolution(BinaryCreature& c);
-	std::vector<BinaryCreature> generateFirstGeneration(Configuration& configuration);
-	void printFinalDataAndSaveResulsts(std::vector<BinaryCreature>& population, Configuration& configuration);
-	void getDataFromGeneration(std::vector<BinaryCreature>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<BinaryCreature>& population);
-
-	void HybridGeneticAlgorithm(Configuration& configuration);
 	Configuration configuration;
-	int overallMaximumFitness;
-	int generationMaximumFitness;
-	int currentGenPopulationFitness;
-
-    std::vector<std::vector<BoxInfo>> generationBoxes;
-
-	const int numberOfGenerations = 200;
-	const int populationSize = 100;
+        GA_Core<PermutationCreature> hybrid;
+        GA_Core<BinaryCreature> binary;
 };
 
 #endif // GATHREAD_H

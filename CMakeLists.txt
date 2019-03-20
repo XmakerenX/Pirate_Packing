@@ -27,6 +27,7 @@ set(qttest_SRC
   GA/GA_Random.cpp
   GA/GAThread.cpp
   GA/GA_Settings.cpp
+  GA/GA_Core.cpp
   GA/Item.cpp
   #GUI:
   GUI/OpenGL/Camera.cpp
