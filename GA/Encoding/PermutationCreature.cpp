@@ -24,7 +24,6 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 {
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
-	calculateFittness();
 }
 //----------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance)
@@ -149,6 +148,7 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 int PermutationCreature::calculateFittness()
 {
 	fitness = 0;
+	boxesPositions.clear();
 
 		//allocation of a 3d boolean array:
 		Configuration* conf = this->configuration;
