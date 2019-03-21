@@ -19,6 +19,7 @@ public:
     const Dimensions dim;
 	const int numberOfItems;
     
+    int maxiumValue;
 	std::vector<Item> items;
 };
 

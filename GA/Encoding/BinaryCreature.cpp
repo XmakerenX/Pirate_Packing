@@ -482,7 +482,8 @@ std::vector<BoxInfo> BinaryCreature::getBoxPositions()
                                       items[i].color.b / 256.0f),
                                   itemWidth,
                                   itemHeight,
-                                  itemDepth);
+                                  itemDepth,
+                                  items[i].value);
         }
                
         itemMask = itemMask << bitsPerItem;

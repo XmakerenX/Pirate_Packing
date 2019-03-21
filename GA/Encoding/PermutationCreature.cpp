@@ -203,7 +203,7 @@ int PermutationCreature::calculateFittness()
 }
 BoxInfo PermutationCreature::bottomLeftFill(Item item)
 {
-	BoxInfo placedPosition(QPoint3D(0,0,0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f), item.dim.h, item.dim.w, item.dim.d);
+	BoxInfo placedPosition(QPoint3D(0,0,0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f), item.dim.h, item.dim.w, item.dim.d, item.value);
 	Dimensions containerDim = configuration->dim;
 
 	int max_d = containerDim.d - item.dim.d;

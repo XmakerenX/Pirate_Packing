@@ -66,6 +66,19 @@ template <class Creature>
 void GA_Core<Creature>::PrintSolution(Creature& c)
 {
     generationBoxes.emplace_back(c.getBoxPositions());
+    // print more statasitcs
+    Configuration * conf = c.getConfiguration();
+    int overallValue = 0;
+    int overallVolume = 0;
+    std::vector<BoxInfo>& boxesPositions = generationBoxes[generationBoxes.size() - 1];
+    for (BoxInfo& boxinfo : boxesPositions)
+    {
+        overallValue += boxinfo.value;
+        overallVolume += boxinfo.boxWidth * boxinfo.boxHeight * boxinfo.boxLength;
+    }
+    float containerVolume = conf->dim.w * conf->dim.h * conf->dim.d;
+    std::cout << "\toverall Value " << overallValue << " " << overallValue / (float)conf->maxiumValue << 
+                 "%\toverall Volume " << overallVolume << "  " << overallVolume /  (containerVolume)  << "%\n"; 
 }
 //---------------------------------------------------------------------------------------
 template <class Creature>

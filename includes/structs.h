@@ -29,8 +29,9 @@ struct Dimensions
 
 struct BoxInfo
 {
-    BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength)
-        :startingPoint(_startingPoint), color(_color), boxWidth(_boxWidth), boxHeight(_boxHeight), boxLength(_boxLength)
+    BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength, int _value)
+        :startingPoint(_startingPoint), color(_color),
+         boxWidth(_boxWidth), boxHeight(_boxHeight), boxLength(_boxLength), value(_value)
     {}
 
     QPoint3D startingPoint;
@@ -38,6 +39,7 @@ struct BoxInfo
     int boxWidth;
     int boxHeight;
     int boxLength;
+    int value;
 };
 
 
