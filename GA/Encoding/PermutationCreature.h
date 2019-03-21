@@ -32,6 +32,7 @@ private:
 	BoxInfo bottomLeftFill(Item item);
 	bool isIndexFit(int i, int j,int k, Item item);
 
+    bool*** booleanGraphsSpaces;
     int fitness = 0;
     std::vector<BoxInfo> boxesPositions;
     std::vector<int> chromozome;

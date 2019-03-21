@@ -2,14 +2,13 @@
 #include <algorithm>    //for std::max
 #include <string>
 
-bool*** booleanGraphsSpaces;
-
 //input:  Configuration
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
 PermutationCreature::PermutationCreature(Configuration* conf)
     :configuration(conf)
 {
+    booleanGraphsSpaces = nullptr;
 	chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) {	chromozome.push_back(i); }
 	std::random_shuffle(chromozome.begin(), chromozome.end());
@@ -198,8 +197,9 @@ int PermutationCreature::calculateFittness()
 			delete[] booleanGraphsSpaces[i];
 		}
 		delete[] booleanGraphsSpaces;
+		booleanGraphsSpaces = nullptr;
 
-    return fitness;
+	return fitness;
 }
 BoxInfo PermutationCreature::bottomLeftFill(Item item)
 {
