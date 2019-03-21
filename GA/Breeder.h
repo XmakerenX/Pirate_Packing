@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include "GA_Random.h"
+#include "GA_Settings.h"
 
 template <class Creature>
 class Breeder

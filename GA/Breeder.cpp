@@ -12,7 +12,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	std::discrete_distribution<int> roulette = createSelectionRoulette(currentPopulation);
 
 	//create next generation population
-	float mutationChance = 0.2;
+	float mutationChance = GA_Settings::mutationRate;
 	int currentPopulationSize = currentPopulation.size();
 	std::vector<Creature> newPopulation;
 	newPopulation.reserve(currentPopulationSize * 2);
@@ -34,7 +34,8 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	}
 
 	std::sort(currentPopulation.begin(), currentPopulation.end(), [](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
-	for (int i = 0; i < 5; i++)
+    int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
+	for (int i = 0; i < elitismGroupSize; i++)
 		newPopulation.push_back(currentPopulation[i]);
 
 	return newPopulation;
