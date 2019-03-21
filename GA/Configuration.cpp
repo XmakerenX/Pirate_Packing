@@ -1,35 +1,42 @@
 #include "Configuration.h"
+#include "GA_Random.h"
 
-Configuration::Configuration(Dimensions _dim, int _numberOfItems)
+Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 	:dim(_dim), numberOfItems(_numberOfItems)
 {
-    maxiumValue = 0;
-	items = generateItems();//This generate an empty vector of items
-	for (int i = 0; i < numberOfItems; i++)//this creates items and put it inside the vector
-	{
-		Item item(*this,i);
-        maxiumValue += item.value;
-		items.push_back(item);
-	}
+	generateItems();
 }
 //------------------------------------------------------------------------------------
 void Configuration::Reset()
 {
-    maxiumValue = 0;
-	items.clear();
-	items = generateItems();
-	for (int i = 0; i < numberOfItems; i++)
-	{
-		Item item(*this, i);
-        maxiumValue += item.value;
-		items.push_back(item);
-	}
+	generateItems();
 }
 //------------------------------------------------------------------------------------
-Configuration::Configuration() : dim(0,0,0), numberOfItems(0)
+void Configuration::generateItems()
 {
-	//this constructor is needed in order to perfom
-	//Configuration c1 = c2;
+	std::uniform_int_distribution<int> itemWidthDist(1, dim.w);
+	std::uniform_int_distribution<int> itemHeightDist(1, dim.h);
+	std::uniform_int_distribution<int> itemDepthDist(1, dim.d);
+	std::uniform_int_distribution<int> itemValueDist(1, 10000);
+	
+	maxiumValue = 0;
+	items.clear();    
+	for (int i = 0; i < numberOfItems; i++)
+	{
+		//generate a random value
+		int itemValue = itemValueDist(Random::default_engine.getGenerator());
+		//generate dimensions
+		Dimensions itemDim;
+		do
+		{
+			itemDim.w  = itemWidthDist(Random::default_engine.getGenerator());
+			itemDim.h = itemHeightDist(Random::default_engine.getGenerator());
+			itemDim.d  = itemDepthDist(Random::default_engine.getGenerator());
+		} while (itemDim.w * itemDim.h * itemDim.d > (dim.w * dim.h * dim.d) / 6);
+		        
+		maxiumValue += itemValue;
+		items.emplace_back(itemDim, itemValue, i);
+    }
 }
 //------------------------------------------------------------------------------------
 Configuration::~Configuration()
