@@ -68,23 +68,23 @@ void MainWindow::on_pushButton_2_clicked()
 	QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"), "/path/to/file/", tr("data Files (*.txt)"));
 	//todo: make sure the user can only choose one file
 	//todo: validate file
-
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_3_clicked()
 {
-    std::cout << "Enter data button clicked\n";
-    QStackedWidget* stackedWidget = this->centralWidget()->findChild<QStackedWidget*>("stackedWidget");
-    stackedWidget->setCurrentIndex(2);
+	std::cout << "Enter data button clicked\n";
+	ui->stackedWidget->setCurrentIndex(2);
+	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
+	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
+	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
+	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
 	this->setFixedSize(813, 837);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
 {
 	std::cout << "Settings back button clicked\n";
-	QStackedWidget* stackedWidget = this->centralWidget()->findChild<QStackedWidget*>("stackedWidget");
-	
-	stackedWidget->setCurrentIndex(0);
+	ui->stackedWidget->setCurrentIndex(0);
 	this->setFixedSize(738, 539);
 }
 //------------------------------------------------------------------------------------
@@ -113,8 +113,7 @@ void MainWindow::on_confirmButton_clicked()
 		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
 		else { GA_Settings::method = GA_Method::PureGenetic; }
 
-		QStackedWidget* stackedWidget = this->centralWidget()->findChild<QStackedWidget*>("stackedWidget");
-		stackedWidget->setCurrentIndex(1);
+		ui->stackedWidget->setCurrentIndex(1);
 		this->setFixedSize(738, 539);
 	}
 	else
