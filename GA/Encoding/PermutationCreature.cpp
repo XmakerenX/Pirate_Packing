@@ -211,11 +211,11 @@ BoxInfo PermutationCreature::bottomLeftFill(Item item)
 	int max_w = containerDim.w - item.dim.w;
 
 	//search row by row from the leftest corner to find a match
-	for (int i = 0; i < max_d;i++)
+	for (int i = 0; i <= max_d;i++)
 	{
-		for (int k = 0; k <max_w; k++)
+		for (int k = 0; k <=max_w; k++)
 		{	
-			for (int j = 0; j <max_h; j++)
+			for (int j = 0; j <=max_h; j++)
 			{
 				if (isIndexFit(i, j,k, item))
 				{
