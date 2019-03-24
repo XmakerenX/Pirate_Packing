@@ -58,6 +58,10 @@ void MainWindow::setForms()
 		viewer->setContainerDimensions(containerDim);
 		// enable anit-aliasing so boxes will look less shit
 		QSurfaceFormat format;
+		// Force Qt to use OpenGL core profile
+		// Qt is silly and uses by defualt the OpenGL Compatibility profile
+		// this can cuase issues with some open source drivers
+		format.setVersion(3,3); 
 		format.setSamples(4);
 		viewer->setFormat(format);
 		viewer->show();

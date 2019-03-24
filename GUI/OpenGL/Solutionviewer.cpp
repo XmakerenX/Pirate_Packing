@@ -21,7 +21,7 @@ SolutionViewer::~SolutionViewer()
 {
     // make sure that our opengl context is set
     makeCurrent();
-
+    
     if (m_boxesShader)
         delete m_boxesShader;
     if (boxMesh)
@@ -107,6 +107,8 @@ void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
 //-----------------------------------------------------------------------------
 void SolutionViewer::initializeGL()
 {
+    // Print the OpenGL version that Qt has initialized 
+    std::cout << QOpenGLContext::currentContext()->functions()->glGetString(GL_VERSION) << "\n";
     // Set up the rendering context, load shaders and other resources, etc.:
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
