@@ -28,10 +28,3 @@ private:
     unsigned long int seed;
     std::default_random_engine generator;
 };
-
-class GA_Random
-{
-public:
-	GA_Random();
-	~GA_Random();
-};
