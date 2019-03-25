@@ -30,7 +30,7 @@ std::vector<std::vector<BoxInfo>>& GAThread::getBoxesInfo()
 			return binary.getBoxesInfo();
 		}
 	}
-};
+}
 //---------------------------------------------------------------------
 void GAThread::emitBoxReady(int generationBoxesSize)
 {
@@ -42,7 +42,6 @@ void GAThread::emitBoxReady(int generationBoxesSize)
 void GAThread::run()
 {
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
-	configuration.Reset();
 	emit GAStarted();
 	switch (GA_Settings::method)
 	{
@@ -66,3 +65,7 @@ void GAThread::run()
 	emit GAFinished();
 }
 //------------------------------------------------------------------------------------------------
+void GAThread::resetConfiguration()
+{
+	configuration.Reset();
+}
