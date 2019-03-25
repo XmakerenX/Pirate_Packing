@@ -7,6 +7,7 @@ class Configuration
 {
 public:
 	Configuration(const Dimensions& _dim, int _numberOfItems);
+	Configuration(const Dimensions& _dim, std::vector<Item>& givenItems);
 	~Configuration();
 
 	void Reset();

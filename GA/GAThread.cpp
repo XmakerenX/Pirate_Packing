@@ -8,6 +8,12 @@
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
 	:configuration(containerDimensions, nItems)
 {
+	
+}
+//----------------------------------------------------------------------
+GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
+	:configuration(containerDimensions, givenItems)
+{
 
 }
 //----------------------------------------------------------------------

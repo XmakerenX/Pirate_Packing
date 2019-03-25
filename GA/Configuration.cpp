@@ -7,6 +7,15 @@ Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 	generateItems();
 }
 //------------------------------------------------------------------------------------
+Configuration::Configuration(const Dimensions& _dim, std::vector<Item>& givenItems)
+	: dim(_dim), numberOfItems(givenItems.size())
+{
+	for (Item item : givenItems)
+	{
+		this->items.emplace_back(item);
+	}
+}
+//------------------------------------------------------------------------------------
 void Configuration::Reset()
 {
 	generateItems();
@@ -33,7 +42,7 @@ void Configuration::generateItems()
 			itemDim.h = itemHeightDist(Random::default_engine.getGenerator());
 			itemDim.d  = itemDepthDist(Random::default_engine.getGenerator());
 		} while (itemDim.w * itemDim.h * itemDim.d > (dim.w * dim.h * dim.d) / 6);
-		        
+
 		maxiumValue += itemValue;
 		items.emplace_back(itemDim, itemValue, i);
     }
@@ -41,5 +50,6 @@ void Configuration::generateItems()
 //------------------------------------------------------------------------------------
 Configuration::~Configuration()
 {
+
 }
 //------------------------------------------------------------------------------------

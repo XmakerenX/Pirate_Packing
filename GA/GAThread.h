@@ -50,6 +50,7 @@ class GAThread : public QThread
 {
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
+	GAThread(Dimensions containerDimensions, std::vector<Item> givenItems);
 	std::vector<std::vector<BoxInfo>>& getBoxesInfo();  
 	void emitBoxReady(int generationBoxesSize);
 	Q_OBJECT
