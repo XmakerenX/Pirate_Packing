@@ -10,9 +10,10 @@ Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 Configuration::Configuration(const Dimensions& _dim, std::vector<Item>& givenItems)
 	: dim(_dim), numberOfItems(givenItems.size())
 {
-	for (Item item : givenItems)
+	items.clear();
+	for (Item& item : givenItems)
 	{
-		this->items.emplace_back(item);
+		this->items.emplace_back(item.dim,item.value,item.id);
 	}
 }
 //------------------------------------------------------------------------------------
