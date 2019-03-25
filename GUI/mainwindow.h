@@ -18,9 +18,9 @@ public:
 	~MainWindow();
 
 	private slots:
-	void on_pushButton_2_clicked();
-
-	void on_pushButton_3_clicked();
+	void on_loadDataButton_clicked();
+	void on_enterDataButton_clicked();
+	void on_wumpusButton_clicked();
 	void on_startButton_clicked();
     
 	void updateGAStarted();

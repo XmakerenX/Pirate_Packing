@@ -151,11 +151,11 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
        <string/>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="loadDataButton">
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>250</y>
+        <y>220</y>
         <width>161</width>
         <height>51</height>
        </rect>
@@ -171,11 +171,11 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
        <string>Load Data</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="enterDataButton">
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>330</y>
+        <y>380</y>
         <width>161</width>
         <height>51</height>
        </rect>
@@ -189,6 +189,26 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
       </property>
       <property name="text">
        <string>Enter Data</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="wumpusButton">
+      <property name="geometry">
+       <rect>
+        <x>52</x>
+        <y>300</y>
+        <width>161</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Wumpus</string>
       </property>
      </widget>
     </widget>
@@ -750,7 +770,7 @@ background-color: rgb(72,101,130)</string>
      <x>0</x>
      <y>0</y>
      <width>813</width>
-     <height>30</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

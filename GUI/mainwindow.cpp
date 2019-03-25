@@ -70,7 +70,7 @@ void MainWindow::setForms()
 }
 //------------------------------------------------------------------------------------
 //load data button:
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_loadDataButton_clicked()
 {
 	//get input:
 	std::string input = readFileFromUser();
@@ -185,7 +185,12 @@ void MainWindow::parseInput(string input)
 	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_enterDataButton_clicked()
+{
+	
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_wumpusButton_clicked()
 {
 	std::cout << "Enter data button clicked\n";
 	ui->stackedWidget->setCurrentIndex(2);
@@ -196,6 +201,7 @@ void MainWindow::on_pushButton_3_clicked()
 	this->setFixedSize(813, 837);
 
 	GA = new GAThread(containerDim, 100);
+	GA->resetConfiguration();
 	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
 	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
 	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
