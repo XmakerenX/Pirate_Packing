@@ -54,9 +54,23 @@ struct CantFitException : public std::exception
 {
 	const char * what() const throw ()
 	{
-		return "Could fit the item inside the container";
+		return "Could not fit the item inside the container";
 	}
 };
+//------------------------------------------------------------------
+struct InvalidInputException : public std::exception
+{
+	std::string errorMsg = "data is invalid";
+	const char * what() const throw ()
+	{
+		return errorMsg.c_str();
+	}
+	void setErrorMsg(std::string newErrorMsg)
+	{
+		errorMsg = newErrorMsg;
+	}
+};
+//------------------------------------------------------------------
 struct Color
 {
 	Color(){}
