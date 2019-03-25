@@ -39,6 +39,9 @@ private:
     GAThread * GA;
 
 	void setForms();
+	void validateInput(std::string inputString);
+	std::string readFileFromUser();
+	void parseInput(std::string str);
 };
 
 #endif // MAINWINDOW_H

@@ -9,6 +9,11 @@
 #include <QPixmap>
 #include <QString>
 #include <iostream>
+#include <fstream>
+#include <regex>
+#include <sstream>
+
+using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) 
 :	QMainWindow(parent),
@@ -20,10 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	setForms();
 
-	GA = new GAThread(containerDim, 100);
-	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
-	connect(GA, &GAThread::GAStarted, this,    &MainWindow::updateGAStarted);
-	connect(GA, &GAThread::GAFinished, this,   &MainWindow::updateGAFinished);
+	
 }
 //------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -67,11 +69,120 @@ void MainWindow::setForms()
 		viewer->show();
 }
 //------------------------------------------------------------------------------------
+//load data button:
 void MainWindow::on_pushButton_2_clicked()
 {
-	QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"), "/path/to/file/", tr("data Files (*.txt)"));
-	//todo: make sure the user can only choose one file
-	//todo: validate file
+	//get input:
+	std::string input = readFileFromUser();
+	if (input == "") return;
+	std::regex rexp("[^\\d | \\. | \\b | \\n]");//regex to keep only numbers
+	std::string input_numbersOnly = std::regex_replace(input, rexp, "");
+	
+	//validate
+	try
+	{
+		validateInput(input_numbersOnly);
+		parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+
+		//set settings menu:
+		ui->stackedWidget->setCurrentIndex(2);
+		ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
+		ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
+		ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
+		ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
+		this->setFixedSize(813, 837);
+	}
+	catch (InvalidInputException exeption)
+	{
+		std::cout << exeption.what();//report exception
+		QMessageBox messageBox;//create a new messege box
+		messageBox.critical(0, "Error", exeption.what());
+		messageBox.setFixedSize(500, 200);
+		messageBox.show();
+		return;
+	}	
+}
+//-----------------------------------------------------------------------------------
+std::string MainWindow::readFileFromUser()
+{
+	//open input file:
+	QFile file(QFileDialog::getOpenFileName(this, tr("Open input data"), "/home/", tr("data Files (*.txt)")));
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))    return "";
+	QString content = file.readAll();
+	return content.toStdString();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::validateInput(std::string inputString)
+{
+	if (inputString == "")
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("input doesnt contain any numeric info");
+		throw ex;
+	}
+
+	std::stringstream myInputParser(inputString);
+	int numberOfIntegresFoundInInput = 0;
+	float var;
+	while (myInputParser)
+	{
+		myInputParser >> var;
+		numberOfIntegresFoundInInput++;
+		if (var - (int)var != 0)
+		{
+			InvalidInputException ex;
+			ex.setErrorMsg("input cant contain a float value!");
+			throw ex;
+		}
+	}
+	if ((numberOfIntegresFoundInInput < 7) && (!((numberOfIntegresFoundInInput - 3) % 4 == 0)))
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("input contains incomplete data");
+		throw ex;
+	}
+}
+//-----------------------------------------------------------------------------------
+void MainWindow::parseInput(string input)
+{
+	std::vector<Item> givenItemList;
+
+	try
+	{
+		std::stringstream myInputParser(input);
+
+		//parse container:
+		int container_width, container_height, container_depth;
+
+		myInputParser >> container_width;
+		myInputParser >> container_height;
+		myInputParser >> container_depth;
+
+		//parse items
+		int id = 0;
+		int item_width, item_height, item_depth, item_value;
+
+		while (myInputParser>> item_width)
+		{
+			//parse a singel item:
+			myInputParser >> item_height;
+			myInputParser >> item_depth;
+			myInputParser >> item_value;
+			Item item(Dimensions(item_width, item_height, item_depth), item_value, id);
+			givenItemList.emplace_back(item);
+			id++;
+		}
+	}
+	catch (std::exception exp)
+	{
+		std::cout << exp.what();
+		throw InvalidInputException();
+	}
+
+	GA = new GAThread(containerDim, givenItemList);
+	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
+	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
+	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_pushButton_3_clicked()
@@ -83,6 +194,11 @@ void MainWindow::on_pushButton_3_clicked()
 	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
 	this->setFixedSize(813, 837);
+
+	GA = new GAThread(containerDim, 100);
+	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
+	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
+	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
@@ -158,3 +274,5 @@ void MainWindow::on_radioButton_pureGenetics_clicked()
 	ui->radioButton_HybridGenetics->setChecked(false);
 	ui->radioButton_pureGenetics->setChecked(true);
 }
+//---------------------------------------------------------------------
+
