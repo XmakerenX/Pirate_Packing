@@ -22,7 +22,8 @@ public:
 	void on_enterDataButton_clicked();
 	void on_wumpusButton_clicked();
 	void on_startButton_clicked();
-    
+	void on_resultsResetButton_clicked();
+
 	void updateGAStarted();
 	void updateGAFinished();
 

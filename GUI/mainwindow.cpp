@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	//Init UI:
 	ui->setupUi(this);
-
 	setForms();
 
 	
@@ -56,7 +55,7 @@ void MainWindow::setForms()
 	
 	//Form - Solution 
 		viewer = new SolutionViewer(ui->page_2);
-		viewer->setGeometry(QRect(210, 130, 320, 240));
+		viewer->setGeometry(QRect(600, 250, 350, 300));
 		viewer->setContainerDimensions(containerDim);
 		// enable anit-aliasing so boxes will look less shit
 		QSurfaceFormat format;
@@ -158,6 +157,11 @@ void MainWindow::parseInput(string input)
 		myInputParser >> container_height;
 		myInputParser >> container_depth;
 
+		this->containerDim.d = container_depth;
+		this->containerDim.h = container_height;
+		this->containerDim.w = container_width;
+		viewer->setContainerDimensions(containerDim);
+
 		//parse items
 		int id = 0;
 		int item_width, item_height, item_depth, item_value;
@@ -237,10 +241,10 @@ void MainWindow::on_confirmButton_clicked()
 		else { GA_Settings::mutationRate = textBoxesArray[3].toFloat(); }
 
 		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
-		else { GA_Settings::method = GA_Method::PureGenetic; }
+		else { GA_Settings::method = GA_Method::PureGenetic;}
 
 		ui->stackedWidget->setCurrentIndex(1);
-		this->setFixedSize(738, 539);
+		this->setFixedSize(1000, 900);
 	}
 	else
 	{
@@ -254,7 +258,23 @@ void MainWindow::on_confirmButton_clicked()
 void MainWindow::on_startButton_clicked()
 {
     std::cout << "start button clicked\n";
+	std::string startButtonText =( ui->startButton->text()).toStdString();
+
+
+	if (startButtonText == "start")
+	{
+		ui->startButton->setText("Stop");
+	}
+	if (startButtonText == "Stop")
+	{
+		ui->startButton->setText("Continue");
+	}
     GA->start();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_resultsResetButton_clicked()
+{
+	GA->resetConfiguration();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAStarted()
