@@ -33,33 +33,13 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
     
 	//print data about this generation
 	std::cout << "Gen:" << gen << "\n\t";
-	int avgFittness = currentGenPopulationFitness / GA_Settings::populationSize;
-	int maxFittness = generationMaximumFitness;
-	std::cout << "Average fittness: " << avgFittness << "\tBest fittness: " << maxFittness << "  \tTime passed: " << duration << "\n";
-    
-	int maxFitness = 0;
-	int maxI = 0;
-	for (int i = 0; i < population.size(); i++)
-	{
-		if (population[i].getFitness() > maxFitness)
-		{
-			maxFitness = population[i].getFitness();
-			maxI = i;
-		}
-	}
-	PrintSolution(population[maxI]);
+	std::cout << "Average fittness: " << currentGenerationData.avarageFittness
+		<< "\tBest fittness: " << currentGenerationData.bestCreature_Fittness << "  \tTime passed: " << duration << "\n"
+		<< "\toverall Value " << currentGenerationData.bestCreature_ValuePercentage << "%"
+		<< "  \toverall Volume " << currentGenerationData.bestCreature_VolumeFilled << "%\n";
+
 	gen++;
-	
-	if (gen < GA_Settings::numberOfGenerations)
-	{
-		return true;
-	}
-	else
-	{
-		//---Prints results ------/
-		printFinalDataAndSaveResulsts(population, configuration);
-		return false;
-	}
+	return (gen < GA_Settings::numberOfGenerations);
 }
 //---------------------------------------------------------------------------------------
 template <class Creature>
@@ -80,58 +60,53 @@ void GA_Core<Creature>::PrintSolution(Creature& c)
     std::cout << "\toverall Value " << overallValue << " " << overallValue / (float)conf->maxiumValue << 
                  "%\toverall Volume " << overallVolume << "  " << overallVolume /  (containerVolume)  << "%\n"; 
 }
-//---------------------------------------------------------------------------------------
-template <class Creature>
-void GA_Core<Creature>::printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration)
-{
-// 	Chromozome greedyChromozome;
-// 	std::vector<Item> allItems;
-// 	for (int i = 0; i < configuration.numberOfItems; i++)
-// 	{
-// 		allItems.push_back(configuration.items[i]);
-// 	}
-// 	std::sort(allItems.begin(), allItems.end(), [](const Item& b, const Item& a)
-// 	{
-// 		int thisSize = b.height*b.width;
-// 		int otherSize = a.height*a.width;
-// 		return (thisSize > otherSize);
-// 	});
-// 
-// 
-// 	for (int i = 0; i < configuration.numberOfItems; i++)
-// 	{
-// 		greedyChromozome.push_back(allItems[i].id);
-// 	}
-// 	std::cout << "------------------------------------------------\n";
-// 	double maxOverallFittness = (double)overallMaximumFitness / (configuration.container_width * configuration.container_height);
-// 	std::cout << "GA best fittness: " << maxOverallFittness << "\n";
-// 	std::cout << "Greedy approach fittness: " << double(Creature(greedyChromozome, &configuration).fitness) / (configuration.container_width * configuration.container_height) << "\n";
-// 
-// 	double max = 0;
-// 	int index = 0;
-// 	for (int i = 0; i < populationSize; i++)
-// 	{
-// 		if (population[i].fitness>max)
-// 		{
-// 			max = population[i].fitness;
-// 			index = i;
-// 		}
-// 	}
-// 	std::cout << "Finished." << '\n';
-}
-//---------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration)
 {
 	generationMaximumFitness = 0;
 	currentGenPopulationFitness = 0;
+	Creature& bestCreature = population[0];
+
+	//find best creature
 	for (Creature& indiviual : population)
 	{
-		//get data
 		currentGenPopulationFitness += indiviual.getFitness();
-		generationMaximumFitness = std::max(generationMaximumFitness, indiviual.getFitness());
+		int individualFittness = indiviual.getFitness();
+		if (generationMaximumFitness < individualFittness)
+		{
+			generationMaximumFitness = individualFittness;
+			bestCreature = indiviual;
+		}
 	}
+	currentGenerationData.avarageFittness = currentGenPopulationFitness / GA_Settings::populationSize;
+	currentGenerationData.bestCreature_Fittness = generationMaximumFitness;
+
 	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
+	
+	generationBoxes.emplace_back(bestCreature.getBoxPositions());
+	Configuration * conf = bestCreature.getConfiguration();
+	int overallValue = 0;
+	int overallVolume = 0;
+	std::vector<BoxInfo>& boxesPositions = generationBoxes[generationBoxes.size() - 1];
+	for (BoxInfo& boxinfo : boxesPositions)
+	{
+		overallValue += boxinfo.value;
+		overallVolume += boxinfo.boxWidth * boxinfo.boxHeight * boxinfo.boxLength;
+	}
+	float containerVolume = conf->dim.w * conf->dim.h * conf->dim.d;
+	
+	currentGenerationData.bestCreature_ValuePercentage = overallValue / (float)conf->maxiumValue;
+	currentGenerationData.bestCreature_VolumeFilled = overallVolume / (containerVolume);
+	
+	bestCreatureBoxInfo.clear();
+	bestCreatureBoxInfo.reserve(boxesPositions.size());
+	for (int i = 0; i < boxesPositions.size();i++)
+	{
+		bestCreatureBoxInfo.emplace_back(boxesPositions[i]);
+	}
+	currentGenerationData.bestCreature_BoxInfo = bestCreatureBoxInfo;
+	currentGenerationData.bestFittnessUntillThisGeneration = overallMaximumFitness;
 }
 //-----------------------------------------------------------------------------------------	
 //Creates an array of random creatures
