@@ -26,12 +26,16 @@ public:
 
 	void updateGAStarted();
 	void updateGAFinished();
+	void updateGuiDataCorrespondsToNewGeneration(int currentGen);
 
 public slots:
 	void on_radioButton_HybridGenetics_clicked();
 	void on_radioButton_pureGenetics_clicked();
 	void on_confirmButton_clicked();
 	void on_backButton_clicked();
+	void on_resultsBackButton_clicked();
+	void on_generationComboBox_currentIndexChanged(QString indexStr);
+
     
 private:
 	Ui::MainWindow *ui;

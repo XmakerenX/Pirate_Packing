@@ -66,6 +66,7 @@ void MainWindow::setForms()
 		format.setSamples(4);
 		viewer->setFormat(format);
 		viewer->show();
+		
 }
 //------------------------------------------------------------------------------------
 //load data button:
@@ -184,6 +185,7 @@ void MainWindow::parseInput(string input)
 	}
 
 	GA = new GAThread(containerDim, givenItemList);
+	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
 	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
 	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
 	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
@@ -204,8 +206,9 @@ void MainWindow::on_wumpusButton_clicked()
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
 	this->setFixedSize(813, 837);
 
-	GA = new GAThread(containerDim, 100);
+	GA = new GAThread(containerDim, 100); 
 	GA->resetConfiguration();
+	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
 	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
 	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
 	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
@@ -243,6 +246,12 @@ void MainWindow::on_confirmButton_clicked()
 		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
 		else { GA_Settings::method = GA_Method::PureGenetic;}
 
+
+		ui->progressBar->setMinimum(0);
+		ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
+		ui->progressBar->setMinimum(0);
+
+
 		ui->stackedWidget->setCurrentIndex(1);
 		this->setFixedSize(1000, 900);
 	}
@@ -253,23 +262,57 @@ void MainWindow::on_confirmButton_clicked()
 		messageBox.setFixedSize(500, 200);
 	}
 
+	
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_startButton_clicked()
 {
     std::cout << "start button clicked\n";
-	std::string startButtonText =( ui->startButton->text()).toStdString();
+	QString startButtonText = ui->startButton->text();
 
-
-	if (startButtonText == "start")
+	if (startButtonText == "Start")
 	{
 		ui->startButton->setText("Stop");
+		GA->start();
 	}
-	if (startButtonText == "Stop")
+	else  if (startButtonText == "Stop")
 	{
+		GA->stopGeneticAlgorithm = true;
 		ui->startButton->setText("Continue");
 	}
-    GA->start();
+	else  if (startButtonText == "Continue")
+	{
+		GA->stopGeneticAlgorithm = false;
+		ui->startButton->setText("Stop");
+	}
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
+{
+	//int number = indexStr.toInt() - 1;
+	//GenerationData chosenGeneration = GA->allGenerationsData[number];
+
+	/*
+	ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness).mid(0, 4));
+	ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreature_Fittness));
+	ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreature_VolumeFilled).mid(0, 4));
+	ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreature_ValuePercentage).mid(0, 4));
+	//ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestFittnessUntillThisGeneration).c_str()));
+
+	*/
+	//GA->emitBoxReady()
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_resultsBackButton_clicked()
+{
+	/*
+	ui->stackedWidget->setCurrentIndex(2);
+	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
+	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
+	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
+	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
+	this->setFixedSize(813, 837);*/
+
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsResetButton_clicked()
@@ -277,14 +320,28 @@ void MainWindow::on_resultsResetButton_clicked()
 	GA->resetConfiguration();
 }
 //------------------------------------------------------------------------------------
+void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
+{
+	
+	GenerationData data = GA->allGenerationsData[currentGeneration];
+	ui->AvaregeFittness->setText(QString(std::to_string(data.avarageFittness).c_str()).mid(0,4));
+	ui->BestGenerationalFIttnessTextBox->setText(QString(std::to_string(data.bestCreature_Fittness).c_str()));
+	ui->VolumeFilledTextBox->setText(QString(std::to_string(data.bestCreature_VolumeFilled).c_str()).mid(0, 4));
+	ui->ValuePercentageTextBox->setText(QString(std::to_string(data.bestCreature_ValuePercentage).c_str()).mid(0, 4));
+	ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestFittnessUntillThisGeneration).c_str()));
+	ui->progressBar->setValue(currentGeneration+1);
+	ui->generationComboBox->addItem(QString(currentGeneration));
+}
+//------------------------------------------------------------------------------------
 void MainWindow::updateGAStarted()
 {
-    ui->startButton->setEnabled(false);
+   ui->resultsResetButton->setEnabled(false);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
 {
-    ui->startButton->setEnabled(true);
+	ui->startButton->setText("Start");
+    ui->resultsResetButton->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
 //----------------------------------------------------------------------
