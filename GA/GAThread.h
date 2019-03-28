@@ -54,7 +54,8 @@ public:
 	std::vector<std::vector<BoxInfo>>& getBoxesInfo();  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
-
+	std::vector<GenerationData> allGenerationsData;
+	bool stopGeneticAlgorithm;
 	Q_OBJECT
 	void run() override;
     
@@ -64,6 +65,7 @@ signals:
 	void boxesReady(GAThread* ga, int index);
 	void GAStarted();
 	void GAFinished();
+	void generationPassed(int generationNumber);
 
 private:
 	Configuration configuration;
