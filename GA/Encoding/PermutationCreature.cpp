@@ -6,11 +6,11 @@
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
 PermutationCreature::PermutationCreature(Configuration* conf)
-    :configuration(conf)
+	:configuration(conf)
 {
-    booleanGraphsSpaces = nullptr;
+	booleanGraphsSpaces = nullptr;
 	chromozome.reserve(conf->numberOfItems);
-	for (int i = 0; i < conf->numberOfItems; i++) {	chromozome.push_back(i); }
+	for (int i = 0; i < conf->numberOfItems; i++) { chromozome.push_back(i); }
 	std::random_shuffle(chromozome.begin(), chromozome.end());
 	calculateFittness();
 }
@@ -22,7 +22,7 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	:configuration(conf)
 {
 	this->chromozome.reserve(conf->numberOfItems);
-	for (int i = 0; i < conf->numberOfItems; i++) {this->chromozome.push_back(chrom[i]);}
+	for (int i = 0; i < conf->numberOfItems; i++) { this->chromozome.push_back(chrom[i]); }
 }
 //----------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance)
@@ -51,7 +51,7 @@ void PermutationCreature::mutate(float mutationChance)
 void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population)
 {
 	//genereate crossing points
-	int PMX_StartIndex ,  PMX_EndIndex;
+	int PMX_StartIndex, PMX_EndIndex;
 	initializeCrossOverPoints(PMX_StartIndex, PMX_EndIndex);
 
 	//init children:
@@ -61,16 +61,16 @@ void PermutationCreature::crossover(PermutationCreature parent2, std::vector<Per
 
 	//Create children chromozomes:
 	createTwoChildren(child1Chromozome, child2Chromozome, PMX_StartIndex, PMX_EndIndex,
-						this->chromozome, parent2.chromozome);
+		this->chromozome, parent2.chromozome);
 
-    
-    population.emplace_back(this->configuration, child1Chromozome);
-    population.emplace_back(this->configuration, child2Chromozome);
+
+	population.emplace_back(this->configuration, child1Chromozome);
+	population.emplace_back(this->configuration, child2Chromozome);
 }
 //------------------------------------------------------------------
 void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 {
-	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration ->numberOfItems - 1);
+	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration->numberOfItems - 1);
 	int PMX_StartIndex, PMX_EndIndex;
 	do {
 		//get the first index
@@ -81,13 +81,13 @@ void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 			PMX_EndIndex = cromozomesIndexes(Random::default_engine.getGenerator());
 		} while (PMX_EndIndex == PMX_StartIndex);
 	} while ((PMX_EndIndex - PMX_StartIndex) >= (this->configuration->numberOfItems / 2));//dont allow too big crossing points   
-	
+
 	startPos = std::min(PMX_StartIndex, PMX_EndIndex);
 	endPos = std::max(PMX_StartIndex, PMX_EndIndex);
 }
 //--------------------------------------------------------------------------------------------------
-void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2,int min,int max,
-					   Chromozome parent1_chromozome, Chromozome parent2_chromozome)
+void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
+	Chromozome parent1_chromozome, Chromozome parent2_chromozome)
 {
 
 	std::unordered_map<int, int> child1Hash, child2Hash;
@@ -149,111 +149,121 @@ int PermutationCreature::calculateFittness()
 	fitness = 0;
 	boxesPositions.clear();
 
-		//allocation of a 3d boolean array:
-		Configuration* conf = this->configuration;
-		Dimensions containerDim = conf->dim;
-		int i, j, k;
-	    booleanGraphsSpaces = new bool **[containerDim.d]();
-		for (i = 0; i < containerDim.d; i++)
+	//allocation of a 3d boolean array:
+	Configuration* conf = this->configuration;
+	Dimensions containerDim = conf->dim;
+	int i, j, k;
+
+	booleanGraphsSpaces = new bool **[containerDim.d]();
+	for (i = 0; i < containerDim.d; i++)
+	{
+		booleanGraphsSpaces[i] = new bool *[containerDim.h]();
+
+		for (j = 0; j < containerDim.h; j++)
 		{
-			booleanGraphsSpaces[i] = new bool *[containerDim.w]();
-			for (j = 0; j < containerDim.w; j++)
-				booleanGraphsSpaces[i][j] = new bool[containerDim.h]();
+			booleanGraphsSpaces[i][j] = new bool[containerDim.w]();
 		}
+	}
 
 
-		for (int i = 0; i < containerDim.d; i++)
+	for (int i = 0; i < containerDim.d; i++)
+	{
+		for (int j = 0; j < containerDim.h; j++)
 		{
-			for (int j = 0; j < containerDim.w; j++)
+			for (int k = 0; k < containerDim.w; k++)
 			{
-				for (int k = 0; k < containerDim.h; k++)
-				{
-					booleanGraphsSpaces[i][j][k] = false;
-				}
+				booleanGraphsSpaces[i][j][k] = false;
 			}
 		}
+	}
 
-
-		//continue placing items untill its not possible
-		for (int i = 0; i < configuration->numberOfItems; i++)
+	//continue placing items untill its not possible
+	for (int i = 0; i < configuration->numberOfItems; i++)
+	{
+		try//try fitting a lego
 		{
-			try//try fitting a lego
-			{
-				int currentItemIndex = chromozome[i];
-				Item item = configuration->items[currentItemIndex];
-				this->boxesPositions.push_back(bottomLeftFill(item));
-				fitness += item.value;
-			}
-			catch (CantFitException cantfitEx) // break if you can't
-			{
-				continue;
-			}
+			int currentItemIndex = chromozome[i];
+			Item item = configuration->items[currentItemIndex];
+			this->boxesPositions.push_back(bottomLeftFill(item));
+			fitness += item.value;
 		}
-		//free memory
-		for (int i = 0; i < containerDim.d; i++)
+		catch (CantFitException cantfitEx) // break if you can't
 		{
-			for (int j = 0; j < containerDim.w; j++)
-				delete[] booleanGraphsSpaces[i][j];
-			delete[] booleanGraphsSpaces[i];
+			continue;
 		}
-		delete[] booleanGraphsSpaces;
-		booleanGraphsSpaces = nullptr;
+	}
+	//free memory
+	for (int i = 0; i < containerDim.d; i++)
+	{
+		for (int j = 0; j < containerDim.h; j++)
+			delete[] booleanGraphsSpaces[i][j];
+		delete[] booleanGraphsSpaces[i];
+	}
+	delete[] booleanGraphsSpaces;
+	booleanGraphsSpaces = nullptr;
 
 	return fitness;
 }
 BoxInfo PermutationCreature::bottomLeftFill(Item item)
 {
-	BoxInfo placedPosition(QPoint3D(0,0,0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f), item.dim.h, item.dim.w, item.dim.d, item.value);
+	BoxInfo placedPosition(QPoint3D(0, 0, 0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f),
+									item.dim.w, item.dim.h, item.dim.d, item.value);
 	Dimensions containerDim = configuration->dim;
 
-	int max_d = containerDim.d - item.dim.d;
-	int max_h = containerDim.h - item.dim.h;
-	int max_w = containerDim.w - item.dim.w;
+	int max_z = containerDim.d - item.dim.d;//max possible value of z
+	int max_y = containerDim.h - item.dim.h;//max possible value of y
+	int max_x = containerDim.w - item.dim.w;//max possible value of x
 
-	//search row by row from the leftest corner to find a match
-	for (int i = 0; i <= max_d;i++)
+
+	for (int _z = 0; _z <= max_z; _z++)//deepest
 	{
-		for (int k = 0; k <=max_w; k++)
-		{	
-			for (int j = 0; j <=max_h; j++)
+		for (int _y = 0; _y <= max_y; _y++)//bottomest
+		{
+			for (int _x = 0; _x <= max_x; _x++) //leftest
 			{
-				if (isIndexFit(i, j,k, item))
+				if (isIndexFit(_x, _y, _z, item))
 				{
-					
-					placedPosition.startingPoint = QPoint3D(j, k, i);
+
+					placedPosition.startingPoint = QPoint3D(_x, _y, _z);
 					return placedPosition;
 				}
 			}
 		}
 	}
+
+
 	throw CantFitException();
 }
 //--------------------------------------------------------------------------------
-bool PermutationCreature::isIndexFit(int i, int j, int k, Item item)
+bool PermutationCreature::isIndexFit(int x, int y, int z, Item item)
 {
-	Dimensions dim = item.dim;
-	int max_d = i + dim.d;
-	int max_h = j + dim.h;
-	int max_w = k + dim.w;
+	Dimensions ItemDim = item.dim;
+	int max_x = x + ItemDim.w;
+	int max_y = y + ItemDim.h;
+	int max_z = z + ItemDim.d;
 
-	for (int d = i; d < max_d; d++)
+	for (int _z = z; _z < max_z; _z++)
 	{
-		for (int h = j; h < max_h; h++)
+		for (int _y = y; _y < max_y; _y++)
 		{
-			for (int w = k; w < max_w; w++)
+			for (int _x = x; _x < max_x; _x++)
 			{
-				if (booleanGraphsSpaces[d][h][w]) return false;
+				if (booleanGraphsSpaces[_z][_y][_x])
+				{
+					return false;
+				}
 			}
 		}
 	}
 
-	for (int d = i; d < max_d; d++)
+	//if we reach here then it does fit
+	for (int _z = z; _z < max_z; _z++)
 	{
-		for (int h = j; h < max_h; h++)
+		for (int _y = y; _y < max_y; _y++)
 		{
-			for (int w = k; w < max_w; w++)
+			for (int _x = x; _x < max_x; _x++)
 			{
-				booleanGraphsSpaces[d][h][w] = true;
+				booleanGraphsSpaces[_z][_y][_x] = true;
 			}
 		}
 	}
@@ -267,7 +277,7 @@ std::vector<BoxInfo> PermutationCreature::getBoxPositions()
 
 Configuration* PermutationCreature::getConfiguration() const
 {
-    return this->configuration;
+	return this->configuration;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -276,7 +286,7 @@ Configuration* PermutationCreature::getConfiguration() const
 //-----------------------------------------------------------------------------------------------
 void PermutationCreature::setFitness(int newFitness)
 {
-    this->fitness = newFitness;
+	this->fitness = newFitness;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -285,5 +295,5 @@ void PermutationCreature::setFitness(int newFitness)
 //-----------------------------------------------------------------------------------------------
 int PermutationCreature::getFitness() const
 {
-    return this->fitness;
+	return this->fitness;
 }
