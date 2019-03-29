@@ -8,6 +8,9 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QString>
+#include <QDesktopWidget>
+#include <QWidget>
+#include <QApplication>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -32,7 +35,7 @@ MainWindow::~MainWindow()
 void MainWindow::setForms()
 {
 	//Form - Main window
-	this->setFixedSize(738, 539);
+	this->setFixedSizeAndMoveToCenter(738, 539);
 		//Set icon:
 		std::string iconPath = GuiUtils::getFullPath("favicon.ico");
 		this->setWindowIcon(QIcon(iconPath.c_str()));
@@ -88,7 +91,8 @@ void MainWindow::on_loadDataButton_clicked()
 		ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
 		ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
 		ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-		this->setFixedSize(813, 837);
+		this->setFixedSizeAndMoveToCenter(813, 837);
+
 	}
 	catch (InvalidInputException exeption)
 	{
@@ -96,6 +100,7 @@ void MainWindow::on_loadDataButton_clicked()
 		QMessageBox messageBox;//create a new messege box
 		messageBox.critical(0, "Error", exeption.what());
 		messageBox.setFixedSize(500, 200);
+
 		messageBox.show();
 		return;
 	}	
@@ -202,7 +207,8 @@ void MainWindow::on_wumpusButton_clicked()
 	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
 	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-	this->setFixedSize(813, 837);
+	this->setFixedSizeAndMoveToCenter(813, 837);
+
 
 	GA = new GAThread(containerDim, 100); 
 	GA->resetConfiguration();
@@ -216,7 +222,7 @@ void MainWindow::on_backButton_clicked()
 {
 	std::cout << "Settings back button clicked\n";
 	ui->stackedWidget->setCurrentIndex(0);
-	this->setFixedSize(738, 539);
+	this->setFixedSizeAndMoveToCenter(738, 539);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_confirmButton_clicked()
@@ -251,7 +257,7 @@ void MainWindow::on_confirmButton_clicked()
 
 
 		ui->stackedWidget->setCurrentIndex(1);
-		this->setFixedSize(1000, 900);
+		this->setFixedSizeAndMoveToCenter(1000, 900);
 	}
 	else
 	{
@@ -312,7 +318,7 @@ void MainWindow::on_resultsBackButton_clicked()
 	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
 	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-	this->setFixedSize(813, 837);*/
+	this->setFixedSizeAndMoveToCenter(813, 837);*/
 
 }
 //------------------------------------------------------------------------------------
@@ -370,4 +376,19 @@ void MainWindow::on_radioButton_pureGenetics_clicked()
 	ui->radioButton_pureGenetics->setChecked(true);
 }
 //---------------------------------------------------------------------
+void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
+{
+	this->setFixedSize(windowWidth, windowHeight);
 
+	int x, y;
+	int screenWidth, screenHeight;
+	QDesktopWidget *desktop = QApplication::desktop();
+
+	screenWidth = desktop->width();
+	screenHeight = desktop->height();
+
+	x = (screenWidth - windowWidth) / 2;
+	y = (screenHeight - windowHeight) / 2;
+
+	this->move(x, y);
+}

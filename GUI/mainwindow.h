@@ -47,6 +47,8 @@ private:
 	void validateInput(std::string inputString);
 	std::string readFileFromUser();
 	void parseInput(std::string str);
+	void setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight);
+
 
 };
 
