@@ -23,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
 	//Init UI:
 	ui->setupUi(this);
 	setForms();
-
-	
 }
 //------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -297,12 +295,12 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 	if (ui->generationComboBox->isEnabled()) 
 	{
 		int number = indexStr.toInt() - 1;
-		GenerationData chosenGeneration = GA->allGenerationsData[number];
+		GenerationData chosenGeneration = GA->getGenerationData(number);
 		ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness).mid(0, 4));
-		ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreature_Fittness));
-		ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreature_VolumeFilled).mid(0, 4));
-		ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreature_ValuePercentage).mid(0, 4));
-		viewer->updateSolutionViewerWithGivenBoxes(chosenGeneration.bestCreature_BoxInfo);
+		ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreatureFittness));
+		ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreatureVolumeFilled).mid(0, 4));
+		ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreatureValuePercentage).mid(0, 4));
+		viewer->updateSolutionViewerWithGivenBoxes(chosenGeneration.bestCreatureBoxInfo);
 	}
 }
 //------------------------------------------------------------------------------------
@@ -332,12 +330,12 @@ void MainWindow::on_resultsResetButton_clicked()
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
 	
-	GenerationData data = GA->allGenerationsData[currentGeneration];
+	GenerationData data = GA->getGenerationData(currentGeneration);
 	ui->AvaregeFittness->setText(QString::number(data.avarageFittness).mid(0, 4));
-	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreature_Fittness));
-	ui->VolumeFilledTextBox->setText(QString::number(data.bestCreature_VolumeFilled).mid(0, 4));
-	ui->ValuePercentageTextBox->setText(QString::number(data.bestCreature_ValuePercentage).mid(0, 4));
-	ui->bestFittnessOverallTextBox->setText(QString::number(data.bestFittnessUntillThisGeneration));
+	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreatureFittness));
+	ui->VolumeFilledTextBox->setText(QString::number(data.bestCreatureVolumeFilled).mid(0, 4));
+	ui->ValuePercentageTextBox->setText(QString::number(data.bestCreatureValuePercentage).mid(0, 4));
+	ui->bestFittnessOverallTextBox->setText(QString::number(data.bestOverallFittness));
 
 	ui->progressBar->setValue(currentGeneration+1);
 	ui->generationComboBox->addItem(QString::number(currentGeneration+1));
