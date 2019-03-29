@@ -23,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
 	//Init UI:
 	ui->setupUi(this);
 	setForms();
-
-	
 }
 //------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -322,13 +320,12 @@ void MainWindow::on_resultsResetButton_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
-	
-	GenerationData data = GA->allGenerationsData[currentGeneration];
+	const GenerationData& data = GA->getGenerationData(currentGeneration);
 	ui->AvaregeFittness->setText(QString(std::to_string(data.avarageFittness).c_str()).mid(0,4));
-	ui->BestGenerationalFIttnessTextBox->setText(QString(std::to_string(data.bestCreature_Fittness).c_str()));
-	ui->VolumeFilledTextBox->setText(QString(std::to_string(data.bestCreature_VolumeFilled).c_str()).mid(0, 4));
-	ui->ValuePercentageTextBox->setText(QString(std::to_string(data.bestCreature_ValuePercentage).c_str()).mid(0, 4));
-	ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestFittnessUntillThisGeneration).c_str()));
+	ui->BestGenerationalFIttnessTextBox->setText(QString(std::to_string(data.bestCreatureFittness).c_str()));
+	ui->VolumeFilledTextBox->setText(QString(std::to_string(data.bestCreatureVolumeFilled).c_str()).mid(0, 4));
+	ui->ValuePercentageTextBox->setText(QString(std::to_string(data.bestCreatureValuePercentage).c_str()).mid(0, 4));
+	ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestOverallFittness).c_str()));
 	ui->progressBar->setValue(currentGeneration+1);
 	ui->generationComboBox->addItem(QString(currentGeneration));
 }

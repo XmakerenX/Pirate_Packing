@@ -31,16 +31,50 @@ struct BoxInfo
 
 struct GenerationData
 {
-	GenerationData()
-		:avarageFittness(0), bestCreature_Fittness(0), bestCreature_VolumeFilled(0), bestCreature_ValuePercentage(0)
-	{}
+	GenerationData(const std::vector<BoxInfo>& _bestCreatureBoxInfo,
+                       float _avarageFittness,
+                       int _bestCreatureFittness,
+                       int _bestOverallFittness,
+                       float containerVolume,
+                       float maxiumValue)
+        :bestCreatureBoxInfo(_bestCreatureBoxInfo), avarageFittness(_avarageFittness),
+         bestCreatureFittness(_bestCreatureFittness), bestOverallFittness(_bestOverallFittness)
+	{
+            calculateOverallVolumeValue(containerVolume, maxiumValue);
+        }
+        
+        GenerationData(std::vector<BoxInfo>&& _bestCreatureBoxInfo,
+                       float _avarageFittness,
+                       int _bestCreatureFittness,
+                       int _bestOverallFittness,
+                       float containerVolume,
+                       float maxiumValue)
+        :bestCreatureBoxInfo(std::move(_bestCreatureBoxInfo)), avarageFittness(_avarageFittness),
+         bestCreatureFittness(_bestCreatureFittness), bestOverallFittness(_bestOverallFittness)
+	{
+            calculateOverallVolumeValue(containerVolume, maxiumValue);
+        }
+        
+        void calculateOverallVolumeValue(float containerVolume, float maxiumValue)
+        {
+		int overallValue = 0;
+		int overallVolume = 0;
+		for (BoxInfo& boxinfo : bestCreatureBoxInfo)
+		{
+			overallValue += boxinfo.value;
+			overallVolume += boxinfo.boxWidth * boxinfo.boxHeight * boxinfo.boxLength;
+		}
+		
+		bestCreatureVolumeFilled = overallVolume / containerVolume;
+		bestCreatureValuePercentage = overallValue / maxiumValue;            
+        }
+	
+	std::vector<BoxInfo> bestCreatureBoxInfo;
 	float avarageFittness;
-	std::vector<BoxInfo> bestCreature_BoxInfo;
-	int bestCreature_Fittness;
-	float bestCreature_VolumeFilled;
-	float bestCreature_ValuePercentage;
-
-	int bestFittnessUntillThisGeneration;
+	int bestCreatureFittness;
+	float bestCreatureVolumeFilled;
+	float bestCreatureValuePercentage;
+	int bestOverallFittness;
 };
 
 struct Dimensions 

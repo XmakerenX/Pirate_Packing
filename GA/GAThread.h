@@ -51,13 +51,14 @@ class GAThread : public QThread
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
 	GAThread(Dimensions containerDimensions, std::vector<Item> givenItems);
-	std::vector<std::vector<BoxInfo>>& getBoxesInfo();  
+	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
-	std::vector<GenerationData> allGenerationsData;
+	const GenerationData& getGenerationData(int index);        
 	bool stopGeneticAlgorithm;
 	Q_OBJECT
 	void run() override;
+
     
 
     

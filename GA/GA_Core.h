@@ -18,12 +18,11 @@ class GA_Core
 public:
 	void initGeneticAlgorithm(Configuration& configuration);
 	bool nextGeneration(Configuration& configuration);
-	std::vector<std::vector<BoxInfo>>& getBoxesInfo();
-	int getBoxesInfoIndex();
-	GenerationData currentGenerationData;
+	std::vector<BoxInfo>& getBoxesInfo(int index);
+        const GenerationData& getGenerationData(int index);
+	int getGenerationDataIndex();
         
 private:
-	void PrintSolution(Creature& c);
 	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
 	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
 	void selectSurvivors(std::vector<Creature>& population);
@@ -31,10 +30,8 @@ private:
 	//Configuration configuration;
 	int overallMaximumFitness;
 	int generationMaximumFitness;
-	int currentGenPopulationFitness;
 	
-	std::vector<std::vector<BoxInfo>> generationBoxes;
+	std::vector<GenerationData> generationData;
 	std::vector<Creature> population;
-	std::vector<BoxInfo> bestCreatureBoxInfo;
 	unsigned int gen;
 };

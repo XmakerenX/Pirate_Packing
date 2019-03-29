@@ -85,7 +85,7 @@ void SolutionViewer::setContainerDimensions(Dimensions dim)
 void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
 {
     m_boxes.clear();    
-    std::vector<BoxInfo>& boxesToShow = (ga->getBoxesInfo())[index];
+    std::vector<BoxInfo>& boxesToShow = ga->getBoxesInfo(index);
     
     for (const BoxInfo& curBoxInfo : boxesToShow)
     {
