@@ -277,6 +277,8 @@ void MainWindow::on_startButton_clicked()
 
 	if (startButtonText == "Start")
 	{
+		GA->stopGeneticAlgorithm = false;
+
 		ui->startButton->setText("Stop");
 		ui->resultsResetButton->setEnabled(false);
 		ui->generationComboBox->setEnabled(false);
@@ -285,6 +287,7 @@ void MainWindow::on_startButton_clicked()
 	else  if (startButtonText == "Stop")
 	{
 		GA->stopGeneticAlgorithm = true;
+
 		ui->generationComboBox->setEnabled(true);
 		ui->startButton->setText("Continue");
 	}
@@ -313,6 +316,23 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 void MainWindow::on_resultsBackButton_clicked()
 {
 	/*
+	ui->progressBar->setValue(0);
+	ui->AvaregeFittness->setText("");
+	ui->BestGenerationalFIttnessTextBox->setText("");
+	ui->VolumeFilledTextBox->setText("");
+	ui->ValuePercentageTextBox->setText("");
+	ui->bestFittnessOverallTextBox->setText("");
+	ui->generationComboBox->setEnabled(false);
+	ui->generationComboBox->clear();
+	ui->startButton->setText("Start");
+	ui->resultsResetButton->setEnabled(false);
+	ui->generationComboBox->setEnabled(false);
+	GA->stopGeneticAlgorithm = true;
+
+	viewer->clearAllBoxes();
+	GA->clearAllGenerations();
+
+
 	ui->stackedWidget->setCurrentIndex(2);
 	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
 	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
@@ -331,6 +351,12 @@ void MainWindow::on_resultsResetButton_clicked()
 	ui->VolumeFilledTextBox->setText("");
 	ui->ValuePercentageTextBox->setText("");
 	ui->bestFittnessOverallTextBox->setText("");
+	ui->generationComboBox->setEnabled(false);
+	ui->generationComboBox->clear();
+	viewer->clearAllBoxes();
+	on_startButton_clicked();
+
+
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
