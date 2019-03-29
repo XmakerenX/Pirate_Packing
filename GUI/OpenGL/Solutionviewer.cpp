@@ -122,6 +122,15 @@ void SolutionViewer::updateSolutionViewerWithGivenBoxes(std::vector<BoxInfo>& bo
 	this->update();
 }
 //-----------------------------------------------------------------------------
+// Name : clearAllBoxes
+//-----------------------------------------------------------------------------
+void SolutionViewer::clearAllBoxes()
+{
+	m_boxes.clear();
+	this->update();
+}
+
+//-----------------------------------------------------------------------------
 // Name : initializeGL
 //-----------------------------------------------------------------------------
 void SolutionViewer::initializeGL()

@@ -29,6 +29,8 @@ public:
     void setContainerDimensions(Dimensions dim);
     void updateSolutionViewer(GAThread* ga, int index);
 	void updateSolutionViewerWithGivenBoxes(std::vector<BoxInfo>& boxesToShow);
+	void clearAllBoxes();
+
 
 
 protected:
