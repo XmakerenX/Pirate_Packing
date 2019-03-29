@@ -30,6 +30,7 @@ void GAThread::emitBoxReady(int generationBoxesSize)
 {
     emit boxesReady(this, generationBoxesSize);
 }
+
 //-----------------------------------------------------------------------------------------------
 // run
 //-----------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ void GAThread::run()
 			// apply pure genetic algorithm on this configuration
 			binary.initGeneticAlgorithm(configuration);
 			while(binary.nextGeneration(configuration))
-				emit boxesReady(this, binary.getBoxesInfoIndex());
+				emit boxesReady(this, binary.getBoxesInfoIndex());                        
 			break;
 		}
 	}

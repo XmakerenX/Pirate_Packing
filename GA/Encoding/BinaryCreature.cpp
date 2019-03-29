@@ -1,5 +1,7 @@
 #include "BinaryCreature.h"
 
+int BinaryCreature::penaltyWeight = 1;
+
 //-----------------------------------------------------------------------------------------------
 // Name : BinaryCreature
 // Input: Configuration of the problem 
@@ -89,6 +91,29 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
     // to avoid usesless zeros at the binary string start
     chromosome.resize(totalBitsNum);
     
+    long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
+    long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
+    long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
+    DynamicBitSet itemMask = DynamicBitSet(chromosome.size(), 0x8000 );
+    for (int i = 0; i < configuration->items.size() - 1; i++)
+    {
+        itemMask = itemMask << 1;
+        itemMask[0] = 1;
+        itemMask = itemMask << (bitsPerItem - 1);
+    }
+    
+//     // limit the number of items per chromosome
+//     std::uniform_int_distribution<long unsigned int> itemDistributaion(0, configuration->items.size() - 1);
+//     for (int i = 0; i < 10; i++)
+//     {
+//         itemMask[itemDistributaion(Random::default_engine.getGenerator()) * bitsPerItem + (3 + 3 * coordinateBits)] = 0;
+//     }
+//     
+//     itemMask.flip();
+//     chromosome = chromosome & itemMask;
+//     chromosome = chromosome | itemMask;
+    
     return chromosome;
 }
 
@@ -107,6 +132,10 @@ void BinaryCreature::repairChromosome()
     maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
     long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
     long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
+    std::vector<Box> itemBoxes;
+    std::vector<long int> valuesOfItems;
+    std::vector<long int> boxId;
+    std::vector<bool> isItemStillIn;
     
     for (int i = 0; i < configuration->items.size(); i++)
     {
@@ -175,6 +204,42 @@ void BinaryCreature::repairChromosome()
             {
                 chromozome[bitsPerItem * i + j] = updatedXYValue[j];
             }
+            
+            itemBoxes.emplace_back(x,y,z, x + itemWidth, y + itemHeight, z + itemDepth);
+            valuesOfItems.push_back(configuration->items[i].value);
+            boxId.push_back(i);
+            isItemStillIn.push_back(true);
+        }
+    }
+    
+    // remove conflicts based on value
+    for (int i = 0; i < itemBoxes.size(); i++)
+    {       
+        if (!isItemStillIn[i])
+                continue;
+        
+        for (int j = i + 1; j < itemBoxes.size(); j++)
+        {
+            if (!isItemStillIn[j])
+                continue;
+            
+            Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
+            
+            // calcuate how much volume is overlapping between boxes 
+            if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
+            {
+                if (valuesOfItems[i] > valuesOfItems[j])
+                {
+                    chromozome[bitsPerItem * boxId[j] + (3 + 3 * coordinateBits)] = 0;
+                    isItemStillIn[j] = false;
+                }
+                else
+                {
+                    chromozome[bitsPerItem * boxId[i] + (3 + 3 * coordinateBits)] = 0;
+                    isItemStillIn[i] = false;
+                    continue;
+                }
+            }
         }
     }
 }
@@ -228,14 +293,19 @@ void BinaryCreature::adjustDimensionsToOrientation(int orientation, long unsigne
 void BinaryCreature::mutate(float mutationChance)
 {
     std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
+    std::vector<float> mutatePerBitVec = {0.01f, 1 - 0.01f};
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
+    std::discrete_distribution<int> mutatePerBitDist(mutatePerBitVec.begin(), mutatePerBitVec.end());
     
-	unsigned int choromozomeSize = chromozome.size();
+    unsigned int choromozomeSize = chromozome.size();
    
-	for (int i = 0; i <choromozomeSize; i++)
+    if (mutateDist(Random::default_engine.getGenerator()) == 0)
     {
-        if (mutateDist(Random::default_engine.getGenerator()) == 0)
-            chromozome.flip(i);
+        for (int i = 0; i <choromozomeSize; i++)
+        {
+            if (mutatePerBitDist(Random::default_engine.getGenerator()) == 0)
+                chromozome.flip(i);
+        }
     }
     repairChromosome();
 }
@@ -246,10 +316,10 @@ void BinaryCreature::mutate(float mutationChance)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::crossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
 {
-    uniformCrossover(parent2, population);
-    //onePointCrossover(parent2, population);
+    //uniformCrossover(parent2, population);
+    onePointCrossover(parent2, population);
 }
 //-----------------------------------------------------------------------------------------------
 // Name : onePointCrossover
@@ -257,19 +327,17 @@ void BinaryCreature::crossover(BinaryCreature parent2, std::vector<BinaryCreatur
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::onePointCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
 {
     DynamicBitSet& parent1 = chromozome;
-    DynamicBitSet& parent22 = parent2.chromozome;
         
     std::uniform_int_distribution<int> joinBitDist(1, parent1.size() - 1);
     int joinBitLocation = joinBitDist(Random::default_engine.getGenerator());
-    //int joinBitLocation = (rand() % parent1.size());
     joinBitLocation = parent1.size() - joinBitLocation;
     
     // mask starts as numberOfBits ones
-    unsigned long temp = pow(2, parent1.size() + 1) - 1;
-    DynamicBitSet mask = DynamicBitSet(parent1.size(), temp);
+    DynamicBitSet mask = DynamicBitSet(parent1.size(), 0);
+    mask.flip();
     // leave ones in the mask only from joinBitLocation to LSB
     mask = mask >> joinBitLocation;
     DynamicBitSet flippedMask = mask;
@@ -292,7 +360,7 @@ void BinaryCreature::onePointCrossover(BinaryCreature parent2, std::vector<Binar
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using unifrom crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::uniformCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
 {
     DynamicBitSet& parent1 = chromozome;
     DynamicBitSet& parent22 = parent2.chromozome;
@@ -340,6 +408,7 @@ void BinaryCreature::uniformCrossover(BinaryCreature parent2, std::vector<Binary
 //-----------------------------------------------------------------------------------------------
 int BinaryCreature::calculateFittness()
 {
+    int nItem = 0;
     // get how many bits are used to hold the coordinate number
     long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
     maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
@@ -351,7 +420,10 @@ int BinaryCreature::calculateFittness()
     DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
     
     std::vector<Box> itemBoxes;
+    std::vector<long int> valuesOfItems;
     int value = 0;
+    long unsigned int minX = maxDimensionValue, minY = maxDimensionValue, minZ = maxDimensionValue;
+    long unsigned int maxX = 0 , maxY = 0, maxZ = 0;
     for (int i = 0; i < configuration->items.size(); i++)
     {
         // get the item bits 
@@ -360,6 +432,7 @@ int BinaryCreature::calculateFittness()
         itemValues = itemValues >> bitsPerItem * i;
         if (itemValues[3 + 3 * coordinateBits] == 1)
         {
+            nItem++;
             value += configuration->items[i].value;
             // get the X,Y,Z coordinates
             long unsigned int zMaskValue = std::pow(2, coordinateBits);
@@ -379,29 +452,38 @@ int BinaryCreature::calculateFittness()
             DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
             int orientaion = orientationBits.to_ulong();
             adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
+            
+            minX = std::min(minX, x); minY = std::min(minY, y); minZ = std::min(minZ, z);
+            maxX = std::max(maxX, x + itemWidth);
+            maxY = std::max(maxY, y + itemHeight);
+            maxZ = std::max(maxZ, z + itemDepth);
+            
             itemBoxes.emplace_back(x,y,z, x + itemWidth, y + itemHeight, z + itemDepth);
+            valuesOfItems.push_back(configuration->items[i].value / (itemWidth * itemHeight * itemDepth));
         }
                
         itemMask = itemMask << bitsPerItem;
     }
     
+    int totalVolume = 0;
     bool overlapped = false;
     int overlappedVolume = 0;
     int positionScore = 0;
     for (int i = 0; i < itemBoxes.size(); i++)
     {
+        std::vector<Box> currentVolume;
+        currentVolume.push_back(itemBoxes[i]);
+        totalVolume += (itemBoxes[i].getWidth() * itemBoxes[i].getHeight() * itemBoxes[i].getDepth());
+        
         for (int j = i + 1; j < itemBoxes.size(); j++)
         {
             Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
-            int boxWidth = box.getWidth();
-            int boxHeight = box.getHeight();
-            int boxDepth = box.getDepth();
             
-            // calcuate how much volume is overlapping between boxes
+            // calcuate how much volume is overlapping between boxes 
             if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
             {
                 overlapped = true;
-                overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth());
+                overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight );
             }
             
             // calcuate how much free spapce is between boxes
@@ -411,20 +493,61 @@ int BinaryCreature::calculateFittness()
             }
             
             // give bonus for boxes that have no space between them
-            if (box.getWidth() == 0 || box.getHeight() == 0 || box.getDepth() < 0)
-            {
-                positionScore += (std::abs(box.getWidth()) * std::abs(box.getHeight()) * std::abs(box.getDepth()))/6;
-            }
+            if (box.getWidth() == 0 && box.getHeight() <= 0 && box.getDepth() <= 0)
+                positionScore += (std::abs(box.getHeight()) * std::abs(box.getDepth()));
+                
+            if ((box.getWidth() <= 0 && box.getHeight() == 0 && box.getDepth() <= 0))
+                positionScore += (std::abs(box.getWidth()) * std::abs(box.getDepth()));
+            
+            if ((box.getWidth() <= 0 && box.getHeight() <= 0 && box.getDepth() == 0))
+                positionScore += (std::abs(box.getWidth()) * std::abs(box.getHeight())); 
+            
+            //---------------------------------------------------------------------------
+            if (box.getWidth() == 0 && box.getHeight() == 0 && box.getDepth() <= 0)
+                positionScore += (std::abs(box.getDepth()) * std::abs(box.getDepth()));
+            
+            if (box.getWidth() == 0 && box.getDepth() == 0 && box.getHeight() <= 0)
+                positionScore += (std::abs(box.getHeight()) * std::abs(box.getHeight()));
+            
+            if (box.getHeight() == 0 && box.getDepth() == 0 && box.getWidth() <= 0)
+                positionScore += (std::abs(box.getWidth()) * std::abs(box.getWidth()));
         }
+        
+        Box container(0,0,0, configuration->dim.w, configuration->dim.h, configuration->dim.d);
+        Box box2 = Box::intersect(container, itemBoxes[i]);
+//         if (box2.getWidth() > 0 && box2.getHeight() > 0 && box2.getDepth() > 0)
+//         {
+//             overlappedVolume += (box2.getWidth() * box2.getHeight() * box2.getDepth() * valuesOfItems[i]);
+//         }
+        
+        if (box2.getWidth() < 0 && box2.getHeight() < 0 && box2.getDepth() < 0)
+        {
+            positionScore -= std::abs(box2.getWidth()) * std::abs(box2.getHeight()) * std::abs(box2.getDepth());
+        }
+        
+        if (box2.getWidth() == 0 && box2.getHeight() <= 0 && box2.getDepth() <= 0)
+            positionScore += std::abs(box2.getHeight()) * std::abs(box2.getDepth());
+                
+        if ((box2.getWidth() <= 0 && box2.getHeight() == 0 && box2.getDepth() <= 0))
+            positionScore += std::abs(box2.getWidth()) * std::abs(box2.getDepth());
+            
+        if ((box2.getWidth() <= 0 && box2.getHeight() <= 0 && box2.getDepth() == 0))
+            positionScore += std::abs(box2.getWidth()) * std::abs(box2.getHeight());
+        
+        if (box2.getWidth() == 0 && box2.getHeight() == 0 && box2.getDepth() <= 0)
+            positionScore += (std::abs(box2.getDepth()) * std::abs(box2.getDepth()));
+            
+        if (box2.getWidth() == 0 && box2.getDepth() == 0 && box2.getHeight() <= 0)
+            positionScore += (std::abs(box2.getHeight()) * std::abs(box2.getHeight()));
+            
+        if (box2.getHeight() == 0 && box2.getDepth() == 0 && box2.getWidth() <= 0)
+            positionScore += (std::abs(box2.getWidth()) * std::abs(box2.getWidth()));
     }
     
-    if (!overlapped)
-        fitness = value*0.5 + positionScore*0.5;
-        //fitness = positionScore;
-    else
-        fitness =  overlappedVolume*0.5 + positionScore*0.5;
-        //fitness =  overlappedVolume*0.5 + positionScore * 0.5;
-    
+    int compressedVolume = (configuration->dim.w * configuration->dim.h * configuration->dim.d) - 
+                           ((maxX - minX) * (maxY - minY) * (maxZ - minZ));
+
+    fitness =  0.4*(value) + 0.3 * (positionScore) + 0.3*overlappedVolume + compressedVolume;
     return fitness;
 }
 
@@ -499,6 +622,80 @@ std::vector<BoxInfo> BinaryCreature::getBoxPositions()
 Configuration* BinaryCreature::getConfiguration() const
 {
     return this->configuration;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : validateConstraints
+// Action: checks if problem Constraint are violated if there are increase w
+//-----------------------------------------------------------------------------------------------
+bool BinaryCreature::validateConstraints()
+{
+    // get how many bits are used to hold the coordinate number
+    long unsigned int maxDimensionValue = std::max(configuration->dim.w, configuration->dim.h);
+    maxDimensionValue = std::max(maxDimensionValue, configuration->dim.d);
+    long unsigned int coordinateBits = std::ceil(std::log2(maxDimensionValue));
+    long unsigned int bitsPerItem = 4 + 3 * coordinateBits;
+    
+    long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
+    itemMaskValue--;
+    DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
+    
+    std::vector<Box> itemBoxes;
+    std::vector<long int> valuesOfItems;
+    int value = 0;
+    for (int i = 0; i < configuration->items.size(); i++)
+    {
+        // get the item bits 
+        DynamicBitSet itemValues = chromozome & itemMask;
+        // shift them to lower parts of the bit string
+        itemValues = itemValues >> bitsPerItem * i;
+        if (itemValues[3 + 3 * coordinateBits] == 1)
+        {
+            value += configuration->items[i].value;
+            // get the X,Y,Z coordinates
+            long unsigned int zMaskValue = std::pow(2, coordinateBits);
+            zMaskValue--;
+            DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
+            long unsigned int z = (itemValues & zMask).to_ulong();
+            DynamicBitSet yMask = zMask << coordinateBits;
+            long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
+            DynamicBitSet xMask = yMask << coordinateBits;
+            long unsigned int x = ((itemValues & xMask) >> coordinateBits*2).to_ulong();
+            // get Item Dimension
+            long unsigned int itemWidth = configuration->items[i].dim.w;
+            long unsigned int itemHeight = configuration->items[i].dim.h;
+            long unsigned int itemDepth = configuration->items[i].dim.d;
+            
+            DynamicBitSet seven(itemValues.size(), 7);
+            DynamicBitSet orientationBits = (itemValues >> 3*coordinateBits) & seven;
+            int orientaion = orientationBits.to_ulong();
+            adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
+            itemBoxes.emplace_back(x,y,z, x + itemWidth, y + itemHeight, z + itemDepth);
+            valuesOfItems.push_back(configuration->items[i].value / (itemWidth * itemHeight * itemDepth));
+        }
+               
+        itemMask = itemMask << bitsPerItem;
+    }
+    
+    for (int i = 0; i < itemBoxes.size(); i++)
+    {
+        std::vector<Box> currentVolume;
+        currentVolume.push_back(itemBoxes[i]);
+        
+        for (int j = i + 1; j < itemBoxes.size(); j++)
+        {
+            Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
+            
+            // calcuate how much volume is overlapping between boxes 
+            if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
+            {
+                penaltyWeight += 10;
+                return false;
+            }
+        }
+    }
+    
+    return true;
 }
 
 //-----------------------------------------------------------------------------------------------

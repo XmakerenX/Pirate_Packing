@@ -21,11 +21,11 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	//----Genetic algorithm: create next generation
 	//start timer
 	std::clock_t start; double duration; start = std::clock();
-    
+	
 	//create new population based on the current one
 	population = Breeder<Creature>::generateNextGeneration(population);
 	selectSurvivors(population);
-    
+	
 	//get data from this generation
 	getDataFromGeneration(population, configuration);
 	//stop timer
@@ -36,8 +36,8 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	int avgFittness = currentGenPopulationFitness / GA_Settings::populationSize;
 	int maxFittness = generationMaximumFitness;
 	std::cout << "Average fittness: " << avgFittness << "\tBest fittness: " << maxFittness << "  \tTime passed: " << duration << "\n";
-    
-	int maxFitness = 0;
+	
+	int maxFitness = std::numeric_limits<int>::min();
 	int maxI = 0;
 	for (int i = 0; i < population.size(); i++)
 	{
@@ -47,6 +47,15 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 			maxI = i;
 		}
 	}
+	
+	if (!population[maxI].validateConstraints())
+	{
+		for (int i = 0; i < population.size(); i++)
+		{
+			population[i].calculateFittness();
+		}
+	}
+	
 	PrintSolution(population[maxI]);
 	gen++;
 	
@@ -123,7 +132,7 @@ void GA_Core<Creature>::printFinalDataAndSaveResulsts(std::vector<Creature>& pop
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration)
 {
-	generationMaximumFitness = 0;
+	generationMaximumFitness = std::numeric_limits<int>::min();
 	currentGenPopulationFitness = 0;
 	for (Creature& indiviual : population)
 	{

@@ -1,5 +1,5 @@
 #ifndef PERMUTATIONENCODING_H
-#define PERMUTATIONENCODING_H
+#define PERMUTATIONENCODING_Hvoid
 
 #include <vector>
 #include <unordered_map>
@@ -21,6 +21,8 @@ public:
     Configuration* getConfiguration() const;
     void setFitness(int newFitness);
     int getFitness() const;
+    
+    bool validateConstraints() {return true;};
     
 
 private:
