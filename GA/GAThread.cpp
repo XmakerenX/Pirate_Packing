@@ -3,36 +3,31 @@
 #include "Breeder.h"
 #include "GA_Random.h"
 #include "GA_Settings.h"
-#include "GA_Settings.h"
+
+QMutex GAThread::mutex;
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
 	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false)
 {
-	allGenerationsData.clear();
-	allGenerationsData.reserve(GA_Settings::numberOfGenerations);
-
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
 	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false)
 {
-	allGenerationsData.clear();
-	allGenerationsData.reserve(GA_Settings::numberOfGenerations);
-
 }
 //----------------------------------------------------------------------
-std::vector<std::vector<BoxInfo>>& GAThread::getBoxesInfo()
+std::vector<BoxInfo>& GAThread::getBoxesInfo(int index)
 {
 	switch (GA_Settings::method)
 	{
 		case GA_Method::HybridGenetic:
 		{
-			return hybrid.getBoxesInfo();
+			return hybrid.getBoxesInfo(index);
 		}
 		case GA_Method::PureGenetic:
 		{
-			return binary.getBoxesInfo();
+			return binary.getBoxesInfo(index);
 		}
 	}
 }
@@ -41,17 +36,14 @@ void GAThread::emitBoxReady(int generationBoxesSize)
 {
     emit boxesReady(this, generationBoxesSize);
 }
+
 //-----------------------------------------------------------------------------------------------
 // run
 //-----------------------------------------------------------------------------------------------
 void GAThread::run()
 {
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
-
-	int generationNumber = 0;
-	allGenerationsData.clear();
-	allGenerationsData.reserve(GA_Settings::numberOfGenerations);
-
+        
 	emit GAStarted();
 	switch (GA_Settings::method)
 	{
@@ -61,14 +53,14 @@ void GAThread::run()
 			hybrid.initGeneticAlgorithm(configuration);
 			while (hybrid.nextGeneration(configuration))
 			{
-				while (this->stopGeneticAlgorithm)
+				if (this->stopGeneticAlgorithm)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					mutex.lock();
+					           continuePressed.wait(&mutex);
+					mutex.unlock();
 				}
-				emit boxesReady(this, hybrid.getBoxesInfoIndex());
-				allGenerationsData.emplace_back(hybrid.currentGenerationData);
-				emit generationPassed(generationNumber);
-				generationNumber++;
+				emit boxesReady(this, hybrid.getGenerationDataIndex());
+				emit generationPassed(hybrid.getGenerationDataIndex());
 			}
 			break;
 		}
@@ -78,14 +70,14 @@ void GAThread::run()
 			binary.initGeneticAlgorithm(configuration);
 			while (binary.nextGeneration(configuration))
 			{
-				while (this->stopGeneticAlgorithm)
+				if (this->stopGeneticAlgorithm)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					mutex.lock();
+					           continuePressed.wait(&mutex);
+					mutex.unlock();
 				}
-				emit boxesReady(this, binary.getBoxesInfoIndex());
-				allGenerationsData.emplace_back(binary.currentGenerationData);
-				emit generationPassed(generationNumber);
-				generationNumber++;
+				emit boxesReady(this, binary.getGenerationDataIndex());
+				emit generationPassed(binary.getGenerationDataIndex());
 			}
 			break;
 		}
@@ -93,8 +85,22 @@ void GAThread::run()
 	emit GAFinished();
 }
 //------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------
 void GAThread::resetConfiguration()
 {
 	configuration.Reset();
+}
+//------------------------------------------------------------------------------------------------
+const GenerationData& GAThread::getGenerationData(int index)
+{
+	switch (GA_Settings::method)
+	{
+		case GA_Method::HybridGenetic:
+		{
+			return hybrid.getGenerationData(index);
+		}
+		case GA_Method::PureGenetic:
+		{
+			return binary.getGenerationData(index);
+		}
+	}
 }

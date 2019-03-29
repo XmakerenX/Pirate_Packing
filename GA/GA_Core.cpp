@@ -7,10 +7,9 @@ void GA_Core<Creature>::initGeneticAlgorithm(Configuration& configuration)
 {
 	overallMaximumFitness = 0;
 	generationMaximumFitness = 0;
-	currentGenPopulationFitness = 0;
 	//----Genetic algorithm: first generation ------//
 	gen = 0;
-        generationBoxes.clear();
+        generationData.clear();
 	population.clear();
 	population = generateFirstGeneration(configuration);
 }
@@ -21,11 +20,11 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	//----Genetic algorithm: create next generation
 	//start timer
 	std::clock_t start; double duration; start = std::clock();
-    
+	
 	//create new population based on the current one
 	population = Breeder<Creature>::generateNextGeneration(population);
 	selectSurvivors(population);
-    
+	
 	//get data from this generation
 	getDataFromGeneration(population, configuration);
 	//stop timer
@@ -33,39 +32,21 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
     
 	//print data about this generation
 	std::cout << "Gen:" << gen << "\n\t";
+        GenerationData& currentGenerationData = generationData[generationData.size() - 1];
 	std::cout << "Average fittness: " << currentGenerationData.avarageFittness
-		<< "\tBest fittness: " << currentGenerationData.bestCreature_Fittness << "  \tTime passed: " << duration << "\n"
-		<< "\toverall Value " << currentGenerationData.bestCreature_ValuePercentage << "%"
-		<< "  \toverall Volume " << currentGenerationData.bestCreature_VolumeFilled << "%\n";
+                  << "\tBest fittness: " << currentGenerationData.bestCreatureFittness << "  \tTime passed: " << duration << "\n"
+                  << "\toverall Value " << currentGenerationData.bestCreatureValuePercentage << "%"
+                  << "  \toverall Volume " << currentGenerationData.bestCreatureVolumeFilled << "%\n";
 
 	gen++;
 	return (gen < GA_Settings::numberOfGenerations);
-}
-//---------------------------------------------------------------------------------------
-template <class Creature>
-void GA_Core<Creature>::PrintSolution(Creature& c)
-{
-    generationBoxes.emplace_back(c.getBoxPositions());
-    // print more statasitcs
-    Configuration * conf = c.getConfiguration();
-    int overallValue = 0;
-    int overallVolume = 0;
-    std::vector<BoxInfo>& boxesPositions = generationBoxes[generationBoxes.size() - 1];
-    for (BoxInfo& boxinfo : boxesPositions)
-    {
-        overallValue += boxinfo.value;
-        overallVolume += boxinfo.boxWidth * boxinfo.boxHeight * boxinfo.boxLength;
-    }
-    float containerVolume = conf->dim.w * conf->dim.h * conf->dim.d;
-    std::cout << "\toverall Value " << overallValue << " " << overallValue / (float)conf->maxiumValue << 
-                 "%\toverall Volume " << overallVolume << "  " << overallVolume /  (containerVolume)  << "%\n"; 
 }
 //------------------------------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration)
 {
-	generationMaximumFitness = 0;
-	currentGenPopulationFitness = 0;
+	generationMaximumFitness = std::numeric_limits<int>::min();
+	int currentGenPopulationFitness = 0;
 	Creature& bestCreature = population[0];
 
 	//find best creature
@@ -79,34 +60,26 @@ void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population,
 			bestCreature = indiviual;
 		}
 	}
-	currentGenerationData.avarageFittness = currentGenPopulationFitness / GA_Settings::populationSize;
-	currentGenerationData.bestCreature_Fittness = generationMaximumFitness;
-
 	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
+        
+        if (!bestCreature.validateConstraints())
+        {
+            // if Constraints are invalid apply the new penalty 
+            for (int i = 0; i < population.size(); i++)
+            {
+                population[i].calculateFittness();
+            }
+        }
 	
-	generationBoxes.emplace_back(bestCreature.getBoxPositions());
 	Configuration * conf = bestCreature.getConfiguration();
-	int overallValue = 0;
-	int overallVolume = 0;
-	std::vector<BoxInfo>& boxesPositions = generationBoxes[generationBoxes.size() - 1];
-	for (BoxInfo& boxinfo : boxesPositions)
-	{
-		overallValue += boxinfo.value;
-		overallVolume += boxinfo.boxWidth * boxinfo.boxHeight * boxinfo.boxLength;
-	}
 	float containerVolume = conf->dim.w * conf->dim.h * conf->dim.d;
 	
-	currentGenerationData.bestCreature_ValuePercentage = overallValue / (float)conf->maxiumValue;
-	currentGenerationData.bestCreature_VolumeFilled = overallVolume / (containerVolume);
-	
-	bestCreatureBoxInfo.clear();
-	bestCreatureBoxInfo.reserve(boxesPositions.size());
-	for (int i = 0; i < boxesPositions.size();i++)
-	{
-		bestCreatureBoxInfo.emplace_back(boxesPositions[i]);
-	}
-	currentGenerationData.bestCreature_BoxInfo = bestCreatureBoxInfo;
-	currentGenerationData.bestFittnessUntillThisGeneration = overallMaximumFitness;
+	generationData.emplace_back(bestCreature.getBoxPositions(),
+                                    currentGenPopulationFitness / (float)GA_Settings::populationSize, // avarageFittness
+                                    generationMaximumFitness,
+                                    overallMaximumFitness,
+                                    containerVolume,
+                                    conf->maxiumValue);                                   
 }
 //-----------------------------------------------------------------------------------------	
 //Creates an array of random creatures
@@ -130,16 +103,21 @@ void GA_Core<Creature>::selectSurvivors(std::vector<Creature>& population)
 }
 //----------------------------------------------------------
 template <class Creature>
-std::vector<std::vector<BoxInfo>>& GA_Core<Creature>::getBoxesInfo()
+std::vector<BoxInfo>& GA_Core<Creature>::getBoxesInfo(int index)
 {
-	return generationBoxes;
-};
+	return generationData[index].bestCreatureBoxInfo;
+}
+//----------------------------------------------------------
+template <class Creature>
+const GenerationData& GA_Core<Creature>::getGenerationData(int index)
+{
+    return generationData[index];
+}
 //-----------------------------------------------------------
 template <class Creature>
-int GA_Core<Creature>::getBoxesInfoIndex()
+int GA_Core<Creature>::getGenerationDataIndex()
 {
-    std::cout << generationBoxes.size() - 1 << "\n";
-    return generationBoxes.size() - 1;
+    return generationData.size() - 1;
 }
 
 // Force instantiation of BinaryCreature and PermutationCreature

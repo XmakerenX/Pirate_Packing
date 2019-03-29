@@ -7,6 +7,6 @@ class GA_Settings
 		static GA_Method method;
 		static float mutationRate;
 		static unsigned int numberOfGenerations;
-		static unsigned int populationSize;
+		static int populationSize;
 		static unsigned int elitismSizeGroup;
 };

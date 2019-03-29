@@ -55,24 +55,29 @@ public:
     BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
     
     void mutate(float mutationChance);
-    void crossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
+    void crossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
+    bool validateConstraints();
     void setFitness(int newFitness);
     int getFitness() const;
+    
+    static int penaltyWeight;
+    
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
     void repairChromosome();
     void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
     
-    void onePointCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
-    void uniformCrossover(BinaryCreature parent2, std::vector<BinaryCreature>& population);
+    void onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
+    void uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
     
     int fitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;
+    
 
 };
 
