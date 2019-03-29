@@ -1,3 +1,3 @@
 # Pirate_Packing
 Arrrr
-![alt text](https://i.imgur.com/fBdEAxP.png =250x250)
+![](https://i.imgur.com/fBdEAxP.png =250x250)
