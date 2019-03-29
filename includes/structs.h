@@ -11,6 +11,38 @@ typedef QVector3D RGB;
 
 enum class GA_Method { PureGenetic, HybridGenetic};
 
+
+
+struct BoxInfo
+{
+	BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength, int _value)
+		:startingPoint(_startingPoint), color(_color),
+		boxWidth(_boxWidth), boxHeight(_boxHeight), boxLength(_boxLength), value(_value)
+	{}
+
+	QPoint3D startingPoint;
+	RGB color;
+	int boxWidth;
+	int boxHeight;
+	int boxLength;
+	int value;
+};
+
+
+struct GenerationData
+{
+	GenerationData()
+		:avarageFittness(0), bestCreature_Fittness(0), bestCreature_VolumeFilled(0), bestCreature_ValuePercentage(0)
+	{}
+	float avarageFittness;
+	std::vector<BoxInfo> bestCreature_BoxInfo;
+	int bestCreature_Fittness;
+	float bestCreature_VolumeFilled;
+	float bestCreature_ValuePercentage;
+
+	int bestFittnessUntillThisGeneration;
+};
+
 struct Dimensions 
 {
     Dimensions()
@@ -27,20 +59,6 @@ struct Dimensions
     long unsigned int w, h, d;
 };
 
-struct BoxInfo
-{
-    BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength, int _value)
-        :startingPoint(_startingPoint), color(_color),
-         boxWidth(_boxWidth), boxHeight(_boxHeight), boxLength(_boxLength), value(_value)
-    {}
-
-    QPoint3D startingPoint;
-    RGB color;
-    int boxWidth;
-    int boxHeight;
-    int boxLength;
-    int value;
-};
 
 
 
@@ -54,9 +72,23 @@ struct CantFitException : public std::exception
 {
 	const char * what() const throw ()
 	{
-		return "Could fit the item inside the container";
+		return "Could not fit the item inside the container";
 	}
 };
+//------------------------------------------------------------------
+struct InvalidInputException : public std::exception
+{
+	std::string errorMsg = "data is invalid";
+	const char * what() const throw ()
+	{
+		return errorMsg.c_str();
+	}
+	void setErrorMsg(std::string newErrorMsg)
+	{
+		errorMsg = newErrorMsg;
+	}
+};
+//------------------------------------------------------------------
 struct Color
 {
 	Color(){}

@@ -18,19 +18,24 @@ public:
 	~MainWindow();
 
 	private slots:
-	void on_pushButton_2_clicked();
-
-	void on_pushButton_3_clicked();
+	void on_loadDataButton_clicked();
+	void on_enterDataButton_clicked();
+	void on_wumpusButton_clicked();
 	void on_startButton_clicked();
-    
+	void on_resultsResetButton_clicked();
+
 	void updateGAStarted();
 	void updateGAFinished();
+	void updateGuiDataCorrespondsToNewGeneration(int currentGen);
 
 public slots:
 	void on_radioButton_HybridGenetics_clicked();
 	void on_radioButton_pureGenetics_clicked();
 	void on_confirmButton_clicked();
 	void on_backButton_clicked();
+	void on_resultsBackButton_clicked();
+	void on_generationComboBox_currentIndexChanged(QString indexStr);
+
     
 private:
 	Ui::MainWindow *ui;
@@ -39,6 +44,9 @@ private:
     GAThread * GA;
 
 	void setForms();
+	void validateInput(std::string inputString);
+	std::string readFileFromUser();
+	void parseInput(std::string str);
 };
 
 #endif // MAINWINDOW_H
