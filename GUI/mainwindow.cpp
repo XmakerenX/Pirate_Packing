@@ -55,7 +55,7 @@ void MainWindow::setForms()
 	
 	//Form - Solution 
 		viewer = new SolutionViewer(ui->page_2);
-		viewer->setGeometry(QRect(600, 250, 350, 300));
+		viewer->setGeometry(QRect(580, 200, 360, 360));
 		viewer->setContainerDimensions(containerDim);
 		// enable anit-aliasing so boxes will look less shit
 		QSurfaceFormat format;
@@ -269,38 +269,41 @@ void MainWindow::on_startButton_clicked()
 {
     std::cout << "start button clicked\n";
 	QString startButtonText = ui->startButton->text();
+	//maybe theres another way to refactor this without using enums for the below states?
 
 	if (startButtonText == "Start")
 	{
 		ui->startButton->setText("Stop");
+		ui->resultsResetButton->setEnabled(false);
+		ui->generationComboBox->setEnabled(false);
 		GA->start();
 	}
 	else  if (startButtonText == "Stop")
 	{
 		GA->stopGeneticAlgorithm = true;
+		ui->generationComboBox->setEnabled(true);
 		ui->startButton->setText("Continue");
 	}
 	else  if (startButtonText == "Continue")
 	{
 		GA->stopGeneticAlgorithm = false;
+		ui->generationComboBox->setEnabled(false);
 		ui->startButton->setText("Stop");
 	}
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 {
-	//int number = indexStr.toInt() - 1;
-	//GenerationData chosenGeneration = GA->allGenerationsData[number];
-
-	/*
-	ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness).mid(0, 4));
-	ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreature_Fittness));
-	ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreature_VolumeFilled).mid(0, 4));
-	ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreature_ValuePercentage).mid(0, 4));
-	//ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestFittnessUntillThisGeneration).c_str()));
-
-	*/
-	//GA->emitBoxReady()
+	if (ui->generationComboBox->isEnabled()) 
+	{
+		int number = indexStr.toInt() - 1;
+		GenerationData chosenGeneration = GA->allGenerationsData[number];
+		ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness).mid(0, 4));
+		ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreature_Fittness));
+		ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreature_VolumeFilled).mid(0, 4));
+		ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreature_ValuePercentage).mid(0, 4));
+		viewer->updateSolutionViewerWithGivenBoxes(chosenGeneration.bestCreature_BoxInfo);
+	}
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
@@ -318,29 +321,40 @@ void MainWindow::on_resultsBackButton_clicked()
 void MainWindow::on_resultsResetButton_clicked()
 {
 	GA->resetConfiguration();
+	ui->progressBar->setValue(0);
+	ui->AvaregeFittness->setText("");
+	ui->BestGenerationalFIttnessTextBox->setText("");
+	ui->VolumeFilledTextBox->setText("");
+	ui->ValuePercentageTextBox->setText("");
+	ui->bestFittnessOverallTextBox->setText("");
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
 	
 	GenerationData data = GA->allGenerationsData[currentGeneration];
-	ui->AvaregeFittness->setText(QString(std::to_string(data.avarageFittness).c_str()).mid(0,4));
-	ui->BestGenerationalFIttnessTextBox->setText(QString(std::to_string(data.bestCreature_Fittness).c_str()));
-	ui->VolumeFilledTextBox->setText(QString(std::to_string(data.bestCreature_VolumeFilled).c_str()).mid(0, 4));
-	ui->ValuePercentageTextBox->setText(QString(std::to_string(data.bestCreature_ValuePercentage).c_str()).mid(0, 4));
-	ui->bestFittnessOverallTextBox->setText(QString(std::to_string(data.bestFittnessUntillThisGeneration).c_str()));
+	ui->AvaregeFittness->setText(QString::number(data.avarageFittness).mid(0, 4));
+	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreature_Fittness));
+	ui->VolumeFilledTextBox->setText(QString::number(data.bestCreature_VolumeFilled).mid(0, 4));
+	ui->ValuePercentageTextBox->setText(QString::number(data.bestCreature_ValuePercentage).mid(0, 4));
+	ui->bestFittnessOverallTextBox->setText(QString::number(data.bestFittnessUntillThisGeneration));
+
 	ui->progressBar->setValue(currentGeneration+1);
-	ui->generationComboBox->addItem(QString(currentGeneration));
+	ui->generationComboBox->addItem(QString::number(currentGeneration+1));
+	ui->generationComboBox->setCurrentIndex(currentGeneration);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAStarted()
 {
    ui->resultsResetButton->setEnabled(false);
+   ui->generationComboBox->setEnabled(false);
+
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
 {
 	ui->startButton->setText("Start");
+	ui->generationComboBox->setEnabled(true);
     ui->resultsResetButton->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
