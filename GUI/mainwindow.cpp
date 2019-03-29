@@ -277,8 +277,6 @@ void MainWindow::on_startButton_clicked()
 
 	if (startButtonText == "Start")
 	{
-		GA->stopGeneticAlgorithm = false;
-
 		ui->startButton->setText("Stop");
 		ui->resultsResetButton->setEnabled(false);
 		ui->generationComboBox->setEnabled(false);
@@ -295,6 +293,7 @@ void MainWindow::on_startButton_clicked()
 	{
 		GA->stopGeneticAlgorithm = false;
 		ui->generationComboBox->setEnabled(false);
+		GA->continuePressed.wakeAll();
 		ui->startButton->setText("Stop");
 	}
 }
@@ -315,6 +314,7 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
 {
+	
 	/*
 	ui->progressBar->setValue(0);
 	ui->AvaregeFittness->setText("");
@@ -355,8 +355,6 @@ void MainWindow::on_resultsResetButton_clicked()
 	ui->generationComboBox->clear();
 	viewer->clearAllBoxes();
 	on_startButton_clicked();
-
-
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
