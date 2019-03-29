@@ -101,7 +101,26 @@ void SolutionViewer::updateSolutionViewer(GAThread* ga, int index)
     
     this->update();
 }
+//-----------------------------------------------------------------------------
+// Name : updateSolutionViewerWithGivenBoxes
+//-----------------------------------------------------------------------------
+void SolutionViewer::updateSolutionViewerWithGivenBoxes(std::vector<BoxInfo>& boxesToShow)
+{
+	m_boxes.clear();
+	for (const BoxInfo& curBoxInfo : boxesToShow)
+	{
+		QVector3D boxScale(curBoxInfo.boxWidth, curBoxInfo.boxHeight, curBoxInfo.boxLength);
+		QVector3D containerZeroPoint((float)containerDim.w * -1, (float)containerDim.h * -1, (float)containerDim.d * -1);
+		QVector3D pos = containerZeroPoint + curBoxInfo.startingPoint * 2 + boxScale;
+		m_boxes.emplace_back(pos,
+			QVector3D(0.0f, 0.0f, 0.0f),
+			boxScale,
+			curBoxInfo.color,
+			boxMesh);
+	}
 
+	this->update();
+}
 //-----------------------------------------------------------------------------
 // Name : initializeGL
 //-----------------------------------------------------------------------------
