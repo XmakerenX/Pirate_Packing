@@ -104,3 +104,18 @@ const GenerationData& GAThread::getGenerationData(int index)
 		}
 	}
 }
+//------------------------------------------------------------------------------------------------
+void GAThread::clearAllGenerations()
+{
+	switch (GA_Settings::method)
+	{
+	case GA_Method::HybridGenetic:
+	{
+		return hybrid.clearAllGenerationsData();
+	}
+	case GA_Method::PureGenetic:
+	{
+		return binary.clearAllGenerationsData();
+	}
+	}
+}

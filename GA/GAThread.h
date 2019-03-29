@@ -57,7 +57,7 @@ public:
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
 	const GenerationData& getGenerationData(int index);   
-        
+	void clearAllGenerations();
 	bool stopGeneticAlgorithm;
 	QWaitCondition continuePressed;
         
