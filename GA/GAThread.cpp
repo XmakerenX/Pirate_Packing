@@ -4,6 +4,8 @@
 #include "GA_Random.h"
 #include "GA_Settings.h"
 
+QMutex GAThread::mutex;
+
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
 	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false)
@@ -51,9 +53,11 @@ void GAThread::run()
 			hybrid.initGeneticAlgorithm(configuration);
 			while (hybrid.nextGeneration(configuration))
 			{
-				while (this->stopGeneticAlgorithm)
+				if (this->stopGeneticAlgorithm)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					mutex.lock();
+					           continuePressed.wait(&mutex);
+					mutex.unlock();
 				}
 				emit boxesReady(this, hybrid.getGenerationDataIndex());
 				emit generationPassed(hybrid.getGenerationDataIndex());
@@ -66,9 +70,11 @@ void GAThread::run()
 			binary.initGeneticAlgorithm(configuration);
 			while (binary.nextGeneration(configuration))
 			{
-				while (this->stopGeneticAlgorithm)
+				if (this->stopGeneticAlgorithm)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					mutex.lock();
+					           continuePressed.wait(&mutex);
+					mutex.unlock();
 				}
 				emit boxesReady(this, binary.getGenerationDataIndex());
 				emit generationPassed(binary.getGenerationDataIndex());

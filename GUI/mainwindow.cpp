@@ -281,6 +281,7 @@ void MainWindow::on_startButton_clicked()
 	else  if (startButtonText == "Continue")
 	{
 		GA->stopGeneticAlgorithm = false;
+                GA->continuePressed.wakeAll();
 		ui->startButton->setText("Stop");
 	}
 }

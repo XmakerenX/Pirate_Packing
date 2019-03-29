@@ -2,10 +2,12 @@
 #define GATHREAD_H
 
 #include <iostream>
-#include <QThread>
 #include <cmath>
 #include <chrono>
 #include <random>
+#include <QThread>
+#include <QWaitCondition>
+#include <QMutex>
 
 #include "../includes/structs.h"
 #include "GA_Random.h"
@@ -54,8 +56,11 @@ public:
 	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
-	const GenerationData& getGenerationData(int index);        
+	const GenerationData& getGenerationData(int index);   
+        
 	bool stopGeneticAlgorithm;
+	QWaitCondition continuePressed;
+        
 	Q_OBJECT
 	void run() override;
 
@@ -72,6 +77,8 @@ private:
 	Configuration configuration;
         GA_Core<PermutationCreature> hybrid;
         GA_Core<BinaryCreature> binary;
+        
+        static QMutex mutex;
 };
 
 #endif // GATHREAD_H
