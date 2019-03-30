@@ -11,6 +11,18 @@
 
 typedef boost::dynamic_bitset<> DynamicBitSet;
 
+
+
+
+struct Gene
+{
+	bool isItemTaken;
+	int  ItemOrientation;
+	long unsigned int xPosition;
+	long unsigned int yPosition;
+	long unsigned int zPosition;
+};
+
 struct Box
 {
     Box(int _left, int _bottom, int _back, int _right, int _top, int _front)
@@ -77,8 +89,10 @@ private:
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;
-    
-
+	long unsigned int maxDimensionValue;
+	long unsigned int coordinateBits;
+	long unsigned int bitsPerItem; 
+	Gene getItemGeneInfo(int itemIndex);
 };
 
 #endif // BINARYENCODING_H
