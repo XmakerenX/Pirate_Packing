@@ -403,15 +403,18 @@ void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
 {
 	this->setFixedSize(windowWidth, windowHeight);
 
-	int x, y;
-	int screenWidth, screenHeight;
-	QDesktopWidget *desktop = QApplication::desktop();
+	if (WIN32)
+	{
+		int x, y;
+		int screenWidth, screenHeight;
+		QDesktopWidget *desktop = QApplication::desktop();
 
-	screenWidth = desktop->width();
-	screenHeight = desktop->height();
+		screenWidth = desktop->width();
+		screenHeight = desktop->height();
 
-	x = (screenWidth - windowWidth) / 2;
-	y = (screenHeight - windowHeight) / 2;
+		x = (screenWidth - windowWidth) / 2;
+		y = (screenHeight - windowHeight) / 2;
 
-	this->move(x, y);
+		this->move(x, y);
+	}
 }
