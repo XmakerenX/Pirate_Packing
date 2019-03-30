@@ -330,7 +330,6 @@ void MainWindow::on_resultsBackButton_clicked()
 	GA->stopGeneticAlgorithm = true;
 
 	viewer->clearAllBoxes();
-	GA->clearAllGenerations();
 
 
 	ui->stackedWidget->setCurrentIndex(2);

@@ -113,12 +113,6 @@ const GenerationData& GA_Core<Creature>::getGenerationData(int index)
 {
     return generationData[index];
 }
-//----------------------------------------------------------
-template <class Creature>
-void GA_Core<Creature>::clearAllGenerationsData()
-{
-	generationData.clear();
-}
 //-----------------------------------------------------------
 template <class Creature>
 int GA_Core<Creature>::getGenerationDataIndex()

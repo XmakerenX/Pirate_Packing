@@ -20,8 +20,6 @@ public:
 	bool nextGeneration(Configuration& configuration);
 	std::vector<BoxInfo>& getBoxesInfo(int index);
 	const GenerationData& getGenerationData(int index);
-	void clearAllGenerationsData();
-
 	int getGenerationDataIndex();
         
 private:
