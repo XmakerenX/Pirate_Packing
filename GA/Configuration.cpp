@@ -5,18 +5,24 @@ Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 	:dim(_dim), numberOfItems(_numberOfItems)
 {
 	generateItems();
+    setBinaryUtilValues();
 }
 //------------------------------------------------------------------------------------
 Configuration::Configuration(const Dimensions& _dim, std::vector<Item>& givenItems)
 	: dim(_dim), numberOfItems(givenItems.size())
 {
-	items.clear();
 	for (Item& item : givenItems)
 	{
 		this->items.emplace_back(item.dim,item.value,item.id);
 	}
+	setBinaryUtilValues();
 }
 //------------------------------------------------------------------------------------
+Configuration::~Configuration()
+{
+
+}
+//-----------------------------------------------------------------------------------
 void Configuration::Reset()
 {
 	generateItems();
@@ -53,8 +59,24 @@ void Configuration::generateItems()
     }
 }
 //------------------------------------------------------------------------------------
-Configuration::~Configuration()
+void Configuration::setBinaryUtilValues()
 {
-
+    long unsigned int maxDimensionValue = std::max(dim.w, std::max(dim.h, dim.d));
+    coordinateBits = std::ceil(std::log2(maxDimensionValue));
+    bitsPerItem = 4 + 3 * coordinateBits;
+    
+    totalBitsNum = items.size()*4 + 3 * items.size() * coordinateBits;
+    
+    long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
+    itemMaskValue--;
+    itemMask = boost::dynamic_bitset<>(totalBitsNum, itemMaskValue);
+    
+    long unsigned int zMaskValue = std::pow(2, coordinateBits);
+    zMaskValue--;
+    zMask = boost::dynamic_bitset<>(totalBitsNum, zMaskValue);
+    yMask = zMask << coordinateBits;
+    xMask = yMask << coordinateBits;
+    
+    sevenMask = boost::dynamic_bitset<>(totalBitsNum, 7);
 }
 //------------------------------------------------------------------------------------

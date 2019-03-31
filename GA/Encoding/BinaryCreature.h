@@ -11,16 +11,15 @@
 
 typedef boost::dynamic_bitset<> DynamicBitSet;
 
-
-
-
-struct Gene
+struct ItemInfo
 {
-	bool isItemTaken;
-	int  ItemOrientation;
-	long unsigned int xPosition;
-	long unsigned int yPosition;
-	long unsigned int zPosition;
+    long unsigned int x;
+    long unsigned int y;
+    long unsigned int z;
+    long unsigned int width;
+    long unsigned int height;
+    long unsigned int depth;
+    int orientaion;
 };
 
 struct Box
@@ -84,15 +83,12 @@ private:
     
     void onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
     void uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
+    bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
     int fitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;
-	long unsigned int maxDimensionValue;
-	long unsigned int coordinateBits;
-	long unsigned int bitsPerItem; 
-	Gene getItemGeneInfo(int itemIndex);
 };
 
 #endif // BINARYENCODING_H

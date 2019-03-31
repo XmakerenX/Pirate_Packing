@@ -8,7 +8,6 @@ int BinaryCreature::penaltyWeight = 1;
 //than the solution provided by the permutation creature, which, while possibly good, still lacks the much needed property of efficiency 
 //and may not reach the best solution after all.
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chromozome~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 //The chromozome of the binary creature consists of N(N = total number of items) genes in a row,
 // where the i-th gene represent the i-th item.
@@ -24,9 +23,6 @@ int BinaryCreature::penaltyWeight = 1;
 // pos_y      = y position of the item inside the container , number of bits depend on the max dimension of the container  
 // pos_z      = z position of the item inside the container , number of bits depend on the max dimension of the container 
 
-
-
-
 //-----------------------------------------------------------------------------------------------
 // Name : BinaryCreature
 // Input: Configuration of the problem 
@@ -36,18 +32,11 @@ int BinaryCreature::penaltyWeight = 1;
 BinaryCreature::BinaryCreature(Configuration* conf)
     :configuration(conf)
 {
-	//Calculate the bit length of the chromozome
-	this->maxDimensionValue = std::max(conf->dim.w, std::max(conf->dim.h, conf->dim.d));
-    this->coordinateBits = std::ceil(std::log2(maxDimensionValue));
-	this->bitsPerItem = 4 + 3 * coordinateBits;
-
-	long unsigned int totalBitsNum = configuration->items.size()*4 + 3 * configuration->items.size() * coordinateBits;	
-	//Binary string will look like this : 1 333 XXXX XXXX XXXX
-
-    chromozome = generateChromosome(totalBitsNum); //create the creature data
-    repairChromosome();//repair collisions and overflowing values(e.g: orientation is only
-					   // allowed to range from 0 to 5 but could become more due to the nature of the crossover
-					   // and mutation, so it needs to be fixed)
+    chromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
+    // repair collisions and overflowing values(e.g: orientation is only allowed
+    // to range from 0 to 5 but could become more due to the nature of the crossover
+    // and mutation, so it needs to be fixed)
+    repairChromosome();
     calculateFittness();
 }
 
@@ -61,12 +50,6 @@ BinaryCreature::BinaryCreature(Configuration* conf)
 BinaryCreature::BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome)
     :chromozome(_chromozome), configuration(config)
 {
-	//Calculate the bit length of the chromozome
-	this->maxDimensionValue = std::max(configuration->dim.w, std::max(configuration->dim.h, configuration->dim.d));
-	this->coordinateBits = std::ceil(std::log2(maxDimensionValue));
-	this->bitsPerItem = 4 + 3 * coordinateBits;
-
-
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -79,10 +62,6 @@ BinaryCreature::BinaryCreature(Configuration* config, const DynamicBitSet& _chro
 BinaryCreature::BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome)
     :chromozome(std::move(_chromozome)), configuration(config)
 {
-	this->maxDimensionValue = std::max(configuration->dim.w, std::max(configuration->dim.h, configuration->dim.d));
-	this->coordinateBits = std::ceil(std::log2(maxDimensionValue));
-	this->bitsPerItem = 4 + 3 * coordinateBits;
-
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -126,21 +105,19 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
     // to avoid usesless zeros at the binary string start
     chromosome.resize(totalBitsNum);
     
- 
-
     DynamicBitSet itemMask = DynamicBitSet(chromosome.size(), 0x8000 );
     for (int i = 0; i < configuration->items.size() - 1; i++)
     {
         itemMask = itemMask << 1;
         itemMask[0] = 1;
-        itemMask = itemMask << (bitsPerItem - 1);
+        itemMask = itemMask << (configuration->bitsPerItem - 1);
     }
     
 //     // limit the number of items per chromosome
 //     std::uniform_int_distribution<long unsigned int> itemDistributaion(0, configuration->items.size() - 1);
 //     for (int i = 0; i < 10; i++)
 //     {
-//         itemMask[itemDistributaion(Random::default_engine.getGenerator()) * bitsPerItem + (3 + 3 * coordinateBits)] = 0;
+//         itemMask[itemDistributaion(Random::default_engine.getGenerator()) * configuration->bitsPerItem + (3 + 3 * configuration->coordinateBits)] = 0;
 //     }
 //     
 //     itemMask.flip();
@@ -159,119 +136,110 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
 //-----------------------------------------------------------------------------------------------
 void BinaryCreature::repairChromosome()
 {
+    std::vector<Box> itemBoxes;
+    std::vector<long int> valuesOfItems;
+    std::vector<long int> boxId;
+    std::vector<bool> isItemStillIn;
 
+    DynamicBitSet itemMask = configuration->itemMask;
+    for (int i = 0; i < configuration->items.size(); i++)
+    {
+        ItemInfo itemInfo;
+        if (getItemInfo(itemMask, i, itemInfo))
+        {
+            bool wasRepaired = false;
+            if (itemInfo.orientaion > 5)
+            {
+                std::uniform_int_distribution<unsigned int> orientaionDist(0, 5);
+                itemInfo.orientaion = orientaionDist(Random::default_engine.getGenerator());
+                itemInfo.width = configuration->items[i].dim.w;
+                itemInfo.height = configuration->items[i].dim.h;
+                itemInfo.depth = configuration->items[i].dim.d;
+                adjustDimensionsToOrientation(itemInfo.orientaion, itemInfo.width, itemInfo.height, itemInfo.depth);
+                wasRepaired = true;
+            }
 
-	std::vector<Box> itemBoxes;
-	std::vector<long int> valuesOfItems;
-	std::vector<long int> boxId;
-	std::vector<bool> isItemStillIn;
+            // repair if needed the x and y coordinates
+            if (itemInfo.x + itemInfo.width > configuration->dim.w)
+            {
+                itemInfo.x = configuration->dim.w - itemInfo.width;
+                wasRepaired = true;
+            }
 
-	for (int i = 0; i < configuration->items.size(); i++)
-	{
-		// craete mask to get current item info from the chromosome
-		unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-		itemMaskValue--;
-		DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-		itemMask = itemMask << bitsPerItem * i;
-		// get the item info from the chromosome
-		DynamicBitSet itemValues = chromozome & itemMask;
-		itemValues = itemValues >> bitsPerItem * i;
-		// check if the item is in selected to be in the container
-		if (itemValues[3 + 3 * coordinateBits] == 1)
-		{
-			// create mask to get the y value from the item bit string
-			unsigned int zMaskValue = std::pow(2, coordinateBits);
-			zMaskValue--;
-			// get the item z coordinate
-			DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
-			unsigned int z = (itemValues & zMask).to_ulong();
-			// get the item y coordinate
-			DynamicBitSet yMask = zMask << coordinateBits;
-			DynamicBitSet yValue = (itemValues & yMask) >> coordinateBits;
-			unsigned int y = yValue.to_ulong();
-			// create mask to get the x value from the item bit string
-			DynamicBitSet xMask = yMask << coordinateBits;
-			DynamicBitSet xValue = (itemValues & xMask) >> 2 * coordinateBits;
-			// get the item x coordinate
-			unsigned int x = xValue.to_ulong();
-			long unsigned int itemWidth = configuration->items[i].dim.w;
-			long unsigned int itemHeight = configuration->items[i].dim.h;
-			long unsigned int itemDepth = configuration->items[i].dim.d;
-			// swap item width and height if item is vertical orientation
-			DynamicBitSet seven(itemValues.size(), 7);
-			DynamicBitSet orientationBits = (itemValues >> 3 * coordinateBits) & seven;
-			int orientaion = orientationBits.to_ulong();
-			// make sure orientaion is in the valid range
-			if (orientaion > 5)
-			{
-				std::uniform_int_distribution<unsigned int> orientaionDist(0, 5);
-				orientaion = orientaionDist(Random::default_engine.getGenerator());
-			}
-			adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
+            if (itemInfo.y + itemInfo.height > configuration->dim.h)
+            {
+                itemInfo.y = configuration->dim.h - itemInfo.height;
+                wasRepaired = true;
+            }
 
+            if (itemInfo.z + itemInfo.depth > configuration->dim.d)
+            {
+                itemInfo.z = configuration->dim.d - itemInfo.depth;
+                wasRepaired = true;
+            }
 
-			// repair if needed the x and y coordinates
-			if (x + itemWidth > configuration->dim.w)
-				x = configuration->dim.w - itemWidth;
+            if (wasRepaired)
+            {
+                DynamicBitSet newOrientation(chromozome.size(), itemInfo.orientaion);
+                newOrientation = newOrientation << configuration->coordinateBits * 3;
+                DynamicBitSet newX(chromozome.size(), itemInfo.x);
+                newX = newX << configuration->coordinateBits * 2;
+                DynamicBitSet newY(chromozome.size(), itemInfo.y);
+                newY = newY << configuration->coordinateBits;
+                DynamicBitSet newZ(chromozome.size(), itemInfo.z);
+                DynamicBitSet updatedXYValue = newOrientation | newX | newY | newZ;
+                // copy the updated value to chromosome
+                for (int j = 0; j < (configuration->bitsPerItem - 1); j++)
+                {
+                    chromozome[configuration->bitsPerItem * i + j] = updatedXYValue[j];
+                }
+            }
 
-			if (y + itemHeight > configuration->dim.h)
-				y = configuration->dim.h - itemHeight;
+            itemBoxes.emplace_back(itemInfo.x, itemInfo.y, itemInfo.z,
+                                   itemInfo.x + itemInfo.width,
+                                   itemInfo.y + itemInfo.height,
+                                   itemInfo.z + itemInfo.depth);
+            valuesOfItems.push_back(configuration->items[i].value);
+            boxId.push_back(i);
+            isItemStillIn.push_back(true);
+        }
+        
+        itemMask = itemMask << configuration->bitsPerItem;
+    }
 
-			if (z + itemDepth > configuration->dim.d)
-				z = configuration->dim.d - itemDepth;
+    // remove conflicts based on value
+    for (int i = 0; i < itemBoxes.size(); i++)
+    {
+        if (!isItemStillIn[i])
+            continue;
 
-			DynamicBitSet newOrientation(chromozome.size(), orientaion);
-			newOrientation = newOrientation << coordinateBits * 3;
-			DynamicBitSet newX(chromozome.size(), x);
-			newX = newX << coordinateBits * 2;
-			DynamicBitSet newY(chromozome.size(), y);
-			newY = newY << coordinateBits;
-			DynamicBitSet newZ(chromozome.size(), z);
-			DynamicBitSet updatedXYValue = newOrientation | newX | newY | newZ;
-			// copy the updated value to chromosome
-			for (int j = 0; j < (bitsPerItem - 1); j++)
-			{
-				chromozome[bitsPerItem * i + j] = updatedXYValue[j];
-			}
+        for (int j = i + 1; j < itemBoxes.size(); j++)
+        {
+            if (!isItemStillIn[j])
+                continue;
 
-			itemBoxes.emplace_back(x, y, z, x + itemWidth, y + itemHeight, z + itemDepth);
-			valuesOfItems.push_back(configuration->items[i].value);
-			boxId.push_back(i);
-			isItemStillIn.push_back(true);
-		}
-	}
+            Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
 
-	// remove conflicts based on value
-	for (int i = 0; i < itemBoxes.size(); i++)
-	{
-		if (!isItemStillIn[i])
-			continue;
-
-		for (int j = i + 1; j < itemBoxes.size(); j++)
-		{
-			if (!isItemStillIn[j])
-				continue;
-
-			Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
-
-			// calcuate how much volume is overlapping between boxes 
-			if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
-			{
-				if (valuesOfItems[i] > valuesOfItems[j])
-				{
-					chromozome[bitsPerItem * boxId[j] + (3 + 3 * coordinateBits)] = 0;
-					isItemStillIn[j] = false;
-				}
-				else
-				{
-					chromozome[bitsPerItem * boxId[i] + (3 + 3 * coordinateBits)] = 0;
-					isItemStillIn[i] = false;
-					continue;
-				}
-			}
-		}
-	}
-}// Name : adjustDimensionsToOrientation
+            // calcuate how much volume is overlapping between boxes 
+            if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
+            {
+                if (valuesOfItems[i] > valuesOfItems[j])
+                {
+                    chromozome[configuration->bitsPerItem * boxId[j] + (3 + 3 * configuration->coordinateBits)] = 0;
+                    isItemStillIn[j] = false;
+                }
+                else
+                {
+                    chromozome[configuration->bitsPerItem * boxId[i] + (3 + 3 * configuration->coordinateBits)] = 0;
+                    isItemStillIn[i] = false;
+                    continue;
+                }
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------------------------
+// Name : adjustDimensionsToOrientation
 // Input: item orientaion and refernces to its width,height and depth
 // Output: width,height and depth swapped according to item orientaion
 // Action: swaps width,height and depth based on the orientation value
@@ -421,17 +389,6 @@ void BinaryCreature::uniformCrossover(BinaryCreature& parent2, std::vector<Binar
     population.emplace_back(configuration, child);
     population.emplace_back(configuration, child2);
 }
-
-//-----------------------------------------------------------------------------------------------
-// Name : calculateFittness
-// Input: this chromozome
-// Output: fitness score for this encdoing solution
-// Action: calcuate the fitness score fro this encdoing
-//         if there is no overlap between boxes thes score is 50% value and 50% positionScore
-//         if there is overlap the score is only the positionScore
-//         positionScore is made out of how much overlaping volume there was and how well
-//         positioned are the boxes
-//-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 // Name : calculateFittness
 // Input: this chromozome
@@ -445,56 +402,36 @@ void BinaryCreature::uniformCrossover(BinaryCreature& parent2, std::vector<Binar
 int BinaryCreature::calculateFittness()
 {
 	int nItem = 0;
-
-
-	long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-	itemMaskValue--;
-	DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-
 	std::vector<Box> itemBoxes;
 	std::vector<long int> valuesOfItems;
 	int value = 0;
-	long unsigned int minX = maxDimensionValue, minY = maxDimensionValue, minZ = maxDimensionValue;
+	long unsigned int minX = std::numeric_limits<long unsigned int>::max(),
+	minY = std::numeric_limits<long unsigned int>::max(),
+	minZ = std::numeric_limits<long unsigned int>::max();
 	long unsigned int maxX = 0, maxY = 0, maxZ = 0;
+    DynamicBitSet itemMask = configuration->itemMask;
 	for (int i = 0; i < configuration->items.size(); i++)
 	{
-		// get the item bits 
-		DynamicBitSet itemValues = chromozome & itemMask;
-		// shift them to lower parts of the bit string
-		itemValues = itemValues >> bitsPerItem * i;
-		if (itemValues[3 + 3 * coordinateBits] == 1)
+        ItemInfo itemInfo;
+        if (getItemInfo(itemMask, i, itemInfo))
 		{
 			nItem++;
 			value += configuration->items[i].value;
-			// get the X,Y,Z coordinates
-			long unsigned int zMaskValue = std::pow(2, coordinateBits);
-			zMaskValue--;
-			DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
-			long unsigned int z = (itemValues & zMask).to_ulong();
-			DynamicBitSet yMask = zMask << coordinateBits;
-			long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
-			DynamicBitSet xMask = yMask << coordinateBits;
-			long unsigned int x = ((itemValues & xMask) >> coordinateBits * 2).to_ulong();
-			// get Item Dimension
-			long unsigned int itemWidth = configuration->items[i].dim.w;
-			long unsigned int itemHeight = configuration->items[i].dim.h;
-			long unsigned int itemDepth = configuration->items[i].dim.d;
+			minX = std::min(minX, itemInfo.x);
+			minY = std::min(minY, itemInfo.y);
+			minZ = std::min(minZ, itemInfo.z);
+			maxX = std::max(maxX, itemInfo.x + itemInfo.width);
+			maxY = std::max(maxY, itemInfo.y + itemInfo.height);
+			maxZ = std::max(maxZ, itemInfo.z + itemInfo.depth);
 
-			DynamicBitSet seven(itemValues.size(), 7);
-			DynamicBitSet orientationBits = (itemValues >> 3 * coordinateBits) & seven;
-			int orientaion = orientationBits.to_ulong();
-			adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
-
-			minX = std::min(minX, x); minY = std::min(minY, y); minZ = std::min(minZ, z);
-			maxX = std::max(maxX, x + itemWidth);
-			maxY = std::max(maxY, y + itemHeight);
-			maxZ = std::max(maxZ, z + itemDepth);
-
-			itemBoxes.emplace_back(x, y, z, x + itemWidth, y + itemHeight, z + itemDepth);
-			valuesOfItems.push_back(configuration->items[i].value / (itemWidth * itemHeight * itemDepth));
+			itemBoxes.emplace_back(itemInfo.x, itemInfo.y, itemInfo.z,
+                                   itemInfo.x + itemInfo.width,
+                                   itemInfo.y + itemInfo.height,
+                                   itemInfo.z + itemInfo.depth);
+			valuesOfItems.push_back(configuration->items[i].value / (itemInfo.width * itemInfo.height * itemInfo.depth));
 		}
 
-		itemMask = itemMask << bitsPerItem;
+		itemMask = itemMask << configuration->bitsPerItem;
 	}
 
 	int totalVolume = 0;
@@ -589,93 +526,31 @@ int BinaryCreature::calculateFittness()
 // Action: Decode the encdoing and returns where are the boxes inside the container
 //-----------------------------------------------------------------------------------------------
 std::vector<BoxInfo> BinaryCreature::getBoxPositions()
-{
-	
-
-	long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-	itemMaskValue--;
-	DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-
-	std::vector<BoxInfo> itemInfo;
+{   
+	std::vector<BoxInfo> boxesPositions;
 	std::vector<Item>& items = configuration->items;
 	int value = 0;
+	DynamicBitSet itemMask = configuration->itemMask;
 	for (int i = 0; i < configuration->items.size(); i++)
 	{
-		// get the item bits 
-		DynamicBitSet itemValues = chromozome & itemMask;
-		// shift them to lower parts of the bit string
-		itemValues = itemValues >> bitsPerItem * i;
-		if (itemValues[3 + 3 * coordinateBits] == 1)
-		{
-			value += items[i].value;
-			// get the X,Y,Z coordinates
-			long unsigned int zMaskValue = std::pow(2, coordinateBits);
-			zMaskValue--;
-			DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
-			long unsigned int z = (itemValues & zMask).to_ulong();
-			DynamicBitSet yMask = zMask << coordinateBits;
-			long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
-			DynamicBitSet xMask = yMask << coordinateBits;
-			long unsigned int x = ((itemValues & xMask) >> coordinateBits * 2).to_ulong();
-			// get Item Dimension
-			long unsigned int itemWidth = items[i].dim.w;
-			long unsigned int itemHeight = items[i].dim.h;
-			long unsigned int itemDepth = items[i].dim.d;
-
-			DynamicBitSet seven(itemValues.size(), 7);
-			DynamicBitSet orientationBits = (itemValues >> 3 * coordinateBits) & seven;
-			int orientaion = orientationBits.to_ulong();
-			adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
-			itemInfo.emplace_back(QPoint3D(x, y, z),
-				RGB(items[i].color.r / 256.0f,
-					items[i].color.g / 256.0f,
-					items[i].color.b / 256.0f),
-				itemWidth,
-				itemHeight,
-				itemDepth,
-				items[i].value);
-		}
-
-		itemMask = itemMask << bitsPerItem;
-	}
-
-	return itemInfo;
-}
-
-/*
-std::vector<BoxInfo> BinaryCreature::getBoxPositions()
-{   
-    long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-    itemMaskValue--;
-    DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-    
-    std::vector<BoxInfo> itemInfo;
-    std::vector<Item>& items = configuration->items;
-    int value = 0;
-	for (int i = 0; i < configuration->items.size(); i++)
-	{
-		Gene itemGene = getItemGeneInfo(i);
-		if (itemGene.isItemTaken)
+		ItemInfo itemInfo;
+		if (getItemInfo(itemMask, i, itemInfo))
 		{
 			value += items[i].value;
 			// get Item Dimension
-			long unsigned int itemWidth  = items[i].dim.w;
-			long unsigned int itemHeight = items[i].dim.h;
-			long unsigned int itemDepth  = items[i].dim.d;
-			adjustDimensionsToOrientation(itemGene.ItemOrientation, itemWidth, itemHeight, itemDepth);
-			itemInfo.emplace_back(QPoint3D(itemGene.xPosition, itemGene.yPosition, itemGene.zPosition),
-				RGB(items[i].color.r / 256.0f,
-					items[i].color.g / 256.0f,
-					items[i].color.b / 256.0f),
-				itemWidth,
-				itemHeight,
-				itemDepth,
-				items[i].value);
+			boxesPositions.emplace_back(QPoint3D(itemInfo.x, itemInfo.y, itemInfo.z),
+                                        RGB(items[i].color.r / 256.0f,
+                                            items[i].color.g / 256.0f,
+                                            items[i].color.b / 256.0f),
+                                        itemInfo.width,
+                                        itemInfo.height,
+                                        itemInfo.depth,
+                                        items[i].value);
 		}
+		itemMask = itemMask << configuration->bitsPerItem;
 	}
-    return itemInfo;
+	return boxesPositions;
 }
-*/
 //-----------------------------------------------------------------------------------------------
 // Name : getConfiguration
 // Action: return the configuration used in this encdoing
@@ -684,58 +559,30 @@ Configuration* BinaryCreature::getConfiguration() const
 {
     return this->configuration;
 }
-
-//-----------------------------------------------------------------------------------------------
-// Name : validateConstraints
-// Action: checks if problem Constraint are violated if there are increase w
-//-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 // Name : validateConstraints
 // Action: checks if problem Constraint are violated if there are increase w
 //-----------------------------------------------------------------------------------------------
 bool BinaryCreature::validateConstraints()
 {
-	
-
-	long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-	itemMaskValue--;
-	DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-
 	std::vector<Box> itemBoxes;
 	std::vector<long int> valuesOfItems;
 	int value = 0;
+	DynamicBitSet itemMask = configuration->itemMask;
 	for (int i = 0; i < configuration->items.size(); i++)
 	{
-		// get the item bits 
-		DynamicBitSet itemValues = chromozome & itemMask;
-		// shift them to lower parts of the bit string
-		itemValues = itemValues >> bitsPerItem * i;
-		if (itemValues[3 + 3 * coordinateBits] == 1)
+		ItemInfo itemInfo;
+		if (getItemInfo(itemMask, i, itemInfo))
 		{
 			value += configuration->items[i].value;
-			// get the X,Y,Z coordinates
-			long unsigned int zMaskValue = std::pow(2, coordinateBits);
-			zMaskValue--;
-			DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
-			long unsigned int z = (itemValues & zMask).to_ulong();
-			DynamicBitSet yMask = zMask << coordinateBits;
-			long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
-			DynamicBitSet xMask = yMask << coordinateBits;
-			long unsigned int x = ((itemValues & xMask) >> coordinateBits * 2).to_ulong();
-			// get Item Dimension
-			long unsigned int itemWidth = configuration->items[i].dim.w;
-			long unsigned int itemHeight = configuration->items[i].dim.h;
-			long unsigned int itemDepth = configuration->items[i].dim.d;
-
-			DynamicBitSet seven(itemValues.size(), 7);
-			DynamicBitSet orientationBits = (itemValues >> 3 * coordinateBits) & seven;
-			int orientaion = orientationBits.to_ulong();
-			adjustDimensionsToOrientation(orientaion, itemWidth, itemHeight, itemDepth);
-			itemBoxes.emplace_back(x, y, z, x + itemWidth, y + itemHeight, z + itemDepth);
-			valuesOfItems.push_back(configuration->items[i].value / (itemWidth * itemHeight * itemDepth));
+			itemBoxes.emplace_back(itemInfo.x, itemInfo.y, itemInfo.z,
+                                   itemInfo.x + itemInfo.width,
+                                   itemInfo.y + itemInfo.height,
+                                   itemInfo.z + itemInfo.depth);
+			valuesOfItems.push_back(configuration->items[i].value / (itemInfo.width * itemInfo.height * itemInfo.depth));
 		}
 
-		itemMask = itemMask << bitsPerItem;
+		itemMask = itemMask << configuration->bitsPerItem;
 	}
 
 	for (int i = 0; i < itemBoxes.size(); i++)
@@ -778,53 +625,34 @@ int BinaryCreature::getFitness() const
 }
 //-----------------------------------------------------------------------------------------------
 // Name : getItemInfo
-// input: index of item inside the chromozome
-// output: all the neccery info about this item in the chromozome in the struct Gene
-// Action: return the info of the requested item
+// input: itemMask for the item in the itemMask position, index of item inside the chromozome
+//        and a ItemInfo struct to hold the itemInfo data
+// output: true if the item is in the container and its info in iteminfo otherwise false
+// Action: return the info of the item in the itemIndex place
 //-----------------------------------------------------------------------------------------------
-Gene BinaryCreature::getItemGeneInfo(int itemIndex)
+bool BinaryCreature::getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo)
 {
-	Gene requestedItemInfo;
-	
-
-	long unsigned int itemMaskValue = std::pow(2, bitsPerItem);
-	itemMaskValue--;
-	DynamicBitSet itemMask = DynamicBitSet(chromozome.size(), itemMaskValue);
-	itemMask = itemMask << (bitsPerItem*itemIndex);
-
-	std::vector<BoxInfo> itemInfo;
-	std::vector<Item>& items = configuration->items;
-	int value = 0;
-
-
-	// get the item bits 
-	DynamicBitSet itemValues = chromozome & itemMask;
-	// shift them to lower parts of the bit string
-	itemValues = itemValues >> bitsPerItem * itemIndex;
-	if (itemValues[3 + 3 * coordinateBits] == 1)  
-	{
-		requestedItemInfo.isItemTaken = true;
-
-	}
-	// get the X,Y,Z coordinates
-	long unsigned int zMaskValue = std::pow(2, coordinateBits);
-	zMaskValue--;
-	DynamicBitSet zMask = DynamicBitSet(chromozome.size(), zMaskValue);
-	long unsigned int z = (itemValues & zMask).to_ulong();
-	DynamicBitSet yMask = zMask << coordinateBits;
-	long unsigned int y = ((itemValues & yMask) >> coordinateBits).to_ulong();
-	DynamicBitSet xMask = yMask << coordinateBits;
-	long unsigned int x = ((itemValues & xMask) >> coordinateBits * 2).to_ulong();
-	// get Item Dimension
-
-	DynamicBitSet seven(itemValues.size(), 7);
-	DynamicBitSet orientationBits = (itemValues >> 3 * coordinateBits) & seven;
-	int orientaion = orientationBits.to_ulong();
-
-	requestedItemInfo.ItemOrientation = orientaion;
-	requestedItemInfo.xPosition = x;
-	requestedItemInfo.yPosition = y;
-	requestedItemInfo.zPosition = z;
-
-	return requestedItemInfo;
+    // get the item bits 
+    DynamicBitSet itemValues = chromozome & itemMask;
+    // shift them to lower parts of the bit string
+    itemValues = itemValues >> configuration->bitsPerItem * itemIndex;
+    if (itemValues[3 + 3 * configuration->coordinateBits])
+    {
+        // get the X,Y,Z coordinates
+        itemInfo.x = ((itemValues & configuration->xMask) >> configuration->coordinateBits * 2).to_ulong();
+        itemInfo.y = ((itemValues & configuration->yMask) >> configuration->coordinateBits).to_ulong();
+        itemInfo.z = (itemValues & configuration->zMask).to_ulong();
+        // get Item Dimension
+        itemInfo.width = configuration->items[itemIndex].dim.w;
+        itemInfo.height = configuration->items[itemIndex].dim.h;
+        itemInfo.depth = configuration->items[itemIndex].dim.d;
+        DynamicBitSet orientationBits = (itemValues >> 3 * configuration->coordinateBits) &
+                                        configuration->sevenMask;
+        itemInfo.orientaion = orientationBits.to_ulong();        
+        adjustDimensionsToOrientation(itemInfo.orientaion, itemInfo.width, itemInfo.height,
+                                      itemInfo.depth);        
+        return true;
+    }
+    else
+        return false;
 }

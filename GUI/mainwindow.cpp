@@ -16,8 +16,6 @@
 #include <regex>
 #include <sstream>
 
-using namespace std;
-
 MainWindow::MainWindow(QWidget *parent) 
 :	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -146,7 +144,7 @@ void MainWindow::validateInput(std::string inputString)
 	}
 }
 //-----------------------------------------------------------------------------------
-void MainWindow::parseInput(string input)
+void MainWindow::parseInput(std::string input)
 {
 	std::vector<Item> givenItemList;
 
@@ -358,7 +356,6 @@ void MainWindow::on_resultsResetButton_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
-	
 	GenerationData data = GA->getGenerationData(currentGeneration);
 	ui->AvaregeFittness->setText(QString::number(data.avarageFittness).mid(0, 4));
 	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreatureFittness));
@@ -375,14 +372,13 @@ void MainWindow::updateGAStarted()
 {
    ui->resultsResetButton->setEnabled(false);
    ui->generationComboBox->setEnabled(false);
-
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
 {
 	ui->startButton->setText("Start");
 	ui->generationComboBox->setEnabled(true);
-    ui->resultsResetButton->setEnabled(true);
+	ui->resultsResetButton->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
 //----------------------------------------------------------------------
@@ -390,7 +386,6 @@ void MainWindow::on_radioButton_HybridGenetics_clicked()
 {
 	ui->radioButton_pureGenetics->setChecked(false);
 	ui->radioButton_HybridGenetics->setChecked(true);
-
 }
 //----------------------------------------------------------------------
 void MainWindow::on_radioButton_pureGenetics_clicked()

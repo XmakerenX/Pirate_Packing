@@ -2,6 +2,7 @@
 #include "Item.h"
 #include <vector>
 #include "../includes/structs.h"
+#include <boost/dynamic_bitset.hpp>
 
 class Configuration
 {
@@ -12,10 +13,20 @@ public:
 
 	void Reset();
 	void generateItems();
+	void setBinaryUtilValues();
         
 	const Dimensions dim;
 	const int numberOfItems;
 	std::vector<Item> items;
 	int maxiumValue;
+	// BinaryEncoding Utils values
+	long unsigned int coordinateBits;
+	long unsigned int bitsPerItem;
+	long unsigned int totalBitsNum;
+	boost::dynamic_bitset<> itemMask;
+	boost::dynamic_bitset<> zMask;
+	boost::dynamic_bitset<> yMask;
+	boost::dynamic_bitset<> xMask;
+	boost::dynamic_bitset<> sevenMask;
 };
 
