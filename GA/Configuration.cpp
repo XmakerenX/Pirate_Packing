@@ -28,7 +28,11 @@ void Configuration::generateItems()
 	std::uniform_int_distribution<int> itemHeightDist(1, dim.h);
 	std::uniform_int_distribution<int> itemDepthDist(1, dim.d);
 	std::uniform_int_distribution<int> itemValueDist(1, 10000);
+    std::uniform_int_distribution<int> sizeDist(1, 20);
 	
+    int sizeFactor = sizeDist(Random::default_engine.getGenerator());
+    std::cout << "size Factor " << sizeFactor << "\n";
+    
 	maxiumValue = 0;
 	items.clear();    
 	for (int i = 0; i < numberOfItems; i++)
@@ -42,7 +46,7 @@ void Configuration::generateItems()
 			itemDim.w  = itemWidthDist(Random::default_engine.getGenerator());
 			itemDim.h = itemHeightDist(Random::default_engine.getGenerator());
 			itemDim.d  = itemDepthDist(Random::default_engine.getGenerator());
-		} while (itemDim.w * itemDim.h * itemDim.d > (dim.w * dim.h * dim.d) / 6);
+        } while (itemDim.w * itemDim.h * itemDim.d > (dim.w * dim.h * dim.d) / sizeFactor);
 
 		maxiumValue += itemValue;
 		items.emplace_back(itemDim, itemValue, i);
