@@ -56,7 +56,10 @@ public:
 	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
+	void setConfigurationData(Dimensions containerDimensions, std::vector<Item> givenItems);
 	const GenerationData& getGenerationData(int index);   
+    
+    bool exitGeneticAlgorithm;
 	bool stopGeneticAlgorithm;
 	QWaitCondition continuePressed;
         

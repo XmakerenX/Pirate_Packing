@@ -8,12 +8,12 @@ QMutex GAThread::mutex;
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
-	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false)
+	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
 {
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
-	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false)
+	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
 {
 }
 //----------------------------------------------------------------------
@@ -51,7 +51,7 @@ void GAThread::run()
 		{
 			// apply hybrid genetic algorithm on this configuration
 			hybrid.initGeneticAlgorithm(configuration);
-			while (hybrid.nextGeneration(configuration))
+			while (hybrid.nextGeneration(configuration) && !exitGeneticAlgorithm)
 			{
 				if (this->stopGeneticAlgorithm)
 				{
@@ -68,7 +68,7 @@ void GAThread::run()
 		{
 			// apply pure genetic algorithm on this configuration
 			binary.initGeneticAlgorithm(configuration);
-			while (binary.nextGeneration(configuration))
+			while (binary.nextGeneration(configuration) && !exitGeneticAlgorithm)
 			{
 				if (this->stopGeneticAlgorithm)
 				{
@@ -88,6 +88,11 @@ void GAThread::run()
 void GAThread::resetConfiguration()
 {
 	configuration.Reset();
+}
+//------------------------------------------------------------------------------------------------
+void GAThread::setConfigurationData(Dimensions containerDimensions, std::vector<Item> givenItems)
+{
+    configuration = Configuration(containerDimensions, givenItems);
 }
 //------------------------------------------------------------------------------------------------
 const GenerationData& GAThread::getGenerationData(int index)

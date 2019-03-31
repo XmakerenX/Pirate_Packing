@@ -11,12 +11,15 @@ public:
 	Configuration(const Dimensions& _dim, std::vector<Item>& givenItems);
 	~Configuration();
 
+    Configuration& operator=(const Configuration& copy);
+    Configuration& operator=(Configuration&& move);
+    
 	void Reset();
 	void generateItems();
 	void setBinaryUtilValues();
         
-	const Dimensions dim;
-	const int numberOfItems;
+	Dimensions dim;
+	int numberOfItems;
 	std::vector<Item> items;
 	int maxiumValue;
 	// BinaryEncoding Utils values

@@ -22,6 +22,28 @@ Configuration::~Configuration()
 {
 
 }
+//------------------------------------------------------------------------------------
+Configuration& Configuration::operator=(const Configuration& copy)
+{
+    dim = copy.dim;
+    items = copy.items;
+    numberOfItems = items.size();
+    
+    setBinaryUtilValues();
+    
+    return *this;
+}
+//------------------------------------------------------------------------------------
+Configuration& Configuration::operator=(Configuration&& move)
+{
+    dim = move.dim;
+    items = std::move(move.items);
+    numberOfItems = items.size();
+    
+    setBinaryUtilValues();
+    
+    return *this;
+}
 //-----------------------------------------------------------------------------------
 void Configuration::Reset()
 {
