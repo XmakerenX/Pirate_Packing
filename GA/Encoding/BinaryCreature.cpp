@@ -389,6 +389,7 @@ void BinaryCreature::uniformCrossover(BinaryCreature& parent2, std::vector<Binar
     population.emplace_back(configuration, child);
     population.emplace_back(configuration, child2);
 }
+
 //-----------------------------------------------------------------------------------------------
 // Name : calculateFittness
 // Input: this chromozome
@@ -513,10 +514,23 @@ int BinaryCreature::calculateFittness()
 			positionScore += (std::abs(box2.getWidth()) * std::abs(box2.getWidth()));
 	}
 
-	int compressedVolume = (configuration->dim.w * configuration->dim.h * configuration->dim.d) -
-		((maxX - minX) * (maxY - minY) * (maxZ - minZ));
-
-	fitness = 0.4*(value)+0.3 * (positionScore)+0.3*overlappedVolume + compressedVolume;
+	//int compressedVolume = (configuration->dim.w * configuration->dim.h * configuration->dim.d) -
+	//	((maxX - minX) * (maxY - minY) * (maxZ - minZ));
+        
+    
+        long packingVolume = 0;
+        for(Box& box : itemBoxes)
+        {
+            packingVolume+= (box.getDepth()*box.getWidth()*box.getHeight());
+        }
+        float compressionRate =  (float)packingVolume/((maxX - minX) * (maxY - minY) * (maxZ - minZ));
+        //fitness = 0.4*(compressionRate*value)+0.3 * (positionScore)+0.3*overlappedVolume;
+        //fitness = 0.4*(packingVolume*((float)value/configuration->maxiumValue))+0.3 * (positionScore)+0.3*overlappedVolume;
+        
+        //fitness = value*vec.x() + packingVolume*vec.y();
+        fitness = value + packingVolume*50;
+        //fitness = packingVolume*((float)value/configuration->maxiumValue);
+        //std::cout<<compressionRate<<"\n";
 	return fitness;
 }
 //-----------------------------------------------------------------------------------------------
