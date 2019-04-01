@@ -16,8 +16,6 @@
 #include <regex>
 #include <sstream>
 
-using namespace std;
-
 MainWindow::MainWindow(QWidget *parent) 
 :	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -26,6 +24,12 @@ MainWindow::MainWindow(QWidget *parent)
 	//Init UI:
 	ui->setupUi(this);
 	setForms();
+    
+	GA = new GAThread(containerDim, 100); 
+	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
+	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
+	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
+	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -146,14 +150,12 @@ void MainWindow::validateInput(std::string inputString)
 	}
 }
 //-----------------------------------------------------------------------------------
-void MainWindow::parseInput(string input)
+void MainWindow::parseInput(std::string input)
 {
 	std::vector<Item> givenItemList;
-
 	try
 	{
 		std::stringstream myInputParser(input);
-
 		//parse container:
 		int container_width, container_height, container_depth;
 
@@ -187,11 +189,7 @@ void MainWindow::parseInput(string input)
 		throw InvalidInputException();
 	}
 
-	GA = new GAThread(containerDim, givenItemList);
-	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
-	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
-	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
-	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
+	GA->setConfigurationData(containerDim, std::move(givenItemList));
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
@@ -209,13 +207,7 @@ void MainWindow::on_wumpusButton_clicked()
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
 	this->setFixedSizeAndMoveToCenter(813, 837);
 
-
-	GA = new GAThread(containerDim, 100); 
 	GA->resetConfiguration();
-	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
-	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
-	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
-	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
@@ -250,13 +242,12 @@ void MainWindow::on_confirmButton_clicked()
 		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
 		else { GA_Settings::method = GA_Method::PureGenetic;}
 
-
 		ui->progressBar->setMinimum(0);
 		ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
 		ui->progressBar->setMinimum(0);
 
-
 		ui->stackedWidget->setCurrentIndex(1);
+		viewer->clearAllBoxes();
 		this->setFixedSizeAndMoveToCenter(1000, 900);
 	}
 	else
@@ -265,8 +256,6 @@ void MainWindow::on_confirmButton_clicked()
 		messageBox.critical(0, "Error", "some parameters are empty!");
 		messageBox.setFixedSize(500, 200);
 	}
-
-	
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_startButton_clicked()
@@ -280,6 +269,8 @@ void MainWindow::on_startButton_clicked()
 		ui->startButton->setText("Stop");
 		ui->resultsResetButton->setEnabled(false);
 		ui->generationComboBox->setEnabled(false);
+        GA->exitGeneticAlgorithm = false;
+        GA->stopGeneticAlgorithm = false;
 		GA->start();
 	}
 	else  if (startButtonText == "Stop")
@@ -314,8 +305,6 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
 {
-	
-	/*
 	ui->progressBar->setValue(0);
 	ui->AvaregeFittness->setText("");
 	ui->BestGenerationalFIttnessTextBox->setText("");
@@ -327,18 +316,18 @@ void MainWindow::on_resultsBackButton_clicked()
 	ui->startButton->setText("Start");
 	ui->resultsResetButton->setEnabled(false);
 	ui->generationComboBox->setEnabled(false);
-	GA->stopGeneticAlgorithm = true;
-
-	viewer->clearAllBoxes();
-
+	if (GA->isRunning())
+	{
+		GA->continuePressed.wakeAll();
+		GA->exitGeneticAlgorithm = true;
+	}
 
 	ui->stackedWidget->setCurrentIndex(2);
 	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
 	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
 	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
 	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-	this->setFixedSizeAndMoveToCenter(813, 837);*/
-
+	setFixedSizeAndMoveToCenter(813, 837);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsResetButton_clicked()
@@ -358,7 +347,6 @@ void MainWindow::on_resultsResetButton_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
-	
 	GenerationData data = GA->getGenerationData(currentGeneration);
 	ui->AvaregeFittness->setText(QString::number(data.avarageFittness).mid(0, 4));
 	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreatureFittness));
@@ -375,14 +363,13 @@ void MainWindow::updateGAStarted()
 {
    ui->resultsResetButton->setEnabled(false);
    ui->generationComboBox->setEnabled(false);
-
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
 {
 	ui->startButton->setText("Start");
 	ui->generationComboBox->setEnabled(true);
-    ui->resultsResetButton->setEnabled(true);
+	ui->resultsResetButton->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
 //----------------------------------------------------------------------
@@ -390,7 +377,6 @@ void MainWindow::on_radioButton_HybridGenetics_clicked()
 {
 	ui->radioButton_pureGenetics->setChecked(false);
 	ui->radioButton_HybridGenetics->setChecked(true);
-
 }
 //----------------------------------------------------------------------
 void MainWindow::on_radioButton_pureGenetics_clicked()
@@ -403,8 +389,7 @@ void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
 {
 	this->setFixedSize(windowWidth, windowHeight);
 
-	if (WIN32)
-	{
+	#ifdef _WIN32
 		int x, y;
 		int screenWidth, screenHeight;
 		QDesktopWidget *desktop = QApplication::desktop();
@@ -416,5 +401,5 @@ void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
 		y = (screenHeight - windowHeight) / 2;
 
 		this->move(x, y);
-	}
+	#endif
 }

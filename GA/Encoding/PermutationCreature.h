@@ -1,5 +1,5 @@
 #ifndef PERMUTATIONENCODING_H
-#define PERMUTATIONENCODING_Hvoid
+#define PERMUTATIONENCODING_H
 
 #include <vector>
 #include <unordered_map>

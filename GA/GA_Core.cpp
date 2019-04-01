@@ -25,6 +25,8 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	population = Breeder<Creature>::generateNextGeneration(population);
 	selectSurvivors(population);
 	
+        //population = generateFirstGeneration(configuration);
+        
 	//get data from this generation
 	getDataFromGeneration(population, configuration);
 	//stop timer
