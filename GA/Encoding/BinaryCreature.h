@@ -84,6 +84,7 @@ private:
     
     void onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
     void uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
+	void itemsCrossOver(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
     
     int fitness;
     std::vector<BoxInfo> boxesPositions;

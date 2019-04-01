@@ -257,6 +257,7 @@ void BinaryCreature::repairChromosome()
 			// calcuate how much volume is overlapping between boxes 
 			if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
 			{
+				
 				if (valuesOfItems[i] > valuesOfItems[j])
 				{
 					chromozome[bitsPerItem * boxId[j] + (3 + 3 * coordinateBits)] = 0;
@@ -345,7 +346,8 @@ void BinaryCreature::mutate(float mutationChance)
 void BinaryCreature::crossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
 {
     //uniformCrossover(parent2, population);
-    onePointCrossover(parent2, population);
+    //onePointCrossover(parent2, population);
+	itemsCrossOver(parent2, population);
 }
 //-----------------------------------------------------------------------------------------------
 // Name : onePointCrossover
@@ -379,6 +381,40 @@ void BinaryCreature::onePointCrossover(BinaryCreature& parent2, std::vector<Bina
     
     population.emplace_back(configuration, child);
     population.emplace_back(configuration, child2);
+}
+//-----------------------------------------------------------------------------------------------
+void BinaryCreature::itemsCrossOver(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
+{
+	DynamicBitSet& parent1 = chromozome;
+	std::uniform_int_distribution<int> evenChance(1,2);
+
+	int numberOfItems = parent2.getConfiguration()->numberOfItems;
+	int parentToChooseFrom;
+	DynamicBitSet child1,child2;
+	child1.reserve(this->bitsPerItem*numberOfItems);
+	child2.reserve(this->bitsPerItem*numberOfItems);
+
+	for (int i = 0; i < numberOfItems; i++)
+	{
+		parentToChooseFrom = evenChance(Random::default_engine.getGenerator());
+		for (int j = 0; j < this->bitsPerItem; j++)
+		{
+			if (parentToChooseFrom == 1) 
+			{	
+				child1.push_back(this->chromozome[i*bitsPerItem + j]); 
+				child2.push_back(parent2.chromozome[i*bitsPerItem + j]);
+
+			}
+			else						 
+			{
+				child1.push_back(parent2.chromozome[i*bitsPerItem + j]);
+				child2.push_back(this->chromozome[i*bitsPerItem + j]);
+			}
+		}
+	}
+	
+	population.emplace_back(configuration, child1);
+	population.emplace_back(configuration, child2);
 }
 //-----------------------------------------------------------------------------------------------
 // Name : uniformCrossover
