@@ -34,7 +34,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	}
 
 	std::sort(currentPopulation.begin(), currentPopulation.end(), [](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
-    int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
+	int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
 	for (int i = 0; i < elitismGroupSize; i++)
 		newPopulation.push_back(currentPopulation[i]);
 

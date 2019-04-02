@@ -234,7 +234,7 @@ void MainWindow::on_confirmButton_clicked()
 	if (validSettings)
 	{
 		GA_Settings::populationSize = textBoxesArray[0].toInt();
-		GA_Settings::elitismSizeGroup = textBoxesArray[1].toInt()*GA_Settings::populationSize / 100;
+		GA_Settings::elitismSizeGroup = textBoxesArray[1].toInt();
 		GA_Settings::numberOfGenerations = textBoxesArray[2].toInt();
 		if (textBoxesArray[3] == "0.") { GA_Settings::mutationRate = 0; }
 		else { GA_Settings::mutationRate = textBoxesArray[3].toFloat(); }
