@@ -106,6 +106,8 @@ void Object::SetScale(const QVector3D& newScale)
 {
     m_mtxScale.setToIdentity();
     m_mtxScale.scale(newScale);
+    
+    m_worldDirty = true;
 }
 
 
