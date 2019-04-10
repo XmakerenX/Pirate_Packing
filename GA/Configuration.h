@@ -9,10 +9,11 @@ class Configuration
 public:
 	Configuration(const Dimensions& _dim, int _numberOfItems);
 	Configuration(const Dimensions& _dim, std::vector<Item>& givenItems);
+	Configuration(const Dimensions& _dim, std::vector<Item>&& givenItems);
 	~Configuration();
 
-    Configuration& operator=(const Configuration& copy);
-    Configuration& operator=(Configuration&& move);
+	Configuration& operator=(const Configuration& copy);
+	Configuration& operator=(Configuration&& move);
     
 	void Reset();
 	void generateItems();
