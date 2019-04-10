@@ -21,12 +21,16 @@ public:
 	std::vector<BoxInfo>& getBoxesInfo(int index);
 	const GenerationData& getGenerationData(int index);
 	int getGenerationDataIndex();
+
+	//population related:
+	std::vector<Creature> getPopulation();
+	void replacePopulation(std::vector<Creature>& newPopulation);
         
 private:
 	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
 	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
 	void selectSurvivors(std::vector<Creature>& population);
-
+	
 	//Configuration configuration;
 	int overallMaximumFitness;
 	int generationMaximumFitness;

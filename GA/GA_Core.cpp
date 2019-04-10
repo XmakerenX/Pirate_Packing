@@ -15,6 +15,22 @@ void GA_Core<Creature>::initGeneticAlgorithm(Configuration& configuration)
 }
 //---------------------------------------------------------------------------------------
 template <class Creature>
+std::vector<Creature> GA_Core<Creature>:: getPopulation()
+{
+	return population;
+}
+//---------------------------------------------------------------------------------------
+template <class Creature>
+void GA_Core<Creature>:: replacePopulation(std::vector<Creature>& newPopulation)
+{
+	population.clear();
+	for (Creature& creature : newPopulation)
+	{
+		population.push_back(creature);
+	}
+}
+//---------------------------------------------------------------------------------------
+template <class Creature>
 bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 {
 	//----Genetic algorithm: create next generation
