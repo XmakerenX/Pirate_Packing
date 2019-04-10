@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->setupUi(this);
 	setForms();
     
+	ui->tableView->setModel(&itemTable);
+    
 	GA = new GAThread(containerDim, 100); 
 	connect(GA, &GAThread::generationPassed, this, &MainWindow::updateGuiDataCorrespondsToNewGeneration);
 	connect(GA, &GAThread::boxesReady, viewer, &SolutionViewer::updateSolutionViewer);
@@ -40,6 +42,7 @@ void MainWindow::setForms()
 {
 	//Form - Main window
 	this->setFixedSizeAndMoveToCenter(738, 539);
+	moveToMainMenu();
 		//Set icon:
 		std::string iconPath = GuiUtils::getFullPath("favicon.ico");
 		this->setWindowIcon(QIcon(iconPath.c_str()));
@@ -72,6 +75,46 @@ void MainWindow::setForms()
 		viewer->setFormat(format);
 		viewer->show();
 		
+	//Form - Enter Data 
+		ui->containerWidthTextbox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
+		ui->containerWidthTextbox->setMaxLength(5);
+		ui->containerHeightTextbox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
+		ui->containerHeightTextbox->setMaxLength(5);
+		ui->containerDepthTextbox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
+		ui->containerDepthTextbox->setMaxLength(5);                
+}
+//------------------------------------------------------------------------------------
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key::Key_Return && event->modifiers() & Qt::ShiftModifier)
+	{
+		if (ui->tableView->hasFocus())
+		{
+			itemTable.addNewRow();
+			return;
+		}
+	}
+    
+	if (event->key() == Qt::Key::Key_Delete)
+	{
+		if (ui->tableView->hasFocus())
+		{
+			QItemSelectionModel* select;
+			select = ui->tableView->selectionModel();
+			QModelIndexList selectedRows =  select->selectedRows();
+			int minR = std::numeric_limits<int>::max();
+			int maxR = 0;
+			for (auto& modelIndex : selectedRows)
+			{
+				minR = std::min(minR, modelIndex.row());
+				maxR = std::max(maxR, modelIndex.row());
+			}
+			itemTable.removeRows(minR, maxR - minR + 1);
+			return;
+		}
+	}
+	// Call defualt key handler if no action was taken on the event
+	QMainWindow::keyReleaseEvent(event);
 }
 //------------------------------------------------------------------------------------
 //load data button:
@@ -90,13 +133,8 @@ void MainWindow::on_loadDataButton_clicked()
 		parseInput(input_numbersOnly);//this creates a new instance for GA paramter
 
 		//set settings menu:
-		ui->stackedWidget->setCurrentIndex(2);
-		ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
-		ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
-		ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
-		ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-		this->setFixedSizeAndMoveToCenter(813, 837);
-
+		pageStack.push(0);
+		moveToSettings();
 	}
 	catch (InvalidInputException exeption)
 	{
@@ -194,27 +232,24 @@ void MainWindow::parseInput(std::string input)
 //------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
 {
-	
+	std::cout << "Enter data button clicked\n";
+	pageStack.push(0);
+	moveToEnterData();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_wumpusButton_clicked()
 {
-	std::cout << "Enter data button clicked\n";
-	ui->stackedWidget->setCurrentIndex(2);
-	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
-	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
-	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
-	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-	this->setFixedSizeAndMoveToCenter(813, 837);
-
+	std::cout << "Wumpus button clicked\n";
 	GA->resetConfiguration();
+	pageStack.push(0);
+	//pageStack.push(3);  // uncomment me to be able to edit the generated items
+	moveToSettings();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
 {
 	std::cout << "Settings back button clicked\n";
-	ui->stackedWidget->setCurrentIndex(0);
-	this->setFixedSizeAndMoveToCenter(738, 539);
+	moveToPreviousPage();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_confirmButton_clicked()
@@ -234,7 +269,7 @@ void MainWindow::on_confirmButton_clicked()
 	if (validSettings)
 	{
 		GA_Settings::populationSize = textBoxesArray[0].toInt();
-		GA_Settings::elitismSizeGroup = textBoxesArray[1].toInt()*GA_Settings::populationSize / 100;
+		GA_Settings::elitismSizeGroup = textBoxesArray[1].toInt();
 		GA_Settings::numberOfGenerations = textBoxesArray[2].toInt();
 		if (textBoxesArray[3] == "0.") { GA_Settings::mutationRate = 0; }
 		else { GA_Settings::mutationRate = textBoxesArray[3].toFloat(); }
@@ -242,13 +277,8 @@ void MainWindow::on_confirmButton_clicked()
 		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
 		else { GA_Settings::method = GA_Method::PureGenetic;}
 
-		ui->progressBar->setMinimum(0);
-		ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
-		ui->progressBar->setMinimum(0);
-
-		ui->stackedWidget->setCurrentIndex(1);
-		viewer->clearAllBoxes();
-		this->setFixedSizeAndMoveToCenter(1000, 900);
+		pageStack.push(2);
+		moveToViewer();
 	}
 	else
 	{
@@ -269,8 +299,8 @@ void MainWindow::on_startButton_clicked()
 		ui->startButton->setText("Stop");
 		ui->resultsResetButton->setEnabled(false);
 		ui->generationComboBox->setEnabled(false);
-        GA->exitGeneticAlgorithm = false;
-        GA->stopGeneticAlgorithm = false;
+		GA->exitGeneticAlgorithm = false;
+		GA->stopGeneticAlgorithm = false;
 		GA->start();
 	}
 	else  if (startButtonText == "Stop")
@@ -322,12 +352,7 @@ void MainWindow::on_resultsBackButton_clicked()
 		GA->exitGeneticAlgorithm = true;
 	}
 
-	ui->stackedWidget->setCurrentIndex(2);
-	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
-	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
-	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
-	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
-	setFixedSizeAndMoveToCenter(813, 837);
+	moveToPreviousPage();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsResetButton_clicked()
@@ -361,8 +386,8 @@ void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAStarted()
 {
-   ui->resultsResetButton->setEnabled(false);
-   ui->generationComboBox->setEnabled(false);
+	ui->resultsResetButton->setEnabled(false);
+	ui->generationComboBox->setEnabled(false);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
@@ -372,19 +397,120 @@ void MainWindow::updateGAFinished()
 	ui->resultsResetButton->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
-//----------------------------------------------------------------------
+void MainWindow::moveToMainMenu()
+{
+	ui->stackedWidget->setCurrentIndex(0);
+	this->setFixedSizeAndMoveToCenter(738, 539);
+}
+//------------------------------------------------------------------------------------
+void MainWindow::moveToSettings()
+{
+	ui->stackedWidget->setCurrentIndex(2);
+	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
+	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
+	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
+	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
+	this->setFixedSizeAndMoveToCenter(813, 837);        
+}
+//------------------------------------------------------------------------------------
+void MainWindow::moveToEnterData(bool reset/* = true*/)
+{
+	ui->stackedWidget->setCurrentIndex(3);
+	if (reset)
+	{
+		ui->containerWidthTextbox->setText("10");
+		ui->containerHeightTextbox->setText("10");
+		ui->containerDepthTextbox->setText("10");
+		itemTable.resetTable();
+	}
+	this->setFixedSizeAndMoveToCenter(813, 837);
+}
+//------------------------------------------------------------------------------------
+void MainWindow::moveToViewer()
+{
+	ui->progressBar->setMinimum(0);
+	ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
+	ui->progressBar->setMinimum(0);
+
+	viewer->clearAllBoxes();
+	ui->stackedWidget->setCurrentIndex(1);
+	this->setFixedSizeAndMoveToCenter(1000, 900);
+}
+//------------------------------------------------------------------------------------
+void MainWindow::moveToPreviousPage()
+{
+	int pageIndex = pageStack.top();
+	pageStack.pop();
+	switch(pageIndex)
+	{
+	case 0:
+		moveToMainMenu();
+		break;
+            
+	case 1:
+		moveToViewer();
+		break;
+            
+	case 2:
+		moveToSettings();
+		break;
+            
+	case 3:
+		const Dimensions& containerDim = GA->getContainerDimensions();
+		ui->containerWidthTextbox->setText(QString::number(containerDim.w));
+		ui->containerHeightTextbox->setText(QString::number(containerDim.h));
+		ui->containerDepthTextbox->setText(QString::number(containerDim.d));
+		itemTable.setItemsInTable(std::move(GA->getConfigurationItems()));
+		moveToEnterData(false);
+		break;
+	}
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_enterDataConfirmButton_clicked()
+{
+	std::cout << "Enter Data confirm button clicked\n";
+	int containerWidth = ui->containerWidthTextbox->text().toInt();
+	int containerHeight = ui->containerHeightTextbox->text().toInt();
+	int containerDepth = ui->containerDepthTextbox->text().toInt();
+        
+	bool isItemsValid;
+	std::vector<Item>& itemsData = itemTable.getItemsData(isItemsValid);
+        
+	if (containerWidth != 0 && containerHeight != 0 && containerDepth != 0 && isItemsValid)
+	{
+		containerDim = Dimensions(containerWidth, containerHeight, containerDepth);
+		viewer->setContainerDimensions(containerDim);
+		GA->setConfigurationData(containerDim, std::move(itemsData));
+
+		pageStack.push(3);
+		moveToSettings();           
+	}
+	else
+	{
+		QMessageBox messageBox;
+		messageBox.critical(0, "Error", "some parameters are empty!");
+		messageBox.setFixedSize(500, 200);            
+	}
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_enterDataBackButton_clicked()
+{
+	std::cout << "Enter Data back button clicked\n";
+	moveToPreviousPage();
+}
+//------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_HybridGenetics_clicked()
 {
 	ui->radioButton_pureGenetics->setChecked(false);
 	ui->radioButton_HybridGenetics->setChecked(true);
 }
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_pureGenetics_clicked()
 {
 	ui->radioButton_HybridGenetics->setChecked(false);
 	ui->radioButton_pureGenetics->setChecked(true);
 }
-//---------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
 {
 	this->setFixedSize(windowWidth, windowHeight);

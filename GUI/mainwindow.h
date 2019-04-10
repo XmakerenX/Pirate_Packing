@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <stack>
 #include "../GA/GAThread.h"
 #include "OpenGL/Solutionviewer.h"
+#include "ItemTableModel.h"
 
 namespace Ui {
 	class MainWindow;
@@ -17,31 +19,41 @@ public:
 	explicit MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
 
-	private slots:
+	void keyReleaseEvent(QKeyEvent *event);        
+	void updateGAStarted();
+	void updateGAFinished();
+	void updateGuiDataCorrespondsToNewGeneration(int currentGen);
+        
+	void moveToMainMenu();
+	void moveToSettings();
+	void moveToEnterData(bool reset = true);
+	void moveToViewer();
+	void moveToPreviousPage();
+
+public slots:
 	void on_loadDataButton_clicked();
 	void on_enterDataButton_clicked();
 	void on_wumpusButton_clicked();
 	void on_startButton_clicked();
 	void on_resultsResetButton_clicked();
 
-	void updateGAStarted();
-	void updateGAFinished();
-	void updateGuiDataCorrespondsToNewGeneration(int currentGen);
-
-public slots:
+	void on_enterDataConfirmButton_clicked();
+	void on_enterDataBackButton_clicked();        
+        
 	void on_radioButton_HybridGenetics_clicked();
 	void on_radioButton_pureGenetics_clicked();
 	void on_confirmButton_clicked();
 	void on_backButton_clicked();
 	void on_resultsBackButton_clicked();
 	void on_generationComboBox_currentIndexChanged(QString indexStr);
-
     
 private:
 	Ui::MainWindow *ui;
-    SolutionViewer* viewer;
-    Dimensions containerDim;
-    GAThread * GA;
+	SolutionViewer* viewer;
+	Dimensions containerDim;
+	GAThread * GA;
+	ItemTableModel itemTable;
+	std::stack<int> pageStack;
 
 	void setForms();
 	void validateInput(std::string inputString);

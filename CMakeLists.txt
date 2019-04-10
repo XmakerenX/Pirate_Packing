@@ -35,6 +35,7 @@ set(qttest_SRC
   GUI/OpenGL/Mesh.cpp
   GUI/OpenGL/Object.cpp
   GUI/OpenGL/Solutionviewer.cpp
+  GUI/ItemTableModel.cpp
   GUI/mainwindow.cpp
   #Include:
   includes/stdafx.cpp

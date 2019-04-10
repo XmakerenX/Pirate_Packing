@@ -56,10 +56,13 @@ public:
 	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
-	void setConfigurationData(Dimensions containerDimensions, std::vector<Item> givenItems);
+	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems);
+	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
-    
-    bool exitGeneticAlgorithm;
+	std::vector<Item>& getConfigurationItems();
+        const Dimensions& getContainerDimensions() const;
+        
+	bool exitGeneticAlgorithm;
 	bool stopGeneticAlgorithm;
 	QWaitCondition continuePressed;
         
@@ -77,10 +80,10 @@ signals:
 
 private:
 	Configuration configuration;
-        GA_Core<PermutationCreature> hybrid;
-        GA_Core<BinaryCreature> binary;
+	GA_Core<PermutationCreature> hybrid;
+	GA_Core<BinaryCreature> binary;
         
-        static QMutex mutex;
+	static QMutex mutex;
 };
 
 #endif // GATHREAD_H

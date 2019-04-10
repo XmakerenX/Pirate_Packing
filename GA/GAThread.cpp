@@ -34,7 +34,7 @@ std::vector<BoxInfo>& GAThread::getBoxesInfo(int index)
 //---------------------------------------------------------------------
 void GAThread::emitBoxReady(int generationBoxesSize)
 {
-    emit boxesReady(this, generationBoxesSize);
+	emit boxesReady(this, generationBoxesSize);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -90,9 +90,14 @@ void GAThread::resetConfiguration()
 	configuration.Reset();
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setConfigurationData(Dimensions containerDimensions, std::vector<Item> givenItems)
+void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems)
 {
     configuration = Configuration(containerDimensions, givenItems);
+}
+//------------------------------------------------------------------------------------------------
+void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems)
+{
+    configuration = Configuration(containerDimensions, std::move(givenItems));
 }
 //------------------------------------------------------------------------------------------------
 const GenerationData& GAThread::getGenerationData(int index)
@@ -109,4 +114,13 @@ const GenerationData& GAThread::getGenerationData(int index)
 		}
 	}
 }
-
+//------------------------------------------------------------------------------------------------
+std::vector<Item>& GAThread::getConfigurationItems()
+{
+	return configuration.items;
+}
+//------------------------------------------------------------------------------------------------
+const Dimensions& GAThread::getContainerDimensions() const
+{
+	return configuration.dim;
+}
