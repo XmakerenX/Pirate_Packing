@@ -77,6 +77,7 @@ void SolutionViewer::setContainerDimensions(Dimensions dim)
     if (container)
         container->SetScale(QVector3D(dim.w, dim.h, dim.d));
     m_camera.SetPostion(QVector3D(dim.w * 2, dim.h * 2, dim.d * 2));
+    m_camera.SetLookAt(QVector3D( 0.0f, 0.0f, 0.0f));
 }
 
 //-----------------------------------------------------------------------------
