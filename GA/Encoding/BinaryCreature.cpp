@@ -162,19 +162,25 @@ void BinaryCreature::repairChromosome()
             // repair if needed the x and y coordinates
             if (itemInfo.x + itemInfo.width > configuration->dim.w)
             {
-                itemInfo.x = configuration->dim.w - itemInfo.width;
+                std::uniform_int_distribution<unsigned int> xDist(0, configuration->dim.w - itemInfo.width);
+                itemInfo.x = xDist(Random::default_engine.getGenerator());
+                //itemInfo.x = configuration->dim.w - itemInfo.width;
                 wasRepaired = true;
             }
 
             if (itemInfo.y + itemInfo.height > configuration->dim.h)
             {
-                itemInfo.y = configuration->dim.h - itemInfo.height;
+                std::uniform_int_distribution<unsigned int> yDist(0, configuration->dim.h - itemInfo.height);
+                itemInfo.y = yDist(Random::default_engine.getGenerator());
+                //itemInfo.y = configuration->dim.h - itemInfo.height;
                 wasRepaired = true;
             }
 
             if (itemInfo.z + itemInfo.depth > configuration->dim.d)
             {
-                itemInfo.z = configuration->dim.d - itemInfo.depth;
+                std::uniform_int_distribution<unsigned int> zDist(0, configuration->dim.d - itemInfo.depth);
+                itemInfo.z = zDist(Random::default_engine.getGenerator());
+                //itemInfo.z = configuration->dim.d - itemInfo.depth;
                 wasRepaired = true;
             }
 
@@ -429,7 +435,7 @@ int BinaryCreature::calculateFittness()
                                    itemInfo.x + itemInfo.width,
                                    itemInfo.y + itemInfo.height,
                                    itemInfo.z + itemInfo.depth);
-			valuesOfItems.push_back(configuration->items[i].value / (itemInfo.width * itemInfo.height * itemInfo.depth));
+			valuesOfItems.push_back(configuration->items[i].value);
 		}
 
 		itemMask = itemMask << configuration->bitsPerItem;
@@ -438,7 +444,8 @@ int BinaryCreature::calculateFittness()
 	int totalVolume = 0;
 	bool overlapped = false;
 	int overlappedVolume = 0;
-	int positionScore = 0;
+	int cornerBonus = 0;
+	int connectBonus = 0;
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
 		std::vector<Box> currentVolume;
@@ -456,81 +463,38 @@ int BinaryCreature::calculateFittness()
 				overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight);
 			}
 
-			// calcuate how much free spapce is between boxes
-			if (box.getWidth() < 0 && box.getHeight() < 0 && box.getDepth() < 0)
-			{
-				positionScore -= std::abs(box.getWidth()) * std::abs(box.getHeight()) * std::abs(box.getDepth());
-			}
+			if (box.getWidth() == 0)
+				connectBonus += valuesOfItems[i] / 4;
+            
+			if (box.getHeight() == 0)
+				connectBonus += valuesOfItems[i] / 4;
+            
+			if (box.getDepth() == 0)
+				connectBonus += valuesOfItems[i] / 4;
 
-			// give bonus for boxes that have no space between them
-			if (box.getWidth() == 0 && box.getHeight() <= 0 && box.getDepth() <= 0)
-				positionScore += (std::abs(box.getHeight()) * std::abs(box.getDepth()));
-
-			if ((box.getWidth() <= 0 && box.getHeight() == 0 && box.getDepth() <= 0))
-				positionScore += (std::abs(box.getWidth()) * std::abs(box.getDepth()));
-
-			if ((box.getWidth() <= 0 && box.getHeight() <= 0 && box.getDepth() == 0))
-				positionScore += (std::abs(box.getWidth()) * std::abs(box.getHeight()));
-
-			//---------------------------------------------------------------------------
-			if (box.getWidth() == 0 && box.getHeight() == 0 && box.getDepth() <= 0)
-				positionScore += (std::abs(box.getDepth()) * std::abs(box.getDepth()));
-
-			if (box.getWidth() == 0 && box.getDepth() == 0 && box.getHeight() <= 0)
-				positionScore += (std::abs(box.getHeight()) * std::abs(box.getHeight()));
-
-			if (box.getHeight() == 0 && box.getDepth() == 0 && box.getWidth() <= 0)
-				positionScore += (std::abs(box.getWidth()) * std::abs(box.getWidth()));
 		}
-
-		Box container(0, 0, 0, configuration->dim.w, configuration->dim.h, configuration->dim.d);
-		Box box2 = Box::intersect(container, itemBoxes[i]);
-		//         if (box2.getWidth() > 0 && box2.getHeight() > 0 && box2.getDepth() > 0)
-		//         {
-		//             overlappedVolume += (box2.getWidth() * box2.getHeight() * box2.getDepth() * valuesOfItems[i]);
-		//         }
-
-		if (box2.getWidth() < 0 && box2.getHeight() < 0 && box2.getDepth() < 0)
-		{
-			positionScore -= std::abs(box2.getWidth()) * std::abs(box2.getHeight()) * std::abs(box2.getDepth());
-		}
-
-		if (box2.getWidth() == 0 && box2.getHeight() <= 0 && box2.getDepth() <= 0)
-			positionScore += std::abs(box2.getHeight()) * std::abs(box2.getDepth());
-
-		if ((box2.getWidth() <= 0 && box2.getHeight() == 0 && box2.getDepth() <= 0))
-			positionScore += std::abs(box2.getWidth()) * std::abs(box2.getDepth());
-
-		if ((box2.getWidth() <= 0 && box2.getHeight() <= 0 && box2.getDepth() == 0))
-			positionScore += std::abs(box2.getWidth()) * std::abs(box2.getHeight());
-
-		if (box2.getWidth() == 0 && box2.getHeight() == 0 && box2.getDepth() <= 0)
-			positionScore += (std::abs(box2.getDepth()) * std::abs(box2.getDepth()));
-
-		if (box2.getWidth() == 0 && box2.getDepth() == 0 && box2.getHeight() <= 0)
-			positionScore += (std::abs(box2.getHeight()) * std::abs(box2.getHeight()));
-
-		if (box2.getHeight() == 0 && box2.getDepth() == 0 && box2.getWidth() <= 0)
-			positionScore += (std::abs(box2.getWidth()) * std::abs(box2.getWidth()));
+		
+		if (configuration->dim.w - itemBoxes[i].right == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (itemBoxes[i].left == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (configuration->dim.h - itemBoxes[i].top == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (itemBoxes[i].bottom == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (configuration->dim.d - itemBoxes[i].front == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (itemBoxes[i].back == 0)
+			cornerBonus += valuesOfItems[i];
 	}
 
-	//int compressedVolume = (configuration->dim.w * configuration->dim.h * configuration->dim.d) -
-	//	((maxX - minX) * (maxY - minY) * (maxZ - minZ));
-        
+	fitness = value + cornerBonus + connectBonus / 4;
     
-        long packingVolume = 0;
-        for(Box& box : itemBoxes)
-        {
-            packingVolume+= (box.getDepth()*box.getWidth()*box.getHeight());
-        }
-        float compressionRate =  (float)packingVolume/((maxX - minX) * (maxY - minY) * (maxZ - minZ));
-        //fitness = 0.4*(compressionRate*value)+0.3 * (positionScore)+0.3*overlappedVolume;
-        //fitness = 0.4*(packingVolume*((float)value/configuration->maxiumValue))+0.3 * (positionScore)+0.3*overlappedVolume;
-        
-        //fitness = value*vec.x() + packingVolume*vec.y();
-        fitness = value + packingVolume*50;
-        //fitness = packingVolume*((float)value/configuration->maxiumValue);
-        //std::cout<<compressionRate<<"\n";
 	return fitness;
 }
 //-----------------------------------------------------------------------------------------------
