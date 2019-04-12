@@ -126,7 +126,30 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
     
     return chromosome;
 }
-
+//-----------------------------------------------------------------------------------------------
+// Name : resetChromosome
+// Action: generate a new random encoding for the creature
+//this is usefull in order to achieve better diversity and as such, this function should be called when the diversity 
+//among the population is low
+void BinaryCreature::resetChromosome()
+{
+	/*DynamicBitSet randomChromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
+	std::uniform_int_distribution<> binaryDist(0, 1);
+	for (int i = 0; i < configuration->totalBitsNum; i++)
+	{
+		int rand = binaryDist(Random::default_engine.getGenerator());
+		if (rand == 0)
+		{
+			chromozome[i] = randomChromozome[i];
+		}
+	}*/
+	chromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
+	// repair collisions and overflowing values(e.g: orientation is only allowed
+	// to range from 0 to 5 but could become more due to the nature of the crossover
+	// and mutation, so it needs to be fixed)
+	repairChromosome();
+	calculateFittness();
+}
 //-----------------------------------------------------------------------------------------------
 // Name : repairChromosome
 // Input: this encdoing chromozome with possible invalid values
@@ -446,12 +469,13 @@ int BinaryCreature::calculateFittness()
 	int overlappedVolume = 0;
 	int cornerBonus = 0;
 	int connectBonus = 0;
+
+
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
-		std::vector<Box> currentVolume;
-		currentVolume.push_back(itemBoxes[i]);
+		//add item volume to the total volume of the packing
 		totalVolume += (itemBoxes[i].getWidth() * itemBoxes[i].getHeight() * itemBoxes[i].getDepth());
-
+		
 		for (int j = i + 1; j < itemBoxes.size(); j++)
 		{
 			Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
@@ -462,16 +486,18 @@ int BinaryCreature::calculateFittness()
 				overlapped = true;
 				overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight);
 			}
+			
+			//check connections
+			int numberOfDimensionsThatAreZero = 0;
+			if (box.getWidth() == 0)  numberOfDimensionsThatAreZero++;
+			if (box.getHeight() == 0) numberOfDimensionsThatAreZero++;
+			if (box.getDepth() == 0)  numberOfDimensionsThatAreZero++;
 
-			if (box.getWidth() == 0)
+			//if two items are connected
+			if(numberOfDimensionsThatAreZero ==2)
+			{
 				connectBonus += valuesOfItems[i] / 4;
-            
-			if (box.getHeight() == 0)
-				connectBonus += valuesOfItems[i] / 4;
-            
-			if (box.getDepth() == 0)
-				connectBonus += valuesOfItems[i] / 4;
-
+			}
 		}
 		
 		if (configuration->dim.w - itemBoxes[i].right == 0)
@@ -493,7 +519,7 @@ int BinaryCreature::calculateFittness()
 			cornerBonus += valuesOfItems[i];
 	}
 
-	fitness = value + cornerBonus + connectBonus / 4;
+	fitness = value * 1.25 + cornerBonus + connectBonus / 4;
     
 	return fitness;
 }
@@ -565,9 +591,6 @@ bool BinaryCreature::validateConstraints()
 
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
-		std::vector<Box> currentVolume;
-		currentVolume.push_back(itemBoxes[i]);
-
 		for (int j = i + 1; j < itemBoxes.size(); j++)
 		{
 			Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
