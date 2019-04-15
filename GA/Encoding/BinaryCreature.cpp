@@ -127,30 +127,6 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
     return chromosome;
 }
 //-----------------------------------------------------------------------------------------------
-// Name : resetChromosome
-// Action: generate a new random encoding for the creature
-//this is usefull in order to achieve better diversity and as such, this function should be called when the diversity 
-//among the population is low
-void BinaryCreature::resetChromosome()
-{
-	/*DynamicBitSet randomChromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
-	std::uniform_int_distribution<> binaryDist(0, 1);
-	for (int i = 0; i < configuration->totalBitsNum; i++)
-	{
-		int rand = binaryDist(Random::default_engine.getGenerator());
-		if (rand == 0)
-		{
-			chromozome[i] = randomChromozome[i];
-		}
-	}*/
-	chromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
-	// repair collisions and overflowing values(e.g: orientation is only allowed
-	// to range from 0 to 5 but could become more due to the nature of the crossover
-	// and mutation, so it needs to be fixed)
-	repairChromosome();
-	calculateFittness();
-}
-//-----------------------------------------------------------------------------------------------
 // Name : repairChromosome
 // Input: this encdoing chromozome with possible invalid values
 // Output: this encdoing chromozome with valid values
@@ -242,6 +218,26 @@ void BinaryCreature::repairChromosome()
         if (!isItemStillIn[i])
             continue;
 
+        if (itemBoxes[i].getWidth() > configuration->dim.w)
+        {
+            chromozome[configuration->bitsPerItem * boxId[i] + (3 + 3 * configuration->coordinateBits)] = 0;
+            isItemStillIn[i] = false;
+            continue;
+        }
+                
+        if (itemBoxes[i].getHeight() > configuration->dim.h)
+        {
+            chromozome[configuration->bitsPerItem * boxId[i] + (3 + 3 * configuration->coordinateBits)] = 0;
+            isItemStillIn[i] = false;
+            continue;
+        }
+        if (itemBoxes[i].getDepth() > configuration->dim.d)
+        {
+            chromozome[configuration->bitsPerItem * boxId[i] + (3 + 3 * configuration->coordinateBits)] = 0;
+            isItemStillIn[i] = false;
+            continue;
+        }
+        
         for (int j = i + 1; j < itemBoxes.size(); j++)
         {
             if (!isItemStillIn[j])
@@ -486,18 +482,15 @@ int BinaryCreature::calculateFittness()
 				overlapped = true;
 				overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight);
 			}
-			
-			//check connections
-			int numberOfDimensionsThatAreZero = 0;
-			if (box.getWidth() == 0)  numberOfDimensionsThatAreZero++;
-			if (box.getHeight() == 0) numberOfDimensionsThatAreZero++;
-			if (box.getDepth() == 0)  numberOfDimensionsThatAreZero++;
-
-			//if two items are connected
-			if(numberOfDimensionsThatAreZero ==2)
-			{
-				connectBonus += valuesOfItems[i] / 4;
-			}
+			                       
+			if (box.getWidth() == 0 && box.getHeight() > 0 && box.getDepth() > 0)
+                                connectBonus += valuesOfItems[i] / 4;
+                            
+			if (box.getHeight() == 0 && box.getWidth() > 0  && box.getDepth() > 0)
+                                connectBonus += valuesOfItems[i] / 4;
+                            
+			if (box.getDepth() == 0 && box.getWidth() > 0&& box.getHeight() > 0)
+                            connectBonus += valuesOfItems[i] / 4;
 		}
 		
 		if (configuration->dim.w - itemBoxes[i].right == 0)
