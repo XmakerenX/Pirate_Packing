@@ -13,6 +13,18 @@ enum class GA_Method { PureGenetic, HybridGenetic};
 
 
 
+
+struct APoint
+{
+	APoint(int _x, int _y, int _z)
+		: x(_x), y(_y), z(_z)
+	{}
+
+	int x;
+	int y;
+	int z;
+};
+
 struct BoxInfo
 {
 	BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength, int _value)
