@@ -1,7 +1,7 @@
 #include "Configuration.h"
 #include "GA_Random.h"
 #include <fstream>
-#include <QDIR.h>
+#include <qdir.h>
 
 Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 	:dim(_dim), numberOfItems(_numberOfItems)
