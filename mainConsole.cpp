@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 	}
-	std::cout << "\nfinished.";
+	std::cout << "\nSaving results in Config folder...\n";
 	GA->saveConfiguration();
 
 	 return 0;
