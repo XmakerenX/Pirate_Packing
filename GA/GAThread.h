@@ -66,6 +66,7 @@ public:
         
 	bool exitGeneticAlgorithm;
 	bool stopGeneticAlgorithm;
+	bool GeneticAlgorithmFinished;
 	QWaitCondition continuePressed;
         
 	Q_OBJECT

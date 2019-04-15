@@ -11,9 +11,9 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 if (WIN32)
-    find_package(boost REQUIRED COMPONENTS filesystem)
+    find_package(boost)
 else()
-    find_package(Boost REQUIRED COMPONENTS filesystem)
+    find_package(Boost)
 endif(WIN32)
 
 include_directories(${Boost_INCLUDE_DIRS}) 
@@ -47,19 +47,21 @@ if (WIN32)
 	#set_source_files_properties(favicon.ico 2D_Lego_Packing_Solver.rc2 PROPERTIES LANGUAGE RC)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
-		#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	else()
 		add_executable(Pirate_Packing_gui WIN32 ${qttest_SRC} mainGUI.cpp)
-		#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
 	add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
-	#add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+	add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(Pirate_Packing_gui Qt5::Widgets Boost::filesystem)
-#target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::filesystem)
+target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
+target_link_libraries(Pirate_Packing_console Qt5::Widgets)
+
+
 # Copy resources folder to the build folder
 add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

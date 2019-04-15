@@ -8,12 +8,12 @@ QMutex GAThread::mutex;
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
-	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
+	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false),GeneticAlgorithmFinished(false)
 {
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
-	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
+	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false), GeneticAlgorithmFinished(false)
 {
 }
 //----------------------------------------------------------------------
@@ -45,6 +45,7 @@ void GAThread::run()
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
         
 	emit GAStarted();
+	GeneticAlgorithmFinished = false;
 	switch (GA_Settings::method)
 	{
 		case GA_Method::HybridGenetic:
@@ -127,6 +128,7 @@ void GAThread::run()
 			break;
 		}
 	}
+	GeneticAlgorithmFinished = true;
 	emit GAFinished();
 }
 //------------------------------------------------------------------------------------------------

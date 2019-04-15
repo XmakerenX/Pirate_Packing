@@ -1,7 +1,7 @@
 #include "Configuration.h"
 #include "GA_Random.h"
 #include <fstream>
-#include <boost/filesystem.hpp>
+#include <QDIR.h>
 
 Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
 	:dim(_dim), numberOfItems(_numberOfItems)
@@ -99,15 +99,13 @@ void Configuration::generateItems()
 //------------------------------------------------------------------------------------
 void Configuration::saveToFile()
 {
-	boost::filesystem::path dir("Config");
-	if(!(boost::filesystem::exists(dir)))
-        {
-		if (!boost::filesystem::create_directory(dir))
+	if (!QDir("Config").exists())
+		if (!QDir().mkdir("Config"))
 			return;
-        }
-    
+
 	std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         
+
 	std::string timeAndDate(30, '\0');
 	std::strftime(&timeAndDate[0], timeAndDate.size(), "%Y-%m-%d_%H-%M-%S.txt", std::localtime(&now));
 	std::string fileName = "Config/" + timeAndDate;

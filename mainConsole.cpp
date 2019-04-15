@@ -1,140 +1,193 @@
-// // 2D_Bin_Packing_Solver.cpp : Defines the entry point for the console application.
-// //
-// 
-// #include "includes/stdafx.h"
-// #include "GA/Configuration.h"
-// #include "GA/Creature.h"
-// #include "GA/Breeder.h"
-// #include <vector>
-// #include <algorithm>
-// #include <cstdio>
-// #include <ctime>
-// #include <string> 
-// 
-// const int numberOfGenerations = 120;
-// const int populationSize = 100;
-// double avgFittness = 0; double maxFittness = 0; double maxOverallFittness = 0;
-// std::vector<Creature> generateFirstGeneration(Configuration& configuration);
-// void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration);
-// void getDataFromGeneration(std::vector<Creature>& population, double& avgFittness, double& overallMaximum, double& generationMaximum, Configuration& configuration);
-// void selectSurvivors(std::vector<Creature>& population);
-// void HybridGeneticAlgorithm(Configuration& configuration);
-// //################################################################################################################
-// 
-int main()
+#include <QApplication>
+#include <QtCore>
+#include "GA/GA_Settings.h"
+#include "GA/Item.h"
+#include "GA/GAThread.h"
+#include "includes/structs.h"
+#include <QFileDialog>
+#include <QRegExpValidator>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QString>
+#include <QDesktopWidget>
+#include <QWidget>
+#include <QApplication>
+#include <iostream>
+#include <fstream>
+#include <regex>
+#include <stack>
+#include "GUI/OpenGL/Solutionviewer.h"
+#include <sstream>
+#include <thread>
+#include <chrono>
+
+
+
+void readFile(char* filename);
+void validateInput(std::string inputString);
+void parseInput(std::string input);
+
+GAThread* GA;
+int main(int argc, char** argv)
 {
-// 	Configuration configuration(300, 400, 60); 	//----Init a configuration ---//
-// 	HybridGeneticAlgorithm(configuration);     //apply genetic algorithm on this configuration
-	return 0;
+	if ((argc == 2) || (QString(argv[1]) == "-help"))
+	{
+		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
+		return -1;
+	}
+	//GA = new GAThread(Dimensions(10,10,10), 100);
+	std::cout << "number of arguments given " << argc << "\n";
+	
+	if (argc < 7)
+	{
+		std::cout << "not enough arugments given or invalid format";
+		return -1;
+	}
+	
+	char* _fileName = argv[1];
+	QString method  = argv[2];
+	int _populationSize = QString(argv[3]).toInt();
+	int _numberOfGenerations = QString(argv[4]).toInt();
+	float _mutationRate = QString(argv[5]).toFloat();
+	float _elitismPercentage = QString(argv[6]).toFloat();
+
+	std::cout << _fileName << "\n";
+	std::cout << method.toStdString()<<"\n";
+	std::cout << _populationSize << "\n";
+	std::cout << _numberOfGenerations << "\n";
+	std::cout << _mutationRate << "\n";
+	std::cout << _elitismPercentage << "\n";
+
+	
+	GA = new GAThread(Dimensions(10,10,10), 100);
+	if (method == "-h")
+	{
+		GA_Settings::method = GA_Method::HybridGenetic;
+	}
+	else
+	{
+		if (method == "-b") {
+			GA_Settings::method = GA_Method::PureGenetic;
+		}
+		else
+		{
+			std::cout << "Invaid method given\n";
+			return -1;
+		}
+	}
+	GA_Settings::populationSize = _populationSize;
+	GA_Settings::numberOfGenerations = _numberOfGenerations;
+	GA_Settings::elitismSizeGroup = _populationSize * _elitismPercentage;
+	GA_Settings::mutationRate = _mutationRate;
+
+	try
+	{
+		//readFile(_fileName);
+		readFile("settings.txt");
+	}
+	catch (InvalidInputException exeption)
+	{
+		std::cout << "Error: " << exeption.what();
+		return -1;
+	}
+
+	std::cout << "\n All data are valid, starting the GA algorithm\n";
+	GA->start();
+	while(! GA->GeneticAlgorithmFinished)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
+	}
+	std::cout << "\nSaving results in Config folder...\n";
+	GA->saveConfiguration();
+
+	 return 0;
 }
-//-----------------------------------------------------------------------
-// void HybridGeneticAlgorithm(Configuration& configuration)
-// {
-// 	//----Genetic algorithm: first generation ------//
-// 	std::vector<Creature> population = generateFirstGeneration(configuration);
-// 
-// 	////----Genetic algorithm: create multiple  generations
-// 	for (int gen = 0; gen < numberOfGenerations; gen++)
-// 	{
-// 
-// 		//start timer
-// 		std::clock_t start; double duration; start = std::clock();
-// 
-// 		//create new population based on the current one
-// 		population = Breeder::generateNextGeneration(population);// TODO: verify there is no copy happening here!            
-// 		selectSurvivors(population);
-// 
-// 		//get data from this generation/
-// 		maxFittness = 0;  avgFittness = 0; // init data about generation
-// 		getDataFromGeneration(population, avgFittness, maxOverallFittness, maxFittness, configuration);
-// 
-// 		//stop timer
-// 		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-// 
-// 		//print data about this generation
-// 		std::cout << "Gen:" << gen << "\n\t";
-// 		std::cout << "Average fittness: " << avgFittness << "\tBest fittness: " << maxFittness << "  \tTime passed: " << duration << "\n";
-// 	}
-// 	//----------------------------------------------------------------------------------------------------------------------------------
-// 
-// 	//---Prints results ------/
-// 	printFinalDataAndSaveResulsts(population, configuration);
-// 
-// }
-// //-----------------------------------------------------------------------------------------------
-// void printFinalDataAndSaveResulsts(std::vector<Creature>& population, Configuration& configuration)
-// {
-// 	Chromozome greedyChromozome;
-// 	std::vector<Item> allItems;
-// 	for (int i = 0; i < configuration.numberOfItems; i++)
-// 	{
-// 		allItems.push_back(configuration.items[i]);
-// 	}
-// 	std::sort(allItems.begin(), allItems.end(), [](const Item& b, const Item& a)
-// 	{
-// 		int thisSize = b.height*b.width;
-// 		int otherSize = a.height*a.width;
-// 		return (thisSize > otherSize);
-// 	});
-// 
-// 
-// 	for (int i = 0; i < configuration.numberOfItems; i++)
-// 	{
-// 		greedyChromozome.push_back(allItems[i].id);
-// 	}
-// 
-// 	std::cout << "------------------------------------------------\n";
-// 	std::cout << "GA best fittness: " << maxOverallFittness << "\n";
-// 	std::cout << "Greedy approach fittness: " << double(Creature(greedyChromozome, &configuration).fitness) / (configuration.container_width * configuration.container_height) << "\n";
-// 
-// 	double max = 0;
-// 	int index = 0;
-// 	for (int i = 0; i < populationSize; i++)
-// 	{
-// 		if (population[i].fitness>max)
-// 		{
-// 			max = population[i].fitness;
-// 			index = i;
-// 		}
-// 	}
-// 	std::cout << "Saving best GA creature as .BMP files..." << '\n';
-// 	//BmpCreatreSaver bmpSaverForGA(population[index].creatureGraphBin, "GABest.bmp");
-// 	std::cout << "Saving greedy creature as .BMP files..." << '\n';
-// 	//BmpCreatreSaver bmpSaverforGreedy(Creature(greedyChromozome, &configuration).creatureGraphBin, "greedy.bmp");
-// 	std::cout << "Finished." << '\n';
-// }
-// //-----------------------------------------------------------------------------------------------
-// void getDataFromGeneration(std::vector<Creature>& population, double& avgFittness,double& overallMaximum,double& generationMaximum,Configuration& configuration)
-// {
-// 	for (Creature& indiviual : population)
-// 	{
-// 		//get data
-// 		double currentFittness = (double)indiviual.fitness / (configuration.container_width * configuration.container_height);
-// 		avgFittness += currentFittness;
-// 		generationMaximum = std::max(generationMaximum, currentFittness);
-// 		if (overallMaximum < generationMaximum)
-// 		{
-// 			overallMaximum = generationMaximum;
-// 		}
-// 	}
-// 	avgFittness = avgFittness / populationSize;
-// }
-// //Creates an array of random creatures
-// std::vector<Creature> generateFirstGeneration(Configuration& configuration)
-// {
-// 	std::vector<Creature> randomCreatures;
-//     randomCreatures.reserve(populationSize);
-// 	for (int i = 0; i < populationSize; i++)
-// 	{
-//         randomCreatures.emplace_back(Creature::createRandomChromozome(configuration), &configuration);
-// 	}
-// 	return randomCreatures;
-// }
-// //---------------------------------------------------------
-// 
-// void selectSurvivors(std::vector<Creature>& population)
-// {
-//     std::sort(population.begin(),population.end(), [](const Creature& a, const Creature& b){return (a.fitness > b.fitness);});
-//     population.erase(population.begin() + populationSize, population.end());
-// }
-//  
+//----------------------------------------------------------
+void readFile(char* filename)
+{
+	std::ifstream inFile;
+	inFile.open(filename); //open the input file
+
+	std::stringstream strStream;
+	strStream << inFile.rdbuf(); //read the file
+	std::string input = strStream.str(); //str holds the content of the file
+
+	if (input == "") return;
+	std::regex rexp("[^\\d | \\. | \\b | \\n]");//regex to keep only numbers
+	std::string input_numbersOnly = std::regex_replace(input, rexp, "");
+	
+	//validate and parse:
+	validateInput(input_numbersOnly);
+	parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+}
+//----------------------------------------------------------
+void validateInput(std::string inputString)
+{
+	if (inputString == "")
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("input doesnt contain any numeric info");
+		throw ex;
+	}
+
+	std::stringstream myInputParser(inputString);
+	int numberOfIntegresFoundInInput = 0;
+	float var;
+	while (myInputParser)
+	{
+		myInputParser >> var;
+		numberOfIntegresFoundInInput++;
+		if (var - (int)var != 0)
+		{
+			InvalidInputException ex;
+			ex.setErrorMsg("input cant contain a float value!");
+			throw ex;
+		}
+	}
+	if ((numberOfIntegresFoundInInput < 7) && (!((numberOfIntegresFoundInInput - 3) % 4 == 0)))
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("input contains incomplete data");
+		throw ex;
+	}
+}
+//-----------------------------------------------------------------------------------
+void parseInput(std::string input)
+{
+	std::vector<Item> givenItemList;
+	int container_width, container_height, container_depth;
+
+	try
+	{
+		std::stringstream myInputParser(input);
+		//parse container:
+
+		myInputParser >> container_width;
+		myInputParser >> container_height;
+		myInputParser >> container_depth;
+
+		//parse items
+		int id = 0;
+		int item_width, item_height, item_depth, item_value;
+
+		while (myInputParser >> item_width)
+		{
+			//parse a singel item:
+			myInputParser >> item_height;
+			myInputParser >> item_depth;
+			myInputParser >> item_value;
+			Item item(Dimensions(item_width, item_height, item_depth), item_value, id);
+			givenItemList.emplace_back(item);
+			id++;
+		}
+	}
+	catch (std::exception exp)
+	{
+		std::cout << exp.what();
+		throw InvalidInputException();
+	}
+	GA->setConfigurationData(Dimensions(container_width, container_height,container_depth), std::move(givenItemList));
+
+}
+//-------------------------------------------------------------------------------------------
