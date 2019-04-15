@@ -159,12 +159,12 @@ void GAThread::saveResults()
 	}
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems)
+void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems)
 {
     configuration = Configuration(containerDimensions, givenItems);
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems)
+void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems)
 {
     configuration = Configuration(containerDimensions, std::move(givenItems));
 }

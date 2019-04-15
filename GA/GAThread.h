@@ -58,8 +58,8 @@ public:
 	void resetConfiguration();
 	void saveConfiguration();
 	void saveResults();
-	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems);
-	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems);
+	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems);
+	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
 	std::vector<Item>& getConfigurationItems();
         const Dimensions& getContainerDimensions() const;
