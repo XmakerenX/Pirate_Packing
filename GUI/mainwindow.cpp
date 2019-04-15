@@ -278,6 +278,7 @@ void MainWindow::on_confirmButton_clicked()
 		else { GA_Settings::method = GA_Method::PureGenetic;}
 
 		pageStack.push(2);
+		ui->progressBar->setValue(0);
 		moveToViewer();
 	}
 	else
@@ -325,7 +326,7 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 	{
 		int number = indexStr.toInt() - 1;
 		GenerationData chosenGeneration = GA->getGenerationData(number);
-		ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness).mid(0, 4));
+		ui->AvaregeFittness->setText(QString::number(chosenGeneration.avarageFittness));
 		ui->BestGenerationalFIttnessTextBox->setText(QString::number(chosenGeneration.bestCreatureFittness));
 		ui->VolumeFilledTextBox->setText(QString::number(chosenGeneration.bestCreatureVolumeFilled).mid(0, 4));
 		ui->ValuePercentageTextBox->setText(QString::number(chosenGeneration.bestCreatureValuePercentage).mid(0, 4));
@@ -494,6 +495,7 @@ void MainWindow::on_enterDataConfirmButton_clicked()
 		GA->setConfigurationData(containerDim, std::move(itemsData));
 
 		pageStack.push(3);
+		ui->progressBar->setValue(0);
 		moveToSettings();           
 	}
 	else
