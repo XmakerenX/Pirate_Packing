@@ -58,8 +58,15 @@ else()
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
+
+#non-boost:
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
 target_link_libraries(Pirate_Packing_console Qt5::Widgets)
+#boost:
+#target_link_libraries(Pirate_Packing_gui Qt5::Widgets Boost::filesystem)
+#target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::filesystem)
+
+
 # Copy resources folder to the build folder
 add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
