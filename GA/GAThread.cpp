@@ -135,6 +135,11 @@ void GAThread::resetConfiguration()
 	configuration.Reset();
 }
 //------------------------------------------------------------------------------------------------
+void GAThread::saveConfiguration()
+{
+    configuration.saveToFile();
+}
+//------------------------------------------------------------------------------------------------
 void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems)
 {
     configuration = Configuration(containerDimensions, givenItems);

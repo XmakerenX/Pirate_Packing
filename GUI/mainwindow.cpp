@@ -333,6 +333,17 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 	}
 }
 //------------------------------------------------------------------------------------
+void MainWindow::on_saveConfiguration_clicked()
+{
+	std::cout << "saveConfiguration was pressed\n";    
+	GA->saveConfiguration();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_saveResults_clicked()
+{
+    
+}
+//------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
 {
 	ui->progressBar->setValue(0);

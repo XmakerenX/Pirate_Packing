@@ -56,6 +56,7 @@ public:
 	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
+	void saveConfiguration();
 	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems);
 	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
