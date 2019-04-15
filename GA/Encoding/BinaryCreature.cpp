@@ -465,13 +465,14 @@ int BinaryCreature::calculateFittness()
 	int overlappedVolume = 0;
 	int cornerBonus = 0;
 	int connectBonus = 0;
+	int touchBonus = 0;
 
 
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
 		//add item volume to the total volume of the packing
 		totalVolume += (itemBoxes[i].getWidth() * itemBoxes[i].getHeight() * itemBoxes[i].getDepth());
-		
+
 		for (int j = i + 1; j < itemBoxes.size(); j++)
 		{
 			Box box = Box::intersect(itemBoxes[i], itemBoxes[j]);
@@ -482,36 +483,21 @@ int BinaryCreature::calculateFittness()
 				overlapped = true;
 				overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight);
 			}
-			                       
-			if (box.getWidth() == 0 && box.getHeight() > 0 && box.getDepth() > 0)
-                                connectBonus += valuesOfItems[i] / 4;
-                            
-			if (box.getHeight() == 0 && box.getWidth() > 0  && box.getDepth() > 0)
-                                connectBonus += valuesOfItems[i] / 4;
-                            
-			if (box.getDepth() == 0 && box.getWidth() > 0&& box.getHeight() > 0)
-                            connectBonus += valuesOfItems[i] / 4;
-		}
-		
-		if (configuration->dim.w - itemBoxes[i].right == 0)
-			cornerBonus += valuesOfItems[i];
-        
-		if (itemBoxes[i].left == 0)
-			cornerBonus += valuesOfItems[i];
-        
-		if (configuration->dim.h - itemBoxes[i].top == 0)
-			cornerBonus += valuesOfItems[i];
-        
-		if (itemBoxes[i].bottom == 0)
-			cornerBonus += valuesOfItems[i];
-        
-		if (configuration->dim.d - itemBoxes[i].front == 0)
-			cornerBonus += valuesOfItems[i];
-        
-		if (itemBoxes[i].back == 0)
-			cornerBonus += valuesOfItems[i];
-	}
 
+			//encourage the act of connecting boxes 
+			if (Box::boxConnected(itemBoxes[i], itemBoxes[j]))
+			{
+				connectBonus += valuesOfItems[i] / 4;
+				touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
+			}
+
+			//encourage the act of putting boxes at the corners 
+			if (Box::isBoxAtCorner(configuration, itemBoxes[i]))
+			{
+				cornerBonus += valuesOfItems[i];
+			}
+		}
+	}
 	fitness = value * 1.25 + cornerBonus + connectBonus / 4;
     
 	return fitness;

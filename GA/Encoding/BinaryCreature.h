@@ -53,7 +53,29 @@ struct Box
         return Box(std::max(a.left, b.left), std::max(a.bottom, b.bottom), std::max(a.back, b.back),
                    std::min(a.right, b.right), std::min(a.top, b.top), std::min(a.front, b.front));
     }
-    
+	static bool boxConnected(const Box& a, const Box& b)
+	{
+		Box box = Box::intersect(a, b);
+		if (box.getWidth() == 0 && box.getHeight() > 0 && box.getDepth() > 0)		return true;
+		if(box.getHeight() == 0 && box.getWidth() > 0 && box.getDepth() > 0)		return true;
+		if (box.getDepth() == 0 && box.getWidth() > 0 && box.getHeight() > 0)		return true;
+		return false;
+	}
+	static bool isBoxAtCorner(Configuration* configuration, Box itemBox)
+	{
+		if ((configuration->dim.w - itemBox.right == 0) ||
+			(itemBox.left == 0) ||
+			(configuration->dim.h - itemBox.top == 0) ||
+			(itemBox.bottom == 0) ||
+			(configuration->dim.d - itemBox.front == 0) ||
+			(itemBox.back == 0))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	static int touch(const Box& a, const Box& b)
 	{
 		APoint box1StartPosition(a.left, a.bottom, a.back );
