@@ -17,7 +17,10 @@ public:
     
 	void Reset();
 	void generateItems();
+	void saveToFile();
 	void setBinaryUtilValues();
+        
+
         
 	Dimensions dim;
 	int numberOfItems;

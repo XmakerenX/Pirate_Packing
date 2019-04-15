@@ -261,7 +261,7 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
       <property name="geometry">
        <rect>
         <x>810</x>
-        <y>690</y>
+        <y>660</y>
         <width>161</width>
         <height>51</height>
        </rect>
@@ -560,7 +560,7 @@ background-color: rgb(72,101,130)</string>
       <property name="geometry">
        <rect>
         <x>600</x>
-        <y>690</y>
+        <y>660</y>
         <width>161</width>
         <height>51</height>
        </rect>
@@ -579,8 +579,8 @@ background-color: rgb(72,101,130)</string>
      <widget class="QProgressBar" name="progressBar">
       <property name="geometry">
        <rect>
-        <x>690</x>
-        <y>760</y>
+        <x>670</x>
+        <y>720</y>
         <width>261</width>
         <height>51</height>
        </rect>
@@ -704,6 +704,46 @@ font-size: 25px;</string>
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QPushButton" name="saveConfiguration">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>780</y>
+        <width>201</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Save Configuration</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="saveResults">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>780</y>
+        <width>201</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Save Results</string>
+      </property>
+     </widget>
      <zorder>background_2</zorder>
      <zorder>label_5</zorder>
      <zorder>startButton</zorder>
@@ -727,6 +767,8 @@ font-size: 25px;</string>
      <zorder>VolumeFilledTextBox</zorder>
      <zorder>ValuePercentageTextBox</zorder>
      <zorder>bestFittnessOverallTextBox</zorder>
+     <zorder>saveConfiguration</zorder>
+     <zorder>saveResults</zorder>
     </widget>
     <widget class="QWidget" name="page_3">
      <widget class="QPushButton" name="backButton">
@@ -1498,6 +1540,23 @@ background-color: rgb(72,101,130)</string>
        <string>Back</string>
       </property>
      </widget>
+     <widget class="QLabel" name="background_4">
+      <property name="geometry">
+       <rect>
+        <x>-60</x>
+        <y>0</y>
+        <width>1321</width>
+        <height>961</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color:rgb(72, 101, 130)</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <zorder>background_4</zorder>
      <zorder>itemDataFrame</zorder>
      <zorder>containerDimFrame</zorder>
      <zorder>tableView</zorder>

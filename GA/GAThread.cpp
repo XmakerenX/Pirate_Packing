@@ -45,6 +45,7 @@ void GAThread::run()
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
         
 	emit GAStarted();
+	GeneticAlgorithmFinished = false;
 	switch (GA_Settings::method)
 	{
 		case GA_Method::HybridGenetic:
@@ -134,6 +135,11 @@ void GAThread::run()
 void GAThread::resetConfiguration()
 {
 	configuration.Reset();
+}
+//------------------------------------------------------------------------------------------------
+void GAThread::saveConfiguration()
+{
+    configuration.saveToFile();
 }
 //------------------------------------------------------------------------------------------------
 void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems)

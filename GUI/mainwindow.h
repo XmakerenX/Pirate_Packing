@@ -46,6 +46,9 @@ public slots:
 	void on_backButton_clicked();
 	void on_resultsBackButton_clicked();
 	void on_generationComboBox_currentIndexChanged(QString indexStr);
+        
+	void on_saveConfiguration_clicked();
+	void on_saveResults_clicked();
     
 private:
 	Ui::MainWindow *ui;

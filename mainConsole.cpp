@@ -18,6 +18,8 @@
 #include <stack>
 #include "GUI/OpenGL/Solutionviewer.h"
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 
 
@@ -28,12 +30,18 @@ void parseInput(std::string input);
 GAThread* GA;
 int main(int argc, char** argv)
 {
+	if ((argc == 2) || (QString(argv[1]) == "-help"))
+	{
+		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
+		return -1;
+	}
 	//GA = new GAThread(Dimensions(10,10,10), 100);
 	std::cout << "number of arguments given " << argc << "\n";
 	
 	if (argc < 7)
 	{
-		std::cout << "not enough arugments given";
+		std::cout << "not enough arugments given or invalid format";
 		return -1;
 	}
 	
@@ -86,9 +94,12 @@ int main(int argc, char** argv)
 
 	std::cout << "\n All data are valid, starting the GA algorithm\n";
 	GA->start();
-	while(!GA->GeneticAlgorithmFinished)
+	while(! GA->GeneticAlgorithmFinished)
 	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 	}
+	std::cout << "\nfinished.";
+	GA->saveConfiguration();
 
 	 return 0;
 }
@@ -107,8 +118,8 @@ void readFile(char* filename)
 	std::string input_numbersOnly = std::regex_replace(input, rexp, "");
 	
 	//validate and parse:
-		validateInput(input_numbersOnly);
-		parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+	validateInput(input_numbersOnly);
+	parseInput(input_numbersOnly);//this creates a new instance for GA paramter
 }
 //----------------------------------------------------------
 void validateInput(std::string inputString)
