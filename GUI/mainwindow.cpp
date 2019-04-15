@@ -342,7 +342,8 @@ void MainWindow::on_saveConfiguration_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::on_saveResults_clicked()
 {
-    
+    std::cout << "saveResults_clicked was pressed\n";
+    GA->saveResults();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
@@ -400,6 +401,7 @@ void MainWindow::updateGAStarted()
 {
 	ui->resultsResetButton->setEnabled(false);
 	ui->generationComboBox->setEnabled(false);
+	ui->saveResults->setEnabled(false);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
@@ -407,6 +409,7 @@ void MainWindow::updateGAFinished()
 	ui->startButton->setText("Start");
 	ui->generationComboBox->setEnabled(true);
 	ui->resultsResetButton->setEnabled(true);
+	ui->saveResults->setEnabled(true);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::moveToMainMenu()
@@ -443,6 +446,7 @@ void MainWindow::moveToViewer()
 	ui->progressBar->setMinimum(0);
 	ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
 	ui->progressBar->setMinimum(0);
+	ui->saveResults->setEnabled(false);
 
 	viewer->clearAllBoxes();
 	ui->stackedWidget->setCurrentIndex(1);

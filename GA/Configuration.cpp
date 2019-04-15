@@ -117,6 +117,8 @@ void Configuration::saveToFile()
     
 	for (const Item& item : items)
 		file << item.dim.d << " " << item.dim.h << " " << item.dim.d << " " << item.value << "\n"; 
+        
+        file.close();
 }
 //------------------------------------------------------------------------------------
 void Configuration::setBinaryUtilValues()

@@ -69,8 +69,8 @@ struct GenerationData
         
         void calculateOverallVolumeValue(float containerVolume, float maxiumValue)
         {
-		int overallValue = 0;
-		int overallVolume = 0;
+		overallValue = 0;
+		overallVolume = 0;
 		for (BoxInfo& boxinfo : bestCreatureBoxInfo)
 		{
 			overallValue += boxinfo.value;
@@ -85,6 +85,8 @@ struct GenerationData
 	float avarageFittness;
 	int bestCreatureFittness;
 	float bestCreatureVolumeFilled;
+        unsigned int overallValue;
+        unsigned int overallVolume;
 	float bestCreatureValuePercentage;
 	int bestOverallFittness;
 };
