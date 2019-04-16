@@ -21,9 +21,7 @@
 #include <thread>
 #include <chrono>
 
-
-
-void readFile(char* filename);
+void readFile(const std::string& filename);
 void validateInput(std::string inputString);
 void parseInput(std::string input);
 
@@ -33,7 +31,7 @@ int main(int argc, char** argv)
 	if ((argc == 2) || (QString(argv[1]) == "-help"))
 	{
 		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
-		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
+		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics\n";
 		return -1;
 	}
 	//GA = new GAThread(Dimensions(10,10,10), 100);
@@ -41,11 +39,11 @@ int main(int argc, char** argv)
 	
 	if (argc < 7)
 	{
-		std::cout << "not enough arugments given or invalid format";
+		std::cout << "not enough arugments given or invalid format\n";
 		return -1;
 	}
 	
-	char* _fileName = argv[1];
+	std::string _fileName = argv[1];
 	QString method  = argv[2];
 	int _populationSize = QString(argv[3]).toInt();
 	int _numberOfGenerations = QString(argv[4]).toInt();
@@ -58,7 +56,6 @@ int main(int argc, char** argv)
 	std::cout << _numberOfGenerations << "\n";
 	std::cout << _mutationRate << "\n";
 	std::cout << _elitismPercentage << "\n";
-
 	
 	GA = new GAThread(Dimensions(10,10,10), 100);
 	if (method == "-h")
@@ -83,28 +80,35 @@ int main(int argc, char** argv)
 
 	try
 	{
-		//readFile(_fileName);
-		readFile("settings.txt");
+		readFile(_fileName);
 	}
 	catch (InvalidInputException exeption)
 	{
-		std::cout << "Error: " << exeption.what();
+		std::cout << "Error: " << exeption.what() << "\n";
 		return -1;
 	}
 
 	std::cout << "\n All data are valid, starting the GA algorithm\n";
 	GA->start();
 	GA->wait();
-	std::cout << "\nSaving results in Config folder...\n";
+	std::cout << "\nSaving configuration in Config folder...\n";
 	GA->saveConfiguration();
+        std::cout << "Saving results in Output folder...\n";
+        GA->saveResults();
 
 	 return 0;
 }
 //----------------------------------------------------------
-void readFile(char* filename)
+void readFile(const std::string& filename)
 {
 	std::ifstream inFile;
 	inFile.open(filename); //open the input file
+	if (!inFile.good())
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("Failed to open file");
+		throw ex;
+	}
 
 	std::stringstream strStream;
 	strStream << inFile.rdbuf(); //read the file
