@@ -94,10 +94,7 @@ int main(int argc, char** argv)
 
 	std::cout << "\n All data are valid, starting the GA algorithm\n";
 	GA->start();
-	while(! GA->GeneticAlgorithmFinished)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(300));
-	}
+	GA->wait();
 	std::cout << "\nSaving results in Config folder...\n";
 	GA->saveConfiguration();
 
