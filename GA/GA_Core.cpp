@@ -140,7 +140,8 @@ std::vector<Creature> GA_Core<Creature>::generateFirstGeneration(Configuration& 
 template <class Creature>
 void GA_Core<Creature>::selectSurvivors(std::vector<Creature>& population)
 {
-	std::sort(population.begin(), population.end(), [](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
+
+	std::sort(population.begin(), population.end(), [](const Creature& a, const Creature& b) {return (a.getSharedFitness() > b.getSharedFitness()); });
 	population.erase(population.begin() + GA_Settings::populationSize, population.end());
 }
 //----------------------------------------------------------
