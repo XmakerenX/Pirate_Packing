@@ -10,9 +10,16 @@ class Breeder
 {
 public:
 	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation);
+	static std::vector<Creature> sharedFitnessPopulation;
+
+
 private:
 	static std::vector<int>  normalizePopulationFittnesses(std::vector<Creature>& currentPopulation);
 	static std::discrete_distribution<int> createFairFittnesesForRouletteSelection(std::vector<Creature>& currentPopulation);
 	static std::discrete_distribution<int> createSelectionRoulette(std::vector<Creature>& currentPopulation);
+	static std::discrete_distribution<int> createNitchingRoulette(std::vector<Creature>&currentPopulation);
+	static void numberOfNiches(std::vector<Creature> currentPopulation);
+	static void calculateSharedFitness(std::vector<Creature>& currentPopulation);
+
 
 };
