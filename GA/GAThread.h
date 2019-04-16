@@ -57,8 +57,9 @@ public:
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
 	void saveConfiguration();
-	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems);
-	void setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems);
+	void saveResults();
+	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems);
+	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
 	std::vector<Item>& getConfigurationItems();
         const Dimensions& getContainerDimensions() const;

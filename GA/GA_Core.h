@@ -25,6 +25,7 @@ public:
 	//population related:
 	std::vector<Creature> getPopulation();
 	void replacePopulation(std::vector<Creature>& newPopulation);
+	void saveGenerationData(const std::string& methodPrefix);
         
 private:
 	std::vector<Creature> generateFirstGeneration(Configuration& configuration);

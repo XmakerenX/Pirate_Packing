@@ -1,5 +1,7 @@
 #include "GA_Core.h"
 #include "GA_Settings.h"
+#include <fstream>
+#include <qdir.h>
 
 //---------------------------------------------------------------------------------------
 template <class Creature>
@@ -28,6 +30,28 @@ void GA_Core<Creature>:: replacePopulation(std::vector<Creature>& newPopulation)
 	{
 		population.push_back(creature);
 	}
+}
+//---------------------------------------------------------------------------------------
+template <class Creature>
+void GA_Core<Creature>::saveGenerationData(const std::string& methodPrefix)
+{
+	if(!QDir("Output").exists())
+		if(!QDir().mkdir(("Output")))
+			return;
+    
+	std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        
+	std::string timeAndDate(30, '\0');
+	std::strftime(&timeAndDate[0], timeAndDate.size(), "%Y-%m-%d_%H-%M-%S.dat", std::localtime(&now));
+	std::string fileName = "Output/" + methodPrefix + "_" + timeAndDate;
+    
+	std::ofstream file(fileName);   
+	for (int i = 0; i < generationData.size(); i++)
+	{
+		file << i << " " << generationData[i].overallValue << "\n";
+	}
+	
+	file.close();
 }
 //---------------------------------------------------------------------------------------
 template <class Creature>

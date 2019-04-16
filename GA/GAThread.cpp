@@ -142,12 +142,29 @@ void GAThread::saveConfiguration()
     configuration.saveToFile();
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>& givenItems)
+void GAThread::saveResults()
+{
+	switch (GA_Settings::method)
+	{
+		case GA_Method::HybridGenetic:
+		{
+			hybrid.saveGenerationData("Hybrid");
+                        break;
+		}
+		case GA_Method::PureGenetic:
+		{
+			binary.saveGenerationData("Binary");
+                        break;
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------
+void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems)
 {
     configuration = Configuration(containerDimensions, givenItems);
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setConfigurationData(Dimensions& containerDimensions, std::vector<Item>&& givenItems)
+void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems)
 {
     configuration = Configuration(containerDimensions, std::move(givenItems));
 }
