@@ -385,7 +385,7 @@ void MainWindow::on_resultsResetButton_clicked()
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
 	GenerationData data = GA->getGenerationData(currentGeneration);
-	ui->AvaregeFittness->setText(QString::number(data.avarageFittness).mid(0, 4));
+	ui->AvaregeFittness->setText(QString::number(data.avarageFittness));
 	ui->BestGenerationalFIttnessTextBox->setText(QString::number(data.bestCreatureFittness));
 	ui->VolumeFilledTextBox->setText(QString::number(data.bestCreatureVolumeFilled).mid(0, 4));
 	ui->ValuePercentageTextBox->setText(QString::number(data.bestCreatureValuePercentage).mid(0, 4));
