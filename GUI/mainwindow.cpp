@@ -37,7 +37,15 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 	delete ui;
-	delete GA;
+	if (GA)
+	{
+		if (GA->isRunning())
+		{
+			GA->exitGeneticAlgorithm = true;
+			GA->wait();
+		}
+		delete GA;
+	}
 }
 void MainWindow::setForms()
 {
