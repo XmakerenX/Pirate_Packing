@@ -30,38 +30,15 @@ void parseInput(std::string input);
 GAThread* GA;
 int main(int argc, char** argv)
 {
-	GA_Settings::populationSize = 1000;
-	if (argc == 2) 
+	if ((argc == 2) || (QString(argv[1]) == "-help"))
 	{
-		if (QString(argv[1]) == "-help")
-		{
-			std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
-			std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
-			return -1;
-		}
-		else
-		{
-			if (QString(argv[1]) == "-b")
-			{
-				GA_Settings::method = GA_Method::PureGenetic;
-			}
-			if (QString(argv[1]) == "-h")
-			{
-				GA_Settings::method = GA_Method::HybridGenetic;
-			}
-			GA = new GAThread(Dimensions(10, 10, 10), 100);
-			GA->start();
-			while (!GA->GeneticAlgorithmFinished)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(300));
-			}
-			return 0;
-		}
-
-
+		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
+		return -1;
 	}
-
+	//GA = new GAThread(Dimensions(10,10,10), 100);
 	std::cout << "number of arguments given " << argc << "\n";
+	
 	if (argc < 7)
 	{
 		std::cout << "not enough arugments given or invalid format";
@@ -83,7 +60,6 @@ int main(int argc, char** argv)
 	std::cout << _elitismPercentage << "\n";
 
 	
-
 	GA = new GAThread(Dimensions(10,10,10), 100);
 	if (method == "-h")
 	{
