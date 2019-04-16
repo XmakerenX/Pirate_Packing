@@ -21,7 +21,10 @@ public:
     Configuration* getConfiguration() const;
     void setFitness(int newFitness);
     int getFitness() const;
-    
+	void setSharedFitness(int newSharedFitness);
+	int getSharedFitness() const;
+
+	int hammingDistance(PermutationCreature& other);
     bool validateConstraints() {return true;};
     
 
@@ -35,7 +38,8 @@ private:
 	bool isIndexFit(int i, int j,int k, Item item);
 
     bool*** booleanGraphsSpaces;
-    int fitness = 0;
+	int fitness;
+	int sharedFitness;
     std::vector<BoxInfo> boxesPositions;
     std::vector<int> chromozome;
     Configuration* configuration;

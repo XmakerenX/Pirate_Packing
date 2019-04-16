@@ -263,6 +263,18 @@ void BinaryCreature::repairChromosome()
         }
     }
 }
+//Name: setSharedFitness
+//-----------------------------------------------------------------------------------------------
+void BinaryCreature::setSharedFitness(int newSharedFitness)
+{
+	sharedFitness = newSharedFitness;
+}
+//-----------------------------------------------------------------------------------------------
+// Name : getSharedFitness
+int BinaryCreature::getSharedFitness() const
+{
+	return sharedFitness;
+}
 //-----------------------------------------------------------------------------------------------
 // Name : adjustDimensionsToOrientation
 // Input: item orientaion and refernces to its width,height and depth
@@ -488,7 +500,7 @@ int BinaryCreature::calculateFittness()
 			if (Box::boxConnected(itemBoxes[i], itemBoxes[j]))
 			{
 				connectBonus += valuesOfItems[i] / 4;
-				touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
+				//touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
 			}
 
 			//encourage the act of putting boxes at the corners 
@@ -498,8 +510,10 @@ int BinaryCreature::calculateFittness()
 			}
 		}
 	}
+
 	fitness = value * 1.25 + cornerBonus + connectBonus / 4;
-    
+
+	assert(fitness != 0);
 	return fitness;
 }
 //-----------------------------------------------------------------------------------------------
@@ -584,6 +598,45 @@ bool BinaryCreature::validateConstraints()
 	}
 
 	return true;
+}
+//-----------------------------------------------------------------------------------------------
+// Name : hammingDistance
+// calculate the hamming distance between two creatures by comparing the bits within the items that each creature takes.
+// This is better than comparing all of their bits, since  two creatures may differentiate mostly by the bits of the items which
+// they dont take into the container, and thus their normal hamming distance be quite large, even though they are the same.
+int BinaryCreature::hammingDistance(BinaryCreature& other)
+{
+	int hammingDist = 0;
+	std::vector<int> indexesTakenInCreature1;
+	std::vector<int> indexesTakenInCreature2;
+
+	for (int i = 0; i < this->configuration->numberOfItems; i++)
+	{
+		int index = (i+1) * configuration->bitsPerItem;
+		if (this->chromozome[index - 1]) indexesTakenInCreature1.push_back(i);
+		if (other.chromozome[index - 1]) indexesTakenInCreature2.push_back(i);
+	}
+	
+	//put all indexes found in a set to get rid of duplicates
+	std::set<int> indexesToCheck;
+	for (int index : indexesTakenInCreature1) indexesToCheck.insert(index);
+	for (int index : indexesTakenInCreature2) indexesToCheck.insert(index);
+
+
+	//check the hamming distance between all of their taken items
+	for (int index : indexesToCheck)
+	{
+		int itemStartAddress = index * configuration->bitsPerItem;
+		for (int bit = 0; bit < configuration->bitsPerItem-1; bit++)
+		{
+			if (this->chromozome[itemStartAddress + bit] != other.chromozome[itemStartAddress + bit])
+			{
+				hammingDist++;
+			}
+		}
+	}
+
+	return hammingDist;
 }
 
 //-----------------------------------------------------------------------------------------------

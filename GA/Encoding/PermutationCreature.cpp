@@ -132,6 +132,18 @@ void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& chil
 			child2.push_back(swapRepetition(child2Hash, parent2_chromozome[i]));
 	}
 }
+//Name: setSharedFitness
+//-----------------------------------------------------------------------------------------------
+void PermutationCreature::setSharedFitness(int newSharedFitness)
+{
+	sharedFitness = newSharedFitness;
+}
+//-----------------------------------------------------------------------------------------------
+// Name : getSharedFitness
+int PermutationCreature::getSharedFitness() const
+{
+	return sharedFitness;
+}
 //---------------------------------------------
 int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
 {
@@ -142,6 +154,20 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 		newValue = hash[newValue];
 
 	return newValue;
+}
+//---------------------------------------------
+//calculate the number of cells that are different between two permutation creatures chromozomes
+int PermutationCreature::hammingDistance(PermutationCreature& other)
+{
+	int hammingDist = 0;
+	for (int index = 0; index < this->configuration->numberOfItems; index++)
+	{
+		if (this->chromozome[index] != other.chromozome[index])
+		{
+			hammingDist++;
+		}
+	}
+	return hammingDist;
 }
 //---------------------------------------------
 int PermutationCreature::calculateFittness()

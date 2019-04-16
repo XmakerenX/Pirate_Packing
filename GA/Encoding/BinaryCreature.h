@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <set>
 #include <boost/dynamic_bitset.hpp>
 #include "../../includes/structs.h"
 #include "../GA_Random.h"
@@ -157,11 +158,16 @@ public:
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
     bool validateConstraints();
-    void setFitness(int newFitness);
-    int getFitness() const;
+    void setFitness(int newFitness); 
+	int getFitness() const;
+
+	void setSharedFitness(int newSharedFitness);
+	int getSharedFitness() const;
+	int hammingDistance(BinaryCreature& b);
     
     static int penaltyWeight;
     
+
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
     void repairChromosome();
@@ -172,6 +178,7 @@ private:
     bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
     int fitness;
+	int sharedFitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;
