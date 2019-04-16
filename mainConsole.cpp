@@ -21,31 +21,27 @@
 #include <thread>
 #include <chrono>
 
-
-
-void readFile(char* filename);
+void readFile(const std::string& filename,  GAThread* GA);
 void validateInput(std::string inputString);
-void parseInput(std::string input);
+void parseInput(std::string input, GAThread* GA);
 
-GAThread* GA;
 int main(int argc, char** argv)
 {
 	if ((argc == 2) || (QString(argv[1]) == "-help"))
 	{
 		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
-		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics";
+		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics\n";
 		return -1;
 	}
-	//GA = new GAThread(Dimensions(10,10,10), 100);
 	std::cout << "number of arguments given " << argc << "\n";
 	
 	if (argc < 7)
 	{
-		std::cout << "not enough arugments given or invalid format";
+		std::cout << "not enough arugments given or invalid format\n";
 		return -1;
 	}
 	
-	char* _fileName = argv[1];
+	std::string _fileName = argv[1];
 	QString method  = argv[2];
 	int _populationSize = QString(argv[3]).toInt();
 	int _numberOfGenerations = QString(argv[4]).toInt();
@@ -58,9 +54,8 @@ int main(int argc, char** argv)
 	std::cout << _numberOfGenerations << "\n";
 	std::cout << _mutationRate << "\n";
 	std::cout << _elitismPercentage << "\n";
-
 	
-	GA = new GAThread(Dimensions(10,10,10), 100);
+	GAThread* GA = new GAThread(Dimensions(10,10,10), 100);
 	if (method == "-h")
 	{
 		GA_Settings::method = GA_Method::HybridGenetic;
@@ -83,31 +78,36 @@ int main(int argc, char** argv)
 
 	try
 	{
-		//readFile(_fileName);
-		readFile("settings.txt");
+		readFile(_fileName, GA);
 	}
 	catch (InvalidInputException exeption)
 	{
-		std::cout << "Error: " << exeption.what();
+		std::cout << "Error: " << exeption.what() << "\n";
 		return -1;
 	}
 
 	std::cout << "\n All data are valid, starting the GA algorithm\n";
 	GA->start();
-	while(! GA->GeneticAlgorithmFinished)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(300));
-	}
-	std::cout << "\nSaving results in Config folder...\n";
+	GA->wait();
+	std::cout << "\nSaving configuration in Config folder...\n";
 	GA->saveConfiguration();
+	std::cout << "Saving results in Output folder...\n";
+	GA->saveResults();
 
-	 return 0;
+	delete GA;
+	return 0;
 }
 //----------------------------------------------------------
-void readFile(char* filename)
+void readFile(const std::string& filename,  GAThread* GA)
 {
 	std::ifstream inFile;
 	inFile.open(filename); //open the input file
+	if (!inFile.good())
+	{
+		InvalidInputException ex;
+		ex.setErrorMsg("Failed to open file");
+		throw ex;
+	}
 
 	std::stringstream strStream;
 	strStream << inFile.rdbuf(); //read the file
@@ -119,7 +119,7 @@ void readFile(char* filename)
 	
 	//validate and parse:
 	validateInput(input_numbersOnly);
-	parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+	parseInput(input_numbersOnly, GA);
 }
 //----------------------------------------------------------
 void validateInput(std::string inputString)
@@ -153,7 +153,7 @@ void validateInput(std::string inputString)
 	}
 }
 //-----------------------------------------------------------------------------------
-void parseInput(std::string input)
+void parseInput(std::string input, GAThread* GA)
 {
 	std::vector<Item> givenItemList;
 	int container_width, container_height, container_depth;
@@ -188,6 +188,5 @@ void parseInput(std::string input)
 		throw InvalidInputException();
 	}
 	GA->setConfigurationData(Dimensions(container_width, container_height,container_depth), std::move(givenItemList));
-
 }
 //-------------------------------------------------------------------------------------------

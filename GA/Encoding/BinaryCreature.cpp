@@ -479,7 +479,6 @@ int BinaryCreature::calculateFittness()
 	int connectBonus = 0;
 	int touchBonus = 0;
 
-
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
 		//add item volume to the total volume of the packing
@@ -502,12 +501,12 @@ int BinaryCreature::calculateFittness()
 				connectBonus += valuesOfItems[i] / 4;
 				//touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
 			}
-
-			//encourage the act of putting boxes at the corners 
-			if (Box::isBoxAtCorner(configuration, itemBoxes[i]))
-			{
-				cornerBonus += valuesOfItems[i];
-			}
+		}
+		
+		//encourage the act of putting boxes at the corners 
+		if (Box::isBoxAtCorner(configuration, itemBoxes[i]))
+		{
+			cornerBonus += valuesOfItems[i];
 		}
 	}
 
