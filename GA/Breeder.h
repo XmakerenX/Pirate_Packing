@@ -9,7 +9,7 @@ template <class Creature>
 class Breeder
 {
 public:
-	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation);
+	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation, const GA_Settings& settings);
 private:
 	static std::vector<int>  normalizePopulationFittnesses(std::vector<Creature>& currentPopulation);
 	static std::discrete_distribution<int> createFairFittnesesForRouletteSelection(std::vector<Creature>& currentPopulation);

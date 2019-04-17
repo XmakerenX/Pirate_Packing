@@ -9,6 +9,7 @@
 
 #include "../includes/structs.h"
 #include "GA_Random.h"
+#include "GA_Settings.h"
 #include "Configuration.h"
 #include "Breeder.h"
 
@@ -16,8 +17,8 @@ template <class Creature>
 class GA_Core
 {
 public:
-	void initGeneticAlgorithm(Configuration& configuration);
-	bool nextGeneration(Configuration& configuration);
+	void initGeneticAlgorithm(Configuration& configuration, const GA_Settings& settings);
+	bool nextGeneration(Configuration& configuration, const GA_Settings& settings);
 	std::vector<BoxInfo>& getBoxesInfo(int index);
 	const GenerationData& getGenerationData(int index);
 	int getGenerationDataIndex();
@@ -25,12 +26,12 @@ public:
 	//population related:
 	std::vector<Creature> getPopulation();
 	void replacePopulation(std::vector<Creature>& newPopulation);
-	void saveGenerationData(const std::string& methodPrefix);
+	std::string saveGenerationData(const std::string& methodPrefix,const GA_Settings& settings);
         
 private:
-	std::vector<Creature> generateFirstGeneration(Configuration& configuration);
-	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration);
-	void selectSurvivors(std::vector<Creature>& population);
+	std::vector<Creature> generateFirstGeneration(Configuration& configuration, const GA_Settings& settings);
+	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration, const GA_Settings& settings);
+	void selectSurvivors(std::vector<Creature>& population, const GA_Settings& settings);
 	
 	//Configuration configuration;
 	int overallMaximumFitness;

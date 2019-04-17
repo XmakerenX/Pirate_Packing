@@ -277,15 +277,18 @@ void MainWindow::on_confirmButton_clicked()
 	}
 	if (validSettings)
 	{
-		GA_Settings::populationSize = textBoxesArray[0].toInt();
-		GA_Settings::elitismSizeGroup = textBoxesArray[1].toInt();
-		GA_Settings::numberOfGenerations = textBoxesArray[2].toInt();
-		if (textBoxesArray[3] == "0.") { GA_Settings::mutationRate = 0; }
-		else { GA_Settings::mutationRate = textBoxesArray[3].toFloat(); }
-
-		if (ui->radioButton_HybridGenetics->isChecked()) { GA_Settings::method = GA_Method::HybridGenetic; }
-		else { GA_Settings::method = GA_Method::PureGenetic;}
-
+		int populationSize = textBoxesArray[0].toInt();
+		unsigned int elitismSizeGroup = textBoxesArray[1].toInt();
+		unsigned int numberOfGenerations = textBoxesArray[2].toInt();
+		float mutationRate;
+		if (textBoxesArray[3] == "0.") { mutationRate = 0; }
+		else { mutationRate = textBoxesArray[3].toFloat(); }
+		GA_Method method;
+		if (ui->radioButton_HybridGenetics->isChecked()) { method = GA_Method::HybridGenetic; }
+		else { method = GA_Method::PureGenetic;}
+        
+		GA->setSettings(GA_Settings(method, mutationRate, numberOfGenerations,
+		                populationSize, elitismSizeGroup));
 		pageStack.push(2);
 		ui->progressBar->setValue(0);
 		moveToViewer();
@@ -430,10 +433,11 @@ void MainWindow::moveToMainMenu()
 void MainWindow::moveToSettings()
 {
 	ui->stackedWidget->setCurrentIndex(2);
-	ui->populationSizeTextBox->setText(QString::number(GA_Settings::populationSize));
-	ui->numberOfGenerationTextBox->setText(QString::number(GA_Settings::numberOfGenerations));
-	ui->mutationRateTextBox->setText(QString::number(GA_Settings::mutationRate));
-	ui->elitisimSizeTextBox->setText(QString::number(GA_Settings::elitismSizeGroup));
+	const GA_Settings& settings = GA->getSettings();
+	ui->populationSizeTextBox->setText(QString::number(settings.populationSize));
+	ui->numberOfGenerationTextBox->setText(QString::number(settings.numberOfGenerations));
+	ui->mutationRateTextBox->setText(QString::number(settings.mutationRate));
+	ui->elitisimSizeTextBox->setText(QString::number(settings.elitismSizeGroup));
 	this->setFixedSizeAndMoveToCenter(813, 837);        
 }
 //------------------------------------------------------------------------------------
@@ -453,7 +457,7 @@ void MainWindow::moveToEnterData(bool reset/* = true*/)
 void MainWindow::moveToViewer()
 {
 	ui->progressBar->setMinimum(0);
-	ui->progressBar->setMaximum(GA_Settings::numberOfGenerations - 1);
+	ui->progressBar->setMaximum(GA->getSettings().numberOfGenerations - 1);
 	ui->progressBar->setMinimum(0);
 	ui->saveResults->setEnabled(false);
 

@@ -2,24 +2,43 @@
 #include "Configuration.h"
 #include "Breeder.h"
 #include "GA_Random.h"
-#include "GA_Settings.h"
 
 QMutex GAThread::mutex;
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
-	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
+	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false),
+	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5)
 {
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
-	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false)
+	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false),
+	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5)
 {
+}
+//----------------------------------------------------------------------
+GAThread::GAThread(const GAThread& copy)
+	 :configuration(copy.configuration),
+	  stopGeneticAlgorithm(copy.stopGeneticAlgorithm),
+	  exitGeneticAlgorithm(copy.exitGeneticAlgorithm),
+	  settings(copy.settings)
+{
+    
+}
+//----------------------------------------------------------------------
+GAThread::GAThread(GAThread&& move)
+	 :configuration(std::move(move.configuration)),
+	  stopGeneticAlgorithm(move.stopGeneticAlgorithm),
+	  exitGeneticAlgorithm(move.exitGeneticAlgorithm),
+	  settings(move.settings)
+{
+    
 }
 //----------------------------------------------------------------------
 std::vector<BoxInfo>& GAThread::getBoxesInfo(int index)
 {
-	switch (GA_Settings::method)
+	switch (settings.method)
 	{
 		case GA_Method::HybridGenetic:
 		{
@@ -45,13 +64,13 @@ void GAThread::run()
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
         
 	emit GAStarted();
-	switch (GA_Settings::method)
+	switch (settings.method)
 	{
 		case GA_Method::HybridGenetic:
 		{
 			// apply hybrid genetic algorithm on this configuration
-			hybrid.initGeneticAlgorithm(configuration);
-			while (hybrid.nextGeneration(configuration) && !exitGeneticAlgorithm)
+			hybrid.initGeneticAlgorithm(configuration, settings);
+			while (hybrid.nextGeneration(configuration, settings) && !exitGeneticAlgorithm)
 			{
 				if (this->stopGeneticAlgorithm)
 				{
@@ -77,20 +96,20 @@ void GAThread::run()
 			//--------init all populations----------------//
 			for (GA_Core<BinaryCreature>& population : binaryPopulations)
 			{
-				population.initGeneticAlgorithm(configuration);
+				population.initGeneticAlgorithm(configuration, settings);
 			}
-			binary.initGeneticAlgorithm(configuration);
+			binary.initGeneticAlgorithm(configuration, settings);
 
 			//assign a counter to know how many generations have progressed
 			int generationsPassed = 0;
 			
 			// apply pure genetic algorithm on this configuration
-			while (binary.nextGeneration(configuration) && !exitGeneticAlgorithm)
+			while (binary.nextGeneration(configuration, settings) && !exitGeneticAlgorithm)
 			{
 				if (numberOfPopulations > 1){
 					for (int i = 1; i <numberOfPopulations;i++ )
 					{
-						binaryPopulations[i].nextGeneration(configuration);
+						binaryPopulations[i].nextGeneration(configuration, settings);
 					}
 				}
 				generationsPassed++;
@@ -100,16 +119,16 @@ void GAThread::run()
 					  (generationsPassed !=0))
 				{
 					std::vector<BinaryCreature> newPopulation;
-					newPopulation.reserve(GA_Settings::populationSize);
+					newPopulation.reserve(settings.populationSize);
 
 					for (GA_Core<BinaryCreature>& population : binaryPopulations)
 					{
-						for (int i = 0; i < GA_Settings::populationSize / numberOfPopulations; i++)
+						for (int i = 0; i < settings.populationSize / numberOfPopulations; i++)
 							newPopulation.push_back(population.getPopulation()[i]);
 					}
-					while (newPopulation.size() < GA_Settings::populationSize)
+					while (newPopulation.size() < settings.populationSize)
 					{
-						newPopulation.push_back(binary.getPopulation()[GA_Settings::populationSize / 2]);
+						newPopulation.push_back(binary.getPopulation()[settings.populationSize / 2]);
 					}
 					//replace old population with the combined one
 					binary.replacePopulation(newPopulation);
@@ -140,19 +159,17 @@ void GAThread::saveConfiguration()
     configuration.saveToFile();
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::saveResults()
+std::string GAThread::saveResults()
 {
-	switch (GA_Settings::method)
+	switch (settings.method)
 	{
 		case GA_Method::HybridGenetic:
 		{
-			hybrid.saveGenerationData("Hybrid");
-                        break;
+			return hybrid.saveGenerationData("Hybrid", settings);
 		}
 		case GA_Method::PureGenetic:
 		{
-			binary.saveGenerationData("Binary");
-                        break;
+			return binary.saveGenerationData("Binary", settings);
 		}
 	}
 }
@@ -167,9 +184,14 @@ void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::
     configuration = Configuration(containerDimensions, std::move(givenItems));
 }
 //------------------------------------------------------------------------------------------------
+void GAThread::setSettings(const GA_Settings _settings)
+{
+    settings = _settings;
+}
+//------------------------------------------------------------------------------------------------
 const GenerationData& GAThread::getGenerationData(int index)
 {
-	switch (GA_Settings::method)
+	switch (settings.method)
 	{
 		case GA_Method::HybridGenetic:
 		{
@@ -190,4 +212,9 @@ std::vector<Item>& GAThread::getConfigurationItems()
 const Dimensions& GAThread::getContainerDimensions() const
 {
 	return configuration.dim;
+}
+//------------------------------------------------------------------------------------------------
+const GA_Settings& GAThread::getSettings() const
+{
+    return settings;
 }

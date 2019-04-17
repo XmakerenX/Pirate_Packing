@@ -3,7 +3,7 @@
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
-std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation)
+std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, const GA_Settings& settings)
 {
 	//create roulette wheel to choose parents
 	//Note: the Probabilities for each Creature to be chosen in the
@@ -12,7 +12,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	std::discrete_distribution<int> roulette = createSelectionRoulette(currentPopulation);
 
 	//create next generation population
-	float mutationChance = GA_Settings::mutationRate;
+	float mutationChance = settings.mutationRate;
 	int currentPopulationSize = currentPopulation.size();
 	std::vector<Creature> newPopulation;
 	newPopulation.reserve(currentPopulationSize * 2);
@@ -34,7 +34,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	}
 
 	std::sort(currentPopulation.begin(), currentPopulation.end(), [](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
-	int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
+	int elitismGroupSize = currentPopulationSize * (settings.elitismSizeGroup / 100.0f);
 	for (int i = 0; i < elitismGroupSize; i++)
 		newPopulation.push_back(currentPopulation[i]);
 

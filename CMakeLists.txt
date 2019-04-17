@@ -11,9 +11,9 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 if (WIN32)
-    find_package(boost)
+    find_package(boost REQUIRED COMPONENTS iostreams)
 else()
-    find_package(Boost)
+    find_package(Boost REQUIRED COMPONENTS iostreams)
 endif(WIN32)
 
 include_directories(${Boost_INCLUDE_DIRS}) 
@@ -59,7 +59,7 @@ endif(WIN32)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
-target_link_libraries(Pirate_Packing_console Qt5::Widgets)
+target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::iostreams)
 
 
 # Copy resources folder to the build folder
