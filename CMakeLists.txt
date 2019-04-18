@@ -11,7 +11,8 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 if (WIN32)
-    find_package(boost REQUIRED COMPONENTS iostreams)
+	set(Boost_USE_STATIC_LIBS ON)
+	find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 else()
     find_package(Boost REQUIRED COMPONENTS iostreams)
 endif(WIN32)
@@ -52,15 +53,15 @@ if (WIN32)
 		add_executable(Pirate_Packing_gui WIN32 ${qttest_SRC} mainGUI.cpp)
 		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
+	target_link_libraries(Pirate_Packing_console Qt5::Widgets ${Boost_LIBRARIES})
 else()
 	add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
 	add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
+	target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost:iostreams)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
-target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::iostreams)
-
 
 # Copy resources folder to the build folder
 add_custom_command(TARGET Pirate_Packing_gui POST_BUILD

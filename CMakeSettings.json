@@ -7,7 +7,11 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "environments": [ { "CMAKE_PREFIX_PATH": "C:\\Qt\\Qt5.12.1\\5.12.1\\msvc2017_64\\" } ],
+      "environments": [
+        { "CMAKE_PREFIX_PATH": "C:\\Qt\\Qt5.12.1\\5.12.1\\msvc2017_64\\" },
+        { "BOOST_ROOT": "C:\\Program Files (x86)\\boost_1_70_0\\" },
+        { "BOOST_LIBRARYDIR": "C:\\Program Files (x86)\\boost_1_70_0\\stage\\lib\\" }
+      ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "",
@@ -22,7 +26,11 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "environments": [ { "CMAKE_PREFIX_PATH": "C:\\Qt\\Qt5.12.1\\5.12.1\\msvc2017_64\\" } ],
+      "environments": [
+        { "CMAKE_PREFIX_PATH": "C:\\Qt\\Qt5.12.1\\5.12.1\\msvc2017_64\\" },
+        { "BOOST_ROOT": "C:\\Program Files (x86)\\boost_1_70_0\\" },
+        { "BOOST_LIBRARYDIR": "C:\\Program Files (x86)\\boost_1_70_0\\stage\\lib\\" }
+      ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "",
