@@ -21,6 +21,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 set(qttest_SRC  
   #GA:
   GA/Encoding/BinaryCreature.cpp
+  GA/Encoding/DBLF_core.cpp
   GA/Encoding/PermutationCreature.cpp
   GA/Breeder.cpp
   GA/Configuration.cpp
@@ -49,7 +50,7 @@ if (WIN32)
 		add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
 		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	else()
-		add_executable(Pirate_Packing_gui WIN32 ${qttest_SRC} mainGUI.cpp)
+		add_executable(Pirate_Packing_gui ${qttest_SRC} mainGUI.cpp)
 		add_executable(Pirate_Packing_console ${qttest_SRC} mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
