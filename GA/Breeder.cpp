@@ -7,69 +7,66 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 {
 	//create roulette wheel to choose parents
 	//Note: the Probabilities for each Creature to be chosen in the roulette are chsoen in corelation with his fittness
-
-	//std::discrete_distribution<int> roulette = createSelectionRoulette(currentPopulation);
-
 	std::discrete_distribution<int> roulette;
-
 	if(GA_Settings::nitchingEnabled) 
 		roulette = createNitchingRoulette(currentPopulation);
 	else                             
 		roulette = createSelectionRoulette(currentPopulation);
 
-
-
 	//create new generation vector:
 	std::vector<Creature> newPopulation;
 	newPopulation.reserve(currentPopulation.size() * 2);
 
-
-	
 	//divide the breeding job to 4 differents semi-breeders
 	int currentPopulationSize = currentPopulation.size();
-	std::vector<Creature> SemiPopulation1; SemiPopulation1.clear();
-	std::vector<Creature> SemiPopulation2; SemiPopulation2.clear();
-	std::vector<Creature> SemiPopulation3; SemiPopulation3.clear();
-	std::vector<Creature> SemiPopulation4; SemiPopulation4.clear();
-
+	std::promise<std::vector<Creature>> promoiseSemiBreeder1;
+	std::future<std::vector<Creature>> retSemiBreeder1 = promoiseSemiBreeder1.get_future();
+	std::promise<std::vector<Creature>> promoiseSemiBreeder2;
+	std::future<std::vector<Creature>> retSemiBreeder2 = promoiseSemiBreeder2.get_future();
+	std::promise<std::vector<Creature>> promoiseSemiBreeder3;
+	std::future<std::vector<Creature>> retSemiBreeder3 = promoiseSemiBreeder3.get_future();
+	std::promise<std::vector<Creature>> promoiseSemiBreeder4;
+	std::future<std::vector<Creature>> retSemiBreeder4 = promoiseSemiBreeder4.get_future();
 	//create the 4 SemiBreeders
-	std::thread SemiBreeder1(semiBreeder, currentPopulation, roulette, &SemiPopulation1, currentPopulationSize / 4);
-	std::thread SemiBreeder2(semiBreeder, currentPopulation, roulette, &SemiPopulation2, currentPopulationSize / 4);
-	std::thread SemiBreeder3(semiBreeder, currentPopulation, roulette, &SemiPopulation3, currentPopulationSize / 4);
-	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, &SemiPopulation4, currentPopulationSize / 4);
+	std::thread SemiBreeder1(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder1), currentPopulationSize / 4);
+	std::thread SemiBreeder2(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder2), currentPopulationSize / 4);
+	std::thread SemiBreeder3(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder3), currentPopulationSize / 4);
+	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder4), currentPopulationSize / 4);
 
 	//wait for all the SemiBreeders to finish
 	SemiBreeder1.join();
 	SemiBreeder2.join();
 	SemiBreeder3.join();
 	SemiBreeder4.join();
+        
+	std::vector<Creature> SemiPopulation1 = retSemiBreeder1.get(); 
+	std::vector<Creature> SemiPopulation2 = retSemiBreeder2.get(); 
+	std::vector<Creature> SemiPopulation3 = retSemiBreeder3.get(); 
+	std::vector<Creature> SemiPopulation4 = retSemiBreeder4.get();
 
 	for (Creature creature : SemiPopulation1) newPopulation.push_back(creature);
 	for (Creature creature : SemiPopulation2) newPopulation.push_back(creature);
 	for (Creature creature : SemiPopulation3) newPopulation.push_back(creature);
 	for (Creature creature : SemiPopulation4) newPopulation.push_back(creature);
 	
-	/*
-	float mutationChance = GA_Settings::mutationRate;
-	int currentPopulationSize = currentPopulation.size();
-	for (int i = 0; i < currentPopulationSize; i++)
-	{
-		int parent1Index = roulette(Random::default_engine.getGenerator());
-		int parent2Index;
-		do
-		{
-			parent2Index = roulette(Random::default_engine.getGenerator());
-		} while (parent2	xIndex == parent1Index);
+// 	float mutationChance = GA_Settings::mutationRate;
+// 	int currentPopulationSize = currentPopulation.size();
+// 	for (int i = 0; i < currentPopulationSize; i++)
+// 	{
+// 		int parent1Index = roulette(Random::default_engine.getGenerator());
+// 		int parent2Index;
+// 		do
+// 		{
+// 			parent2Index = roulette(Random::default_engine.getGenerator());
+// 		} while (parent2Index == parent1Index);
+// 
+// 		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation);
+// 		newPopulation[newPopulation.size() - 1].mutate(mutationChance);
+// 		newPopulation[newPopulation.size() - 1].calculateFittness();
+// 		newPopulation[newPopulation.size() - 2].mutate(mutationChance);
+// 		newPopulation[newPopulation.size() - 2].calculateFittness();
+// 	}
 
-		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation);
-		newPopulation[newPopulation.size() - 1].mutate(mutationChance);
-		newPopulation[newPopulation.size() - 1].calculateFittness();
-		newPopulation[newPopulation.size() - 2].mutate(mutationChance);
-		newPopulation[newPopulation.size() - 2].calculateFittness();
-	}*/
-
-	
-	
 	if (GA_Settings::nitchingEnabled)
 	{
 		calculateSharedFitness(newPopulation);
@@ -84,36 +81,35 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 		std::sort(currentPopulation.begin(), currentPopulation.end(),
 			[](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
 	}
-
 	
-
 	int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
 	for (int i = 0; i < elitismGroupSize; i++)
 		newPopulation.push_back(currentPopulation[i]);
 
-
 	return newPopulation;
-
-
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::semiBreeder(std::vector<Creature>& currentPopulation, std::discrete_distribution<int> roulette,
-	std::vector<Creature>* creaturesCreated, int numberOfParentsPairs)
+void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulation,std::discrete_distribution<int> roulette,
+                                    std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair)
 {
+	std::vector<Creature> newCreatures;
+	newCreatures.reserve(numberOfParentsPair * 2);
 	float mutationChance = GA_Settings::mutationRate;
-	for (int i = 0; i < numberOfParentsPairs; i++)
+	for (int i = 0; i < numberOfParentsPair; i++)
 	{
 		int parent1Index;
 		int parent2Index;
 		chooseParents(parent1Index, parent2Index, roulette);
-		(currentPopulation)[parent1Index].crossover(currentPopulation[parent2Index], *creaturesCreated);
-		int creaturesCreatedSoFar = (*creaturesCreated).size();
-		(*creaturesCreated)[creaturesCreatedSoFar - 1].mutate(mutationChance);
-		(*creaturesCreated)[creaturesCreatedSoFar - 1].calculateFittness();
-		(*creaturesCreated)[creaturesCreatedSoFar - 2].mutate(mutationChance);
-		(*creaturesCreated)[creaturesCreatedSoFar - 2].calculateFittness();
+		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newCreatures);
+		int creaturesCreatedSoFar = (newCreatures).size();
+		      newCreatures[creaturesCreatedSoFar - 1].mutate(mutationChance);
+		      newCreatures[creaturesCreatedSoFar - 1].calculateFittness();
+		      newCreatures[creaturesCreatedSoFar - 2].mutate(mutationChance);
+		      newCreatures[creaturesCreatedSoFar - 2].calculateFittness();
 	}
+	
+	creaturesCreated.set_value(newCreatures);
 }
 //------------------------------------------------------------------------------------
 template <class Creature>

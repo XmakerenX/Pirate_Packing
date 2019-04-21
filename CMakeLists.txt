@@ -15,6 +15,7 @@ if (WIN32)
 else()
     find_package(Boost)
 endif(WIN32)
+find_package(Threads QUIET REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS}) 
 
@@ -59,8 +60,8 @@ else()
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(Pirate_Packing_gui Qt5::Widgets)
-target_link_libraries(Pirate_Packing_console Qt5::Widgets)
+target_link_libraries(Pirate_Packing_gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(Pirate_Packing_console Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT})
 
 
 # Copy resources folder to the build folder
