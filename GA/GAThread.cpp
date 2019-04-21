@@ -96,7 +96,7 @@ void GAThread::run()
 				generationsPassed++;
 
 				//combine multiple populations into one once every 50 generations
-				if (  (numberOfPopulations>1) && ((generationsPassed % 50) == 0 )&&
+				if (  (numberOfPopulations>1) && ((generationsPassed % 200) == 0 )&&
 					  (generationsPassed !=0))
 				{
 					std::vector<BinaryCreature> newPopulation;
@@ -179,6 +179,8 @@ const GenerationData& GAThread::getGenerationData(int index)
 		{
 			return binary.getGenerationData(index);
 		}
+		default: throw  std::invalid_argument("GA_Method is neither Binary nor Hybrid, and thus an overflow must have happened.");
+
 	}
 }
 //------------------------------------------------------------------------------------------------
