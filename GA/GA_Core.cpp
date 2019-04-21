@@ -60,6 +60,7 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	//----Genetic algorithm: create next generation
 	//start timer
 	std::clock_t start; double duration; start = std::clock();
+	auto timeStart = std::chrono::high_resolution_clock::now();
 	
 	//create new population based on the current one
 	population = Breeder<Creature>::generateNextGeneration(population);
@@ -71,12 +72,13 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
 	getDataFromGeneration(population, configuration);
 	//stop timer
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+	std::chrono::duration<float>  timeDuration = std::chrono::high_resolution_clock::now() - timeStart;
     
 	//print data about this generation
 	std::cout << "Gen:" << gen << "\n\t";
         GenerationData& currentGenerationData = generationData[generationData.size() - 1];
 	std::cout << "Average fittness: " << currentGenerationData.avarageFittness
-                  << "\tBest fittness: " << currentGenerationData.bestCreatureFittness << "  \tTime passed: " << duration << "\n"
+                  << "\tBest fittness: " << currentGenerationData.bestCreatureFittness << "  \tTime passed: " << timeDuration.count() << "\n"
                   << "\toverall Value " << currentGenerationData.bestCreatureValuePercentage << "%"
                   << "  \toverall Volume " << currentGenerationData.bestCreatureVolumeFilled << "%\n";
 
