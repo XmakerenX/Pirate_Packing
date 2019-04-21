@@ -45,11 +45,13 @@ void GAThread::run()
 	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
         
 	emit GAStarted();
+	std::clock_t start; double duration; start = std::clock();
+	auto timeStart = std::chrono::high_resolution_clock::now();
 	switch (GA_Settings::method)
 	{
 		case GA_Method::HybridGenetic:
 		{
-			// apply hybrid genetic algorithm on this configuration
+			// apply hybrid genetic algorithm on this configuration                        
 			hybrid.initGeneticAlgorithm(configuration);
 			while (hybrid.nextGeneration(configuration) && !exitGeneticAlgorithm)
 			{
@@ -127,6 +129,9 @@ void GAThread::run()
 			break;
 		}
 	}
+	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+	std::chrono::duration<float>  timeDuration = std::chrono::high_resolution_clock::now() - timeStart;
+	std::cout << "Genetic algorithm finished after : " << timeDuration.count() << "\n";
 	emit GAFinished();
 }
 //------------------------------------------------------------------------------------------------
