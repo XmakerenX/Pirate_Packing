@@ -437,7 +437,7 @@ void BinaryCreature::mutate(float mutationChance)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::crossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
 {
     //uniformCrossover(parent2, population);
     onePointCrossover(parent2, population);
@@ -448,9 +448,9 @@ void BinaryCreature::crossover(BinaryCreature& parent2, std::vector<BinaryCreatu
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
 {
-    DynamicBitSet& parent1 = chromozome;
+    const DynamicBitSet& parent1 = chromozome;
         
     std::uniform_int_distribution<int> joinBitDist(1, parent1.size() - 1);
     int joinBitLocation = (int)joinBitDist(Random::default_engine.getGenerator());
@@ -481,10 +481,10 @@ void BinaryCreature::onePointCrossover(BinaryCreature& parent2, std::vector<Bina
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using unifrom crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population)
+void BinaryCreature::uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
 {
-    DynamicBitSet& parent1 = chromozome;
-    DynamicBitSet& parent22 = parent2.chromozome;
+    const DynamicBitSet& parent1 = chromozome;
+    const DynamicBitSet& parent22 = parent2.chromozome;
     
     DynamicBitSet child = DynamicBitSet(chromozome.size(), 0);
     DynamicBitSet child2 = DynamicBitSet(chromozome.size(), 0);

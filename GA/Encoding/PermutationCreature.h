@@ -15,7 +15,7 @@ public:
     PermutationCreature(Configuration* conf, Chromozome chrom);
     
 	void mutate(float mutationChance);
-	void crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population);
+	void crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population) const;
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
@@ -29,10 +29,10 @@ public:
     
 
 private:
-	void initializeCrossOverPoints(int& startPos, int& endPos);
+	void initializeCrossOverPoints(int& startPos, int& endPos) const;
 	void createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
-						   Chromozome parent1_chromozome, Chromozome parent2_chromozome);
-	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap);
+						   Chromozome parent1_chromozome, Chromozome parent2_chromozome) const;
+	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap) const;
 
 	BoxInfo bottomLeftFill(Item item);
 	bool isIndexFit(int i, int j,int k, Item item);

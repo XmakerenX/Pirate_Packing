@@ -48,7 +48,7 @@ void PermutationCreature::mutate(float mutationChance)
 
 }
 //----------------------------------------------------------------------------
-void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population)
+void PermutationCreature::crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population) const
 {
 	//genereate crossing points
 	int PMX_StartIndex, PMX_EndIndex;
@@ -68,7 +68,7 @@ void PermutationCreature::crossover(PermutationCreature parent2, std::vector<Per
 	population.emplace_back(this->configuration, child2Chromozome);
 }
 //------------------------------------------------------------------
-void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
+void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos) const
 {
 	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration->numberOfItems - 1);
 	int PMX_StartIndex, PMX_EndIndex;
@@ -87,7 +87,7 @@ void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 }
 //--------------------------------------------------------------------------------------------------
 void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
-	Chromozome parent1_chromozome, Chromozome parent2_chromozome)
+	Chromozome parent1_chromozome, Chromozome parent2_chromozome) const
 {
 
 	std::unordered_map<int, int> child1Hash, child2Hash;
@@ -145,7 +145,7 @@ int PermutationCreature::getSharedFitness() const
 	return sharedFitness;
 }
 //---------------------------------------------
-int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
+int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap) const
 {
 	int newValue = hash[valueToSwap];
 	// make sure new value not needed to swaped as well

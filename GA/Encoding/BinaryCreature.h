@@ -153,7 +153,7 @@ public:
     BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
 	void resetChromosome();
     void mutate(float mutationChance);
-    void crossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
+    void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
@@ -173,8 +173,8 @@ private:
     void repairChromosome();
     void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
     
-    void onePointCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
-    void uniformCrossover(BinaryCreature& parent2, std::vector<BinaryCreature>& population);
+    void onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
+    void uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
     bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
     int fitness;
