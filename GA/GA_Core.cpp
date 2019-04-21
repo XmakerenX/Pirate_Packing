@@ -80,7 +80,19 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration)
                   << "\toverall Value " << currentGenerationData.bestCreatureValuePercentage << "%"
                   << "  \toverall Volume " << currentGenerationData.bestCreatureVolumeFilled << "%\n";
 
+
 	gen++;
+
+	/*
+	if (gen == 100)
+	{
+		BinaryCreature::applyDBLF = true;
+	}
+	if (gen == 110)
+	{
+		BinaryCreature::applyDBLF = false;
+	}
+	*/
 	return (gen < GA_Settings::numberOfGenerations);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -140,7 +152,17 @@ std::vector<Creature> GA_Core<Creature>::generateFirstGeneration(Configuration& 
 template <class Creature>
 void GA_Core<Creature>::selectSurvivors(std::vector<Creature>& population)
 {
-	std::sort(population.begin(), population.end(), [](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
+	if (GA_Settings::nitchingEnabled)
+	{
+		std::sort(population.begin(), population.end(),
+			[](const Creature& a, const Creature& b) {return (a.getSharedFitness() > b.getSharedFitness()); });
+	}
+	else
+	{
+		std::sort(population.begin(), population.end(),
+			[](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
+	}
+	
 	population.erase(population.begin() + GA_Settings::populationSize, population.end());
 }
 //----------------------------------------------------------
