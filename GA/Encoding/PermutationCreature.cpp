@@ -24,6 +24,49 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	this->chromozome.reserve(conf->numberOfItems);
 	for (int i = 0; i < conf->numberOfItems; i++) { this->chromozome.push_back(chrom[i]); }
 }
+
+PermutationCreature::PermutationCreature(const PermutationCreature& copy)
+    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), configuration(copy.configuration)
+{
+    booleanGraphsSpaces = nullptr;
+    fitness = copy.fitness;
+    sharedFitness = copy.sharedFitness;
+}
+
+PermutationCreature::PermutationCreature(PermutationCreature&& move)
+    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), configuration(move.configuration)
+{
+    booleanGraphsSpaces = nullptr;
+    fitness = move.fitness;
+    sharedFitness = move.sharedFitness;
+}
+
+PermutationCreature& PermutationCreature::operator=(const PermutationCreature& copy)
+{
+    booleanGraphsSpaces = nullptr;
+    chromozome = copy.chromozome;
+    configuration = copy.configuration;
+    
+    fitness = copy.fitness;
+    sharedFitness = copy.sharedFitness;
+    boxesPositions = copy.boxesPositions;
+        
+    return *this;
+}
+
+PermutationCreature& PermutationCreature::operator=(PermutationCreature&& move)
+{
+    booleanGraphsSpaces = nullptr;
+    chromozome = std::move(move.chromozome);
+    configuration = move.configuration;
+    
+    fitness = move.fitness;
+    sharedFitness = move.sharedFitness;
+    boxesPositions = std::move(move.boxesPositions);
+    
+    return *this;
+}
+
 //----------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance)
 {

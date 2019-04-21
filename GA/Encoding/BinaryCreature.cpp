@@ -67,6 +67,70 @@ BinaryCreature::BinaryCreature(Configuration* config, DynamicBitSet&& _chromozom
 }
 
 //-----------------------------------------------------------------------------------------------
+// Name : BinaryCreature
+// Input: BinaryCreature to copy
+// Output: Binary encdoing copy of the given BinaryCreature 
+// Action: copy constructor for BinaryCreature
+// * copies copy.chromozome
+//-----------------------------------------------------------------------------------------------
+BinaryCreature::BinaryCreature(const BinaryCreature& copy)
+    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), configuration(copy.configuration)
+{
+    fitness = copy.fitness;
+    sharedFitness = copy.sharedFitness;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : BinaryCreature
+// Input: BinaryCreature to move
+// Output: Binary encdoing with the chromosome moved from the given BinaryCreature
+// Action: move constructor for BinaryCreature
+// * moves the move.chromozome
+//-----------------------------------------------------------------------------------------------
+BinaryCreature::BinaryCreature(BinaryCreature&& move)
+    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), configuration(move.configuration)
+{
+    fitness = move.fitness;
+    sharedFitness = move.sharedFitness;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : operator=(copy)
+// Input: BinaryCreature to copy
+// Output: Binary encdoing copy of the given BinaryCreature 
+// Action: copy operator= for BinaryCreature
+// * copies copy.chromozome
+//-----------------------------------------------------------------------------------------------
+BinaryCreature& BinaryCreature::operator=(const BinaryCreature& copy)
+{
+    boxesPositions = copy.boxesPositions;
+    chromozome = copy.chromozome;
+    configuration = copy.configuration;
+    fitness = copy.fitness;
+    sharedFitness = copy.sharedFitness;
+    
+    return *this;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Name : operator=(move)
+// Input: BinaryCreature to move
+// Output: Binary encdoing move of the given BinaryCreature 
+// Action: move operator= for BinaryCreature
+// * moves move.chromozome
+//-----------------------------------------------------------------------------------------------
+BinaryCreature& BinaryCreature::operator=(BinaryCreature&& move)
+{
+    boxesPositions = std::move(move.boxesPositions);
+    chromozome = std::move(move.chromozome);
+    configuration = move.configuration;
+    fitness = move.fitness;
+    sharedFitness = move.sharedFitness;
+    
+    return *this;    
+}
+
+//-----------------------------------------------------------------------------------------------
 // Name : generateChromosome
 // Input: totalBitsNum - number of bits for the chromosome
 // Output: A random DynamicBitSet of size totalBitsNum

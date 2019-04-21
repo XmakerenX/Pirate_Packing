@@ -13,6 +13,11 @@ class PermutationCreature
 public:
     PermutationCreature(Configuration* config);
     PermutationCreature(Configuration* conf, Chromozome chrom);
+    PermutationCreature(const PermutationCreature& copy);
+    PermutationCreature(PermutationCreature&& move);
+    
+    PermutationCreature& operator=(const PermutationCreature& copy);
+    PermutationCreature& operator=(PermutationCreature&& move);
     
 	void mutate(float mutationChance);
 	void crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population) const;

@@ -151,7 +151,13 @@ public:
     BinaryCreature(Configuration* config);
     BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome);
     BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
-	void resetChromosome();
+    BinaryCreature(const BinaryCreature& copy);
+    BinaryCreature(BinaryCreature&& move);
+    
+    BinaryCreature& operator=(const BinaryCreature& copy);
+    BinaryCreature& operator=(BinaryCreature&& move);
+    
+    void resetChromosome();
     void mutate(float mutationChance);
     void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
     int calculateFittness();
@@ -159,14 +165,14 @@ public:
     Configuration* getConfiguration() const;
     bool validateConstraints();
     void setFitness(int newFitness); 
-	int getFitness() const;
+    int getFitness() const;
 
-	void setSharedFitness(int newSharedFitness);
-	int getSharedFitness() const;
-	int hammingDistance(BinaryCreature& b);
+    void setSharedFitness(int newSharedFitness);
+    int getSharedFitness() const;
+    int hammingDistance(BinaryCreature& b);
     
     static int penaltyWeight;
-	static bool applyDBLF;
+    static bool applyDBLF;
 
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
@@ -178,7 +184,7 @@ private:
     bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
     int fitness;
-	int sharedFitness;
+    int sharedFitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
     Configuration* configuration;
