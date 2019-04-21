@@ -9,4 +9,5 @@ class GA_Settings
 		static unsigned int numberOfGenerations;
 		static int populationSize;
 		static unsigned int elitismSizeGroup;
+		static bool nitchingEnabled;
 };

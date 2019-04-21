@@ -1,6 +1,8 @@
 #include "BinaryCreature.h"
-
+#include "DBLF_core.h"
 int BinaryCreature::penaltyWeight = 1;
+bool BinaryCreature::applyDBLF = false;
+
 
 //Binary Creature:
 
@@ -194,7 +196,7 @@ void BinaryCreature::repairChromosome()
                 DynamicBitSet newZ(chromozome.size(), itemInfo.z);
                 DynamicBitSet updatedXYValue = newOrientation | newX | newY | newZ;
                 // copy the updated value to chromosome
-                for (int j = 0; j < (configuration->bitsPerItem - 1); j++)
+                for (unsigned int j = 0; j < (configuration->bitsPerItem - 1); j++)
                 {
                     chromozome[configuration->bitsPerItem * i + j] = updatedXYValue[j];
                 }
@@ -262,6 +264,90 @@ void BinaryCreature::repairChromosome()
             }
         }
     }
+
+	if (applyDBLF)
+	{
+		//force every 1 out of 3 creatures to have dblf heuristics applied to it
+		/*std::uniform_int_distribution<long unsigned int> trinDist(0, 1);
+		int DBLFchance = trinDist(Random::default_engine.getGenerator());
+		if (DBLFchance != 0) return;
+		*/
+
+		//seperete items indexes into two categories:taken and not taken 
+		std::vector<int> itemsTakenIndexes;
+		std::vector<int> itemsNotTakenIndexes;
+
+		//do the seperation
+		DynamicBitSet itemMask = configuration->itemMask;
+		ItemInfo itemInfo;
+		for (int i = 0; i < configuration->items.size(); i++)
+		{
+			if (getItemInfo(itemMask, i, itemInfo))
+			{
+				itemsTakenIndexes.push_back(i);
+			}
+			else
+			{
+				itemsNotTakenIndexes.push_back(i);
+			}
+
+			itemMask = itemMask << configuration->bitsPerItem;
+		}
+		
+		//create a chromozome for dblf to work with
+		std::vector<int> dblfChromozome;
+		
+		//the following code purpose is to make a dblf chromozome that will first take into account the
+		//items that the binary creature decided to take and only then the rest of the items, all while giving some mixing criteria 
+
+		//push all of the items
+		for (int& takenIndex : itemsTakenIndexes)     dblfChromozome.push_back(takenIndex);
+		for (int& takenIndex : itemsNotTakenIndexes)  dblfChromozome.push_back(takenIndex);
+		
+
+		
+
+		//mix the placing order of the items that the binary creatures chose to take
+		std::sort(dblfChromozome.begin(), dblfChromozome.begin() + itemsTakenIndexes.size());
+		//todo: dont mix them up, and rather choose their ordering places based on how deep-bottom-left the binary creature chose
+		//to place each item.
+		//e.g: the item that the binary creature chose to be the deepestBottomLeft should be the first that dblf will try to place
+
+
+		//mix the other items that the binary creature didnt take
+		if (itemsTakenIndexes.size() != configuration->numberOfItems)
+		{
+			std::sort(dblfChromozome.begin() + itemsTakenIndexes.size() + 1, dblfChromozome.end());
+		}
+		//DBLF_core myDBLFHelper(configuration, dblfChromozome, dblfChromozome.size());
+		DBLF_core myDBLFHelper(configuration, dblfChromozome, itemsTakenIndexes.size());
+		std::vector<BoxInfo> dblfHelperResults = myDBLFHelper.getBoxPositions();
+
+		
+		for (BoxInfo& boxInfo : dblfHelperResults)
+		{
+			int id = boxInfo.id;
+			std::vector<int> newGene;
+			newGene.reserve(configuration->bitsPerItem);
+			DynamicBitSet myX(configuration->coordinateBits, boxInfo.startingPoint.x());
+			DynamicBitSet myY(configuration->coordinateBits, boxInfo.startingPoint.y());
+			DynamicBitSet myZ(configuration->coordinateBits, boxInfo.startingPoint.z());
+
+			for (int i = 0; i < configuration->coordinateBits; i++) newGene.push_back(myZ[i]);
+			for (int i = 0; i < configuration->coordinateBits; i++) newGene.push_back(myY[i]);
+			for (int i = 0; i < configuration->coordinateBits; i++) newGene.push_back(myX[i]);
+			for (int i = 0; i < 3; i++) newGene.push_back(0);
+			 newGene.push_back(1);
+			
+			int startPosition = id * configuration->bitsPerItem;
+			for (int i = 0; i < configuration->bitsPerItem; i++)
+			{
+				chromozome[startPosition + i] = newGene[i];
+			}
+		}
+	}
+
+
 }
 //Name: setSharedFitness
 //-----------------------------------------------------------------------------------------------
@@ -324,15 +410,19 @@ void BinaryCreature::adjustDimensionsToOrientation(int orientation, long unsigne
 void BinaryCreature::mutate(float mutationChance)
 {
     std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
-    std::vector<float> mutatePerBitVec = {0.01f, 1 - 0.01f};
+
+	std::uniform_real_distribution<> flipChance(0.01f, 0.08f);
+	float singleBitflipRate = flipChance(Random::default_engine.getGenerator());
+
+    std::vector<float> mutatePerBitVec = { singleBitflipRate, 1 - singleBitflipRate };
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
     std::discrete_distribution<int> mutatePerBitDist(mutatePerBitVec.begin(), mutatePerBitVec.end());
     
-    unsigned int choromozomeSize = chromozome.size();
+    unsigned int choromozomeSize = (unsigned int)chromozome.size();
    
     if (mutateDist(Random::default_engine.getGenerator()) == 0)
     {
-        for (int i = 0; i <choromozomeSize; i++)
+        for (unsigned int i = 0; i <choromozomeSize; i++)
         {
             if (mutatePerBitDist(Random::default_engine.getGenerator()) == 0)
                 chromozome.flip(i);
@@ -363,8 +453,8 @@ void BinaryCreature::onePointCrossover(BinaryCreature& parent2, std::vector<Bina
     DynamicBitSet& parent1 = chromozome;
         
     std::uniform_int_distribution<int> joinBitDist(1, parent1.size() - 1);
-    int joinBitLocation = joinBitDist(Random::default_engine.getGenerator());
-    joinBitLocation = parent1.size() - joinBitLocation;
+    int joinBitLocation = (int)joinBitDist(Random::default_engine.getGenerator());
+    joinBitLocation = (int)(parent1.size() - joinBitLocation);
     
     // mask starts as numberOfBits ones
     DynamicBitSet mask = DynamicBitSet(parent1.size(), 0);
@@ -510,7 +600,9 @@ int BinaryCreature::calculateFittness()
 		}
 	}
 
-	fitness = value * 1.25 + cornerBonus + connectBonus / 4;
+	//fitness =value* 1.25 + cornerBonus + connectBonus/4 +touchBonus;
+	
+	fitness = value + touchBonus;
 
 	assert(fitness != 0);
 	return fitness;
@@ -541,7 +633,8 @@ std::vector<BoxInfo> BinaryCreature::getBoxPositions()
                                         itemInfo.width,
                                         itemInfo.height,
                                         itemInfo.depth,
-                                        items[i].value);
+                                        items[i].value,
+										items[i].id);
 		}
 		itemMask = itemMask << configuration->bitsPerItem;
 	}
@@ -606,6 +699,7 @@ bool BinaryCreature::validateConstraints()
 int BinaryCreature::hammingDistance(BinaryCreature& other)
 {
 	int hammingDist = 0;
+	/*
 	std::vector<int> indexesTakenInCreature1;
 	std::vector<int> indexesTakenInCreature2;
 
@@ -626,7 +720,7 @@ int BinaryCreature::hammingDistance(BinaryCreature& other)
 	for (int index : indexesToCheck)
 	{
 		int itemStartAddress = index * configuration->bitsPerItem;
-		for (int bit = 0; bit < configuration->bitsPerItem-1; bit++)
+		for (unsigned int bit = 0; bit < configuration->bitsPerItem-1; bit++)
 		{
 			if (this->chromozome[itemStartAddress + bit] != other.chromozome[itemStartAddress + bit])
 			{
@@ -634,6 +728,18 @@ int BinaryCreature::hammingDistance(BinaryCreature& other)
 			}
 		}
 	}
+	*/
+
+
+
+	//new:
+
+	for (int index = 0; index < configuration->totalBitsNum; index++)
+	{
+		if (this->chromozome[index] != other.chromozome[index])
+			hammingDist++;
+	}
+
 
 	return hammingDist;
 }

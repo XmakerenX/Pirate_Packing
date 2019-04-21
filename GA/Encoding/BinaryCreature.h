@@ -86,11 +86,11 @@ struct Box
 
 	
 		int touchArea = 0;
-		for (int x = box1StartPosition.x; x < box1EndPosition.x; x++)
+		for (int x = box1StartPosition.x; x <= box1EndPosition.x; x++)
 		{
-			for (int y = box1StartPosition.y; y < box1EndPosition.y; y++)
+			for (int y = box1StartPosition.y; y <= box1EndPosition.y; y++)
 			{
-				for (int z = box1StartPosition.z; z < box1EndPosition.z; z++)
+				for (int z = box1StartPosition.z; z <= box1EndPosition.z; z++)
 				{
 					if (((x <= box2EndPosition.x) && (x >= box2StartPosition.x)) &&
 						((y <= box2EndPosition.y) && (y >= box2StartPosition.y)) &&
@@ -166,7 +166,7 @@ public:
 	int hammingDistance(BinaryCreature& b);
     
     static int penaltyWeight;
-    
+	static bool applyDBLF;
 
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum);

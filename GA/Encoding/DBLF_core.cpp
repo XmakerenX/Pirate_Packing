@@ -1,11 +1,11 @@
-#include "PermutationCreature.h"
+#include "DBLF_core.h"
 #include <algorithm>    //for std::max
 #include <string>
 
 //input:  Configuration
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
-PermutationCreature::PermutationCreature(Configuration* conf)
+DBLF_core::DBLF_core(Configuration* conf)
 	:configuration(conf)
 {
 	booleanGraphsSpaces = nullptr;
@@ -18,14 +18,16 @@ PermutationCreature::PermutationCreature(Configuration* conf)
 //input:  Configuration,  chromozome vector
 //output: A new encoding based on the given chromozome
 //action: Creates a random encoding based on the configuration
-PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
+DBLF_core::DBLF_core(Configuration* conf, Chromozome chrom, int numberOfItems)
 	:configuration(conf)
 {
-	this->chromozome.reserve(conf->numberOfItems);
-	for (int i = 0; i < conf->numberOfItems; i++) { this->chromozome.push_back(chrom[i]); }
+	this->numberOfItemsToPack = numberOfItems;
+	this->chromozome.reserve(numberOfItemsToPack);
+	for (int i = 0; i < numberOfItemsToPack; i++) { this->chromozome.push_back(chrom[i]); }
+	calculateFittness();
 }
 //----------------------------------------------------------------------------
-void PermutationCreature::mutate(float mutationChance)
+void DBLF_core::mutate(float mutationChance)
 {
 	std::vector<float> mutateVec = { mutationChance, 1 - mutationChance };
 	std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
@@ -48,7 +50,7 @@ void PermutationCreature::mutate(float mutationChance)
 
 }
 //----------------------------------------------------------------------------
-void PermutationCreature::crossover(PermutationCreature parent2, std::vector<PermutationCreature>& population)
+void DBLF_core::crossover(DBLF_core parent2, std::vector<DBLF_core>& population)
 {
 	//genereate crossing points
 	int PMX_StartIndex, PMX_EndIndex;
@@ -64,11 +66,11 @@ void PermutationCreature::crossover(PermutationCreature parent2, std::vector<Per
 		this->chromozome, parent2.chromozome);
 
 
-	population.emplace_back(this->configuration, child1Chromozome);
-	population.emplace_back(this->configuration, child2Chromozome);
+	population.emplace_back(this->configuration, child1Chromozome, 1);
+	population.emplace_back(this->configuration, child2Chromozome, 1);
 }
 //------------------------------------------------------------------
-void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
+void DBLF_core::initializeCrossOverPoints(int& startPos, int& endPos)
 {
 	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration->numberOfItems - 1);
 	int PMX_StartIndex, PMX_EndIndex;
@@ -86,7 +88,7 @@ void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos)
 	endPos = std::max(PMX_StartIndex, PMX_EndIndex);
 }
 //--------------------------------------------------------------------------------------------------
-void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
+void DBLF_core::createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
 	Chromozome parent1_chromozome, Chromozome parent2_chromozome)
 {
 
@@ -132,20 +134,8 @@ void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& chil
 			child2.push_back(swapRepetition(child2Hash, parent2_chromozome[i]));
 	}
 }
-//Name: setSharedFitness
-//-----------------------------------------------------------------------------------------------
-void PermutationCreature::setSharedFitness(int newSharedFitness)
-{
-	sharedFitness = newSharedFitness;
-}
-//-----------------------------------------------------------------------------------------------
-// Name : getSharedFitness
-int PermutationCreature::getSharedFitness() const
-{
-	return sharedFitness;
-}
 //---------------------------------------------
-int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
+int DBLF_core::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap)
 {
 	int newValue = hash[valueToSwap];
 	// make sure new value not needed to swaped as well
@@ -156,21 +146,7 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 	return newValue;
 }
 //---------------------------------------------
-//calculate the number of cells that are different between two permutation creatures chromozomes
-int PermutationCreature::hammingDistance(PermutationCreature& other)
-{
-	int hammingDist = 0;
-	for (int index = 0; index < this->configuration->numberOfItems; index++)
-	{
-		if (this->chromozome[index] != other.chromozome[index])
-		{
-			hammingDist++;
-		}
-	}
-	return hammingDist;
-}
-//---------------------------------------------
-int PermutationCreature::calculateFittness()
+int DBLF_core::calculateFittness()
 {
 	fitness = 0;
 	boxesPositions.clear();
@@ -204,7 +180,7 @@ int PermutationCreature::calculateFittness()
 	}
 
 	//continue placing items untill its not possible
-	for (int i = 0; i < configuration->numberOfItems; i++)
+	for (int i = 0; i < numberOfItemsToPack; i++)
 	{
 		try//try fitting a lego
 		{
@@ -218,7 +194,7 @@ int PermutationCreature::calculateFittness()
 			continue;
 		}
 	}
-	//free memory
+	//free memorya
 	for (int i = 0; i < containerDim.d; i++)
 	{
 		for (int j = 0; j < containerDim.h; j++)
@@ -230,10 +206,10 @@ int PermutationCreature::calculateFittness()
 
 	return fitness;
 }
-BoxInfo PermutationCreature::bottomLeftFill(Item item)
+BoxInfo DBLF_core::bottomLeftFill(Item item)
 {
 	BoxInfo placedPosition(QPoint3D(0, 0, 0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f),
-									item.dim.w, item.dim.h, item.dim.d, item.value,item.id);
+		item.dim.w, item.dim.h, item.dim.d, item.value, item.id);
 	Dimensions containerDim = configuration->dim;
 
 	int max_z = containerDim.d - item.dim.d;//max possible value of z
@@ -261,7 +237,7 @@ BoxInfo PermutationCreature::bottomLeftFill(Item item)
 	throw CantFitException();
 }
 //--------------------------------------------------------------------------------
-bool PermutationCreature::isIndexFit(int x, int y, int z, Item item)
+bool DBLF_core::isIndexFit(int x, int y, int z, Item item)
 {
 	Dimensions ItemDim = item.dim;
 	int max_x = x + ItemDim.w;
@@ -295,13 +271,13 @@ bool PermutationCreature::isIndexFit(int x, int y, int z, Item item)
 	}
 	return true;
 }
-std::vector<BoxInfo> PermutationCreature::getBoxPositions()
+std::vector<BoxInfo> DBLF_core::getBoxPositions()
 {
 	return this->boxesPositions;
 }
 
 
-Configuration* PermutationCreature::getConfiguration() const
+Configuration* DBLF_core::getConfiguration() const
 {
 	return this->configuration;
 }
@@ -310,7 +286,7 @@ Configuration* PermutationCreature::getConfiguration() const
 // Name : setFitness
 // sets the value of the fitness
 //-----------------------------------------------------------------------------------------------
-void PermutationCreature::setFitness(int newFitness)
+void DBLF_core::setFitness(int newFitness)
 {
 	this->fitness = newFitness;
 }
@@ -319,7 +295,7 @@ void PermutationCreature::setFitness(int newFitness)
 // Name : getFitness
 // Action: return the fitness of this encdoing
 //-----------------------------------------------------------------------------------------------
-int PermutationCreature::getFitness() const
+int DBLF_core::getFitness() const
 {
 	return this->fitness;
 }
