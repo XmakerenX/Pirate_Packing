@@ -44,10 +44,10 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	std::vector<Creature> SemiPopulation3 = retSemiBreeder3.get(); 
 	std::vector<Creature> SemiPopulation4 = retSemiBreeder4.get();
 
-	for (Creature creature : SemiPopulation1) newPopulation.push_back(creature);
-	for (Creature creature : SemiPopulation2) newPopulation.push_back(creature);
-	for (Creature creature : SemiPopulation3) newPopulation.push_back(creature);
-	for (Creature creature : SemiPopulation4) newPopulation.push_back(creature);
+	for (Creature& creature : SemiPopulation1) newPopulation.emplace_back(std::move(creature));
+	for (Creature& creature : SemiPopulation2) newPopulation.emplace_back(std::move(creature));
+	for (Creature& creature : SemiPopulation3) newPopulation.emplace_back(std::move(creature));
+	for (Creature& creature : SemiPopulation4) newPopulation.emplace_back(std::move(creature));
 	
 // 	float mutationChance = GA_Settings::mutationRate;
 // 	int currentPopulationSize = currentPopulation.size();
