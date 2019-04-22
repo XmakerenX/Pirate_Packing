@@ -762,8 +762,8 @@ bool BinaryCreature::validateConstraints()
 // they dont take into the container, and thus their normal hamming distance be quite large, even though they are the same.
 int BinaryCreature::hammingDistance(BinaryCreature& other)
 {
-	int hammingDist = 0;
 	/*
+	int hammingDist = 0;
 	std::vector<int> indexesTakenInCreature1;
 	std::vector<int> indexesTakenInCreature2;
 
@@ -793,19 +793,9 @@ int BinaryCreature::hammingDistance(BinaryCreature& other)
 		}
 	}
 	*/
-
-
-
-	//new:
-
-	for (int index = 0; index < configuration->totalBitsNum; index++)
-	{
-		if (this->chromozome[index] != other.chromozome[index])
-			hammingDist++;
-	}
-
-
-	return hammingDist;
+	
+	DynamicBitSet diffBits = chromozome ^ other.chromozome;
+	return diffBits.count();
 }
 
 //-----------------------------------------------------------------------------------------------
