@@ -268,7 +268,7 @@ void Breeder<Creature>::calculateSharedFitnessMultiThread(std::vector<Creature>&
 	std::thread SemiSharedFitness1(semiCalculateSharedFitness, std::ref(currentPopulation), 0, indexDelta);
 	std::thread SemiSharedFitness2(semiCalculateSharedFitness, std::ref(currentPopulation), indexDelta, indexDelta*2);
 	std::thread SemiSharedFitness3(semiCalculateSharedFitness, std::ref(currentPopulation), indexDelta*2, indexDelta*3);
-	std::thread SemiSharedFitness4(semiCalculateSharedFitness, std::ref(currentPopulation), indexDelta*3, indexDelta*4);
+	std::thread SemiSharedFitness4(semiCalculateSharedFitness, std::ref(currentPopulation), indexDelta*3, currentPopulation.size());
         
 	SemiSharedFitness1.join();
 	SemiSharedFitness2.join();
