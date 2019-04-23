@@ -11,9 +11,6 @@ typedef QVector3D RGB;
 
 enum class GA_Method { PureGenetic, HybridGenetic};
 
-
-
-
 struct APoint
 {
 	APoint(int _x, int _y, int _z)

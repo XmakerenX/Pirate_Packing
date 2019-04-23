@@ -13,9 +13,10 @@ set(GA_LIBRARY_NAME "GALib")
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 if (WIN32)
-    find_package(boost)
+	set(Boost_USE_STATIC_LIBS ON)
+	find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 else()
-    find_package(Boost)
+    find_package(Boost REQUIRED COMPONENTS iostreams)
 endif(WIN32)
 find_package(Threads QUIET REQUIRED)
 
@@ -61,9 +62,11 @@ if (WIN32)
 		add_executable(Pirate_Packing_gui ${GUI_SRC} mainGUI.cpp)
 		add_executable(Pirate_Packing_console mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
+	target_link_libraries(Pirate_Packing_console Qt5::Widgets ${Boost_LIBRARIES})
 else()
 	add_executable(Pirate_Packing_gui ${GUI_SRC} mainGUI.cpp)
 	add_executable(Pirate_Packing_console mainConsole.cpp)
+	target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::iostreams)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
@@ -71,8 +74,36 @@ target_link_libraries(${GA_LIBRARY_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(Pirate_Packing_gui ${GA_LIBRARY_NAME})
 target_link_libraries(Pirate_Packing_console ${GA_LIBRARY_NAME})
 
-
 # Copy resources folder to the build folder
 add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
 ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:Pirate_Packing_gui>/resources)
+
+# Copy Qt dlls for windows executable
+if(WIN32)
+	if (CMAKE_BUILD_TYPE MATCHES Debug)
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}bin/Qt5Cored.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}bin/Qt5Guid.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}/bin/Qt5Widgetsd.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+	else()
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}bin/Qt5Core.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}bin/Qt5Gui.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+
+		add_custom_command(TARGET Pirate_Packing_gui POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E copy
+						   $ENV{CMAKE_PREFIX_PATH}/bin/Qt5Widgets.dll $<TARGET_FILE_DIR:Pirate_Packing_gui>)
+	endif(CMAKE_BUILD_TYPE MATCHES Debug)
+endif(WIN32)

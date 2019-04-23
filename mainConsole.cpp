@@ -20,85 +20,136 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include "GraphUtil/gnuplot-iostream.h"
 
-void readFile(const std::string& filename,  GAThread* GA);
+int  processArgs(int argc, char** argv, std::vector<GAThread>& threads);
+void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList);
 void validateInput(std::string inputString);
-void parseInput(std::string input, GAThread* GA);
+void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItemList);
 
 int main(int argc, char** argv)
 {
+	std::vector<GAThread> threads;
+	int argsProcessedOK = processArgs(argc, argv, threads);
+	if (argsProcessedOK != 0)
+		return argsProcessedOK;
+    
+	std::cout << "\n All data are valid, starting the GA algorithm\n";
+	for (GAThread& GA : threads)
+		GA.start();
+
+	for (GAThread& GA : threads)
+		GA.wait();
+    
+	std::cout << "Saving results in Output folder...\n";
+	std::string plotData = "";
+	for (GAThread& GA : threads)
+	{
+		std::string resultFile = GA.saveResults();
+		if (resultFile != "")
+		{
+			std::cout << "Result save to " << resultFile << "\n";
+			plotData = plotData + "'" + resultFile + "' with line,";
+		}
+		else
+			std::cout << "Result has failed to save\n";
+	}
+	if(plotData.empty())
+		return -1;
+    
+	if (plotData != "")
+	{
+		plotData.pop_back(); // remove the last ','
+		if(!QDir("Graph").exists())
+			if(!QDir().mkdir(("Graph")))
+				return -1;
+            
+		std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		std::string timeAndDate(30, '\0');
+		std::strftime(&timeAndDate[0], timeAndDate.size(), "%Y-%m-%d_%H-%M-%S.png", std::localtime(&now));
+		timeAndDate = timeAndDate.substr(0, timeAndDate.find_first_of('\0'));
+        
+		Gnuplot gp; 
+		gp << "set terminal png size 1280,960" << std::endl;
+		gp << "set output 'Graph/" << timeAndDate << "'" << std::endl;
+		//gp << "set output 'output.png' " << std::endl;
+		gp << "plot " <<  plotData << std::endl;
+	}
+    
+	return 0;
+}
+//----------------------------------------------------------
+int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
+{
 	if ((argc == 2) || (QString(argv[1]) == "-help"))
 	{
-		std::cout << "\nFormat is: <filename> <method> <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+		std::cout << "\nFormat is: <filename> <method> <settings info> <method> <settings info> ... <method> <settings info>\n";
 		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics\n";
+		std::cout << "Format of settings info : <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+
 		return -1;
 	}
 	std::cout << "number of arguments given " << argc << "\n";
 	
-	if (argc < 7)
+	if (argc <= 6 || ((argc - 2) % 5 != 0) )
 	{
 		std::cout << "not enough arugments given or invalid format\n";
 		return -1;
 	}
 	
+	Dimensions dim;
+	std::vector<Item> items;
 	std::string _fileName = argv[1];
-	QString method  = argv[2];
-	int _populationSize = QString(argv[3]).toInt();
-	int _numberOfGenerations = QString(argv[4]).toInt();
-	float _mutationRate = QString(argv[5]).toFloat();
-	float _elitismPercentage = QString(argv[6]).toFloat();
-
 	std::cout << _fileName << "\n";
-	std::cout << method.toStdString()<<"\n";
-	std::cout << _populationSize << "\n";
-	std::cout << _numberOfGenerations << "\n";
-	std::cout << _mutationRate << "\n";
-	std::cout << _elitismPercentage << "\n";
-	
-	GAThread* GA = new GAThread(Dimensions(10,10,10), 100);
-	if (method == "-h")
-	{
-		GA_Settings::method = GA_Method::HybridGenetic;
-	}
-	else
-	{
-		if (method == "-b") {
-			GA_Settings::method = GA_Method::PureGenetic;
-		}
-		else
-		{
-			std::cout << "Invaid method given\n";
-			return -1;
-		}
-	}
-	GA_Settings::populationSize = _populationSize;
-	GA_Settings::numberOfGenerations = _numberOfGenerations;
-	GA_Settings::elitismSizeGroup = _populationSize * _elitismPercentage;
-	GA_Settings::mutationRate = _mutationRate;
-
 	try
 	{
-		readFile(_fileName, GA);
+		readFile(_fileName, dim, items);
 	}
 	catch (InvalidInputException exeption)
 	{
 		std::cout << "Error: " << exeption.what() << "\n";
 		return -1;
 	}
+    
+	for (int i = 0; i < (argc - 2) / 5 ; i++)
+	{
+		QString methodStr  = argv[2 + i*5];
+		std::cout << methodStr.toStdString()<<"\n";
+		GA_Method method;
+		if (methodStr == "-h")
+			method = GA_Method::HybridGenetic;
+		else
+		{
+			if (methodStr == "-b") 
+				method = GA_Method::PureGenetic;
+			else
+			{
+				std::cout << "Invaid method given\n";
+				return -1;
+			}
+		}
 
-	std::cout << "\n All data are valid, starting the GA algorithm\n";
-	GA->start();
-	GA->wait();
-	std::cout << "\nSaving configuration in Config folder...\n";
-	GA->saveConfiguration();
-	std::cout << "Saving results in Output folder...\n";
-	GA->saveResults();
-
-	delete GA;
-	return 0;
+		int _populationSize = QString(argv[3 + i*5]).toInt();
+		int _numberOfGenerations = QString(argv[4 + i*5]).toInt();
+		float _mutationRate = QString(argv[5+ i*5]).toFloat();
+		float _elitismPercentage = QString(argv[6 + i*5]).toFloat();  
+        
+		std::cout << _populationSize << "\n";
+		std::cout << _numberOfGenerations << "\n";
+		std::cout << _mutationRate << "\n";
+		std::cout << _elitismPercentage << "\n";
+        
+		GA_Settings settings(method, _mutationRate, _numberOfGenerations, _populationSize, _populationSize * _elitismPercentage);
+        
+		threads.emplace_back(dim, items.size());
+		threads.back().setConfigurationData(dim, items);
+		threads.back().setSettings(settings);
+    }
+    
+    return 0;
 }
 //----------------------------------------------------------
-void readFile(const std::string& filename,  GAThread* GA)
+void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList)
 {
 	std::ifstream inFile;
 	inFile.open(filename); //open the input file
@@ -119,7 +170,7 @@ void readFile(const std::string& filename,  GAThread* GA)
 	
 	//validate and parse:
 	validateInput(input_numbersOnly);
-	parseInput(input_numbersOnly, GA);
+	parseInput(input_numbersOnly, dim, givenItemList);
 }
 //----------------------------------------------------------
 void validateInput(std::string inputString)
@@ -153,19 +204,15 @@ void validateInput(std::string inputString)
 	}
 }
 //-----------------------------------------------------------------------------------
-void parseInput(std::string input, GAThread* GA)
+void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItemList)
 {
-	std::vector<Item> givenItemList;
-	int container_width, container_height, container_depth;
-
 	try
 	{
 		std::stringstream myInputParser(input);
 		//parse container:
-
-		myInputParser >> container_width;
-		myInputParser >> container_height;
-		myInputParser >> container_depth;
+		myInputParser >> dim.w;
+		myInputParser >> dim.h;
+		myInputParser >> dim.d;
 
 		//parse items
 		int id = 0;
@@ -187,6 +234,5 @@ void parseInput(std::string input, GAThread* GA)
 		std::cout << exp.what();
 		throw InvalidInputException();
 	}
-	GA->setConfigurationData(Dimensions(container_width, container_height,container_depth), std::move(givenItemList));
 }
 //-------------------------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include "Encoding/BinaryCreature.h"
 #include "Encoding/PermutationCreature.h"
 #include "GA_Core.h"
+#include "GA_Settings.h"
 
 //-----------------------------------------------------------------------------------------------
 // Structures
@@ -53,16 +54,20 @@ class GAThread : public QThread
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
 	GAThread(Dimensions containerDimensions, std::vector<Item> givenItems);
+	GAThread(const GAThread& copy);
+	GAThread(GAThread&& move);
 	std::vector<BoxInfo>& getBoxesInfo(int index);  
 	void emitBoxReady(int generationBoxesSize);
 	void resetConfiguration();
 	void saveConfiguration();
-	void saveResults();
+	std::string saveResults();
 	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems);
+    void setSettings(const GA_Settings _settings);
 	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
 	std::vector<Item>& getConfigurationItems();
-        const Dimensions& getContainerDimensions() const;
+	const Dimensions& getContainerDimensions() const;
+	const GA_Settings& getSettings() const;    
         
 	bool exitGeneticAlgorithm;
 	bool stopGeneticAlgorithm;
@@ -71,9 +76,6 @@ public:
 	Q_OBJECT
 	void run() override;
 
-    
-
-    
 signals:
 	void boxesReady(GAThread* ga, int index);
 	void GAStarted();
@@ -82,6 +84,7 @@ signals:
 
 private:
 	Configuration configuration;
+	GA_Settings settings;
 	GA_Core<PermutationCreature> hybrid;
 	GA_Core<BinaryCreature> binary;
         

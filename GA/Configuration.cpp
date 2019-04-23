@@ -32,6 +32,26 @@ Configuration::Configuration(const Dimensions& _dim, std::vector<Item>&& givenIt
 	setBinaryUtilValues();
 }
 //------------------------------------------------------------------------------------
+Configuration::Configuration(const Configuration& copy)
+{
+	dim = copy.dim;
+	items = copy.items;
+	numberOfItems = items.size();
+	maxiumValue = copy.maxiumValue;
+    
+	setBinaryUtilValues();
+}
+//------------------------------------------------------------------------------------
+Configuration::Configuration(Configuration&& move)
+{
+	dim = move.dim;
+	items = std::move(move.items);
+	numberOfItems = items.size();
+	maxiumValue = move.maxiumValue;
+    
+	setBinaryUtilValues();
+}
+//------------------------------------------------------------------------------------
 Configuration::~Configuration()
 {
 

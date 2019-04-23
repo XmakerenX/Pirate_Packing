@@ -10,6 +10,8 @@ public:
 	Configuration(const Dimensions& _dim, int _numberOfItems);
 	Configuration(const Dimensions& _dim, std::vector<Item>& givenItems);
 	Configuration(const Dimensions& _dim, std::vector<Item>&& givenItems);
+	Configuration(const Configuration& copy);
+	Configuration(Configuration&& move);
 	~Configuration();
 
 	Configuration& operator=(const Configuration& copy);

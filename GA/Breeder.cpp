@@ -4,7 +4,7 @@
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
-std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, bool multiThread/* = true*/)
+std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, const GA_Settings& settings, bool multiThread/* = true*/)
 {
 	//create new generation vector:
 	std::vector<Creature> newPopulation;
@@ -12,11 +12,11 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	int currentPopulationSize = currentPopulation.size();
 
 	if (multiThread)
-		generateNextGenerationMultiThread(currentPopulation, newPopulation);
+		generateNextGenerationMultiThread(currentPopulation, newPopulation, settings);
 	else
-		generateNextGenerationSingleThread(currentPopulation, newPopulation);
+		generateNextGenerationSingleThread(currentPopulation, newPopulation, settings);
 
-	if (GA_Settings::nitchingEnabled)
+	if (settings.nitchingEnabled)
 	{
 		calculateSharedFitness(newPopulation);
 		//sort the population by their share fitness
@@ -31,7 +31,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 			[](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
 	}
 	
-	int elitismGroupSize = currentPopulationSize * (GA_Settings::elitismSizeGroup / 100.0f);
+	int elitismGroupSize = currentPopulationSize * (settings.elitismSizeGroup / 100.0f);
 	for (int i = 0; i < elitismGroupSize; i++)
 		newPopulation.push_back(currentPopulation[i]);
 
@@ -39,10 +39,10 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation)
+void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings)
 {
-	std::discrete_distribution<int> roulette = createRoulette(currentPopulation, GA_Settings::nitchingEnabled);
-	float mutationChance = GA_Settings::mutationRate;
+	std::discrete_distribution<int> roulette = createRoulette(currentPopulation, settings.nitchingEnabled);
+	float mutationChance = settings.mutationRate;
 	int currentPopulationSize = currentPopulation.size();
 	for (int i = 0; i < currentPopulationSize; i++)
 	{
@@ -62,9 +62,9 @@ void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation)
+void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings)
 {
-	std::discrete_distribution<int> roulette = createRoulette(currentPopulation, GA_Settings::nitchingEnabled);
+	std::discrete_distribution<int> roulette = createRoulette(currentPopulation, settings.nitchingEnabled);
 	//divide the breeding job to 4 differents semi-breeders
 	int currentPopulationSize = currentPopulation.size();
 	std::promise<std::vector<Creature>> promoiseSemiBreeder1;
@@ -76,10 +76,10 @@ void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>&
 	std::promise<std::vector<Creature>> promoiseSemiBreeder4;
 	std::future<std::vector<Creature>> retSemiBreeder4 = promoiseSemiBreeder4.get_future();
 	//create the 4 SemiBreeders
-	std::thread SemiBreeder1(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder1), currentPopulationSize / 4);
-	std::thread SemiBreeder2(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder2), currentPopulationSize / 4);
-	std::thread SemiBreeder3(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder3), currentPopulationSize / 4);
-	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder4), currentPopulationSize / 4);
+	std::thread SemiBreeder1(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder1), currentPopulationSize / 4, settings);
+	std::thread SemiBreeder2(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder2), currentPopulationSize / 4, settings);
+	std::thread SemiBreeder3(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder3), currentPopulationSize / 4, settings);
+	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder4), currentPopulationSize / 4, settings);
 
 	//wait for all the SemiBreeders to finish
 	SemiBreeder1.join();
@@ -101,7 +101,7 @@ void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>&
 //------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulation,std::discrete_distribution<int> roulette,
-                                    std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair)
+                                    std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair, const GA_Settings& settings)
 {
 	unsigned long int seed;
 	// thread id is only obtainable by printing it...
@@ -113,7 +113,7 @@ void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulati
 
 	std::vector<Creature> newCreatures;
 	newCreatures.reserve(numberOfParentsPair * 2);
-	float mutationChance = GA_Settings::mutationRate;
+	float mutationChance = settings.mutationRate;
 	for (int i = 0; i < numberOfParentsPair; i++)
 	{
 		int parent1Index;
