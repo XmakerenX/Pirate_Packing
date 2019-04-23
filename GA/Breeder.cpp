@@ -1,5 +1,6 @@
 #include "Breeder.h"
 #include <algorithm>
+#include <sstream>
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
@@ -102,6 +103,14 @@ template <class Creature>
 void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulation,std::discrete_distribution<int> roulette,
                                     std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair)
 {
+	unsigned long int seed;
+	// thread id is only obtainable by printing it...
+	// so print it to a temp stream and convert it back to int
+	std::stringstream stream;
+	stream << std::this_thread::get_id();
+	stream >> seed;
+	Random randomEngine(seed);
+
 	std::vector<Creature> newCreatures;
 	newCreatures.reserve(numberOfParentsPair * 2);
 	float mutationChance = GA_Settings::mutationRate;
@@ -109,12 +118,12 @@ void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulati
 	{
 		int parent1Index;
 		int parent2Index;
-		chooseParents(parent1Index, parent2Index, roulette);
-		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newCreatures);
+		chooseParents(parent1Index, parent2Index, roulette, randomEngine);
+		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newCreatures, randomEngine);
 		int creaturesCreatedSoFar = (newCreatures).size();
-		      newCreatures[creaturesCreatedSoFar - 1].mutate(mutationChance);
+		      newCreatures[creaturesCreatedSoFar - 1].mutate(mutationChance, randomEngine);
 		      newCreatures[creaturesCreatedSoFar - 1].calculateFittness();
-		      newCreatures[creaturesCreatedSoFar - 2].mutate(mutationChance);
+		      newCreatures[creaturesCreatedSoFar - 2].mutate(mutationChance, randomEngine);
 		      newCreatures[creaturesCreatedSoFar - 2].calculateFittness();
 	}
 	
@@ -122,14 +131,14 @@ void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulati
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std::discrete_distribution<int>& roulette)
+void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std::discrete_distribution<int>& roulette, Random& randomEngine)
 {
 	//choose one parent:
-	parent1Index = roulette(Random::default_engine.getGenerator());
+	parent1Index = roulette(randomEngine.getGenerator());
 	//choose second parent:
 	do
 	{
-		parent2Index = roulette(Random::default_engine.getGenerator());
+		parent2Index = roulette(randomEngine.getGenerator());
 	} 
 	while (parent2Index == parent1Index);
 }

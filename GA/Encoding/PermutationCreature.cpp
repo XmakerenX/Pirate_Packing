@@ -68,20 +68,20 @@ PermutationCreature& PermutationCreature::operator=(PermutationCreature&& move)
 }
 
 //----------------------------------------------------------------------------
-void PermutationCreature::mutate(float mutationChance)
+void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = Random::default_engine*/)
 {
 	std::vector<float> mutateVec = { mutationChance, 1 - mutationChance };
 	std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
 
-	if (mutateDist(Random::default_engine.getGenerator()) == 0)
+	if (mutateDist(randomEngine.getGenerator()) == 0)
 	{
 		std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
 		int index1, index2;
 		//get the first index
-		index1 = IndexeshDist(Random::default_engine.getGenerator());
+		index1 = IndexeshDist(randomEngine.getGenerator());
 
 		//get the second unique index
-		do { index2 = IndexeshDist(Random::default_engine.getGenerator()); } while (index1 == index2);
+		do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
 
 		//switch between the indexes
 		int temp = this->chromozome[index1];
@@ -91,11 +91,11 @@ void PermutationCreature::mutate(float mutationChance)
 
 }
 //----------------------------------------------------------------------------
-void PermutationCreature::crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population) const
+void PermutationCreature::crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population, Random& randomEngine/* = Random::default_engine*/) const
 {
 	//genereate crossing points
 	int PMX_StartIndex, PMX_EndIndex;
-	initializeCrossOverPoints(PMX_StartIndex, PMX_EndIndex);
+	initializeCrossOverPoints(PMX_StartIndex, PMX_EndIndex, randomEngine);
 
 	//init children:
 	Chromozome child1Chromozome, child2Chromozome;
@@ -111,17 +111,17 @@ void PermutationCreature::crossover(const PermutationCreature& parent2, std::vec
 	population.emplace_back(this->configuration, child2Chromozome);
 }
 //------------------------------------------------------------------
-void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos) const
+void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos, Random& randomEngine) const
 {
 	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration->numberOfItems - 1);
 	int PMX_StartIndex, PMX_EndIndex;
 	do {
 		//get the first index
-		PMX_StartIndex = cromozomesIndexes(Random::default_engine.getGenerator());
+		PMX_StartIndex = cromozomesIndexes(randomEngine.getGenerator());
 		//get the second unique index
 		do
 		{
-			PMX_EndIndex = cromozomesIndexes(Random::default_engine.getGenerator());
+			PMX_EndIndex = cromozomesIndexes(randomEngine.getGenerator());
 		} while (PMX_EndIndex == PMX_StartIndex);
 	} while ((PMX_EndIndex - PMX_StartIndex) >= (this->configuration->numberOfItems / 2));//dont allow too big crossing points   
 

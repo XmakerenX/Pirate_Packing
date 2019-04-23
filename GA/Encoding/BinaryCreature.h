@@ -148,7 +148,7 @@ struct Box
 class BinaryCreature 
 {
 public:
-    BinaryCreature(Configuration* config);
+    BinaryCreature(Configuration* config, Random& randomEngine = Random::default_engine);
     BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome);
     BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
     BinaryCreature(const BinaryCreature& copy);
@@ -158,8 +158,8 @@ public:
     BinaryCreature& operator=(BinaryCreature&& move);
     
     void resetChromosome();
-    void mutate(float mutationChance);
-    void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
+    void mutate(float mutationChance, Random& randomEngine = Random::default_engine);
+    void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine = Random::default_engine) const;
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
@@ -175,12 +175,12 @@ public:
     static bool applyDBLF;
 
 private:
-    DynamicBitSet generateChromosome(long unsigned int totalBitsNum);
-    void repairChromosome();
+    DynamicBitSet generateChromosome(long unsigned int totalBitsNum, Random& randomEngine);
+    void repairChromosome(Random& randomEngine);
     void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
     
-    void onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
-    void uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const;
+    void onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
+    void uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
     bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
     int fitness;

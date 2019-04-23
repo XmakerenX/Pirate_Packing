@@ -12,6 +12,12 @@ public:
         generator.seed(seed);
     }
     
+    Random(unsigned long int _seed)
+    {
+        seed = _seed;
+        generator.seed(seed);
+    }
+    
     unsigned long int getSeed()
     {
         return seed;

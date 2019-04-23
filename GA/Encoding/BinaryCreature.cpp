@@ -31,14 +31,14 @@ bool BinaryCreature::applyDBLF = false;
 // Output: A random Binary encdoing for a solution for the problem
 // Action: Creates a random Binary encdoing for a solution for the given problem
 //-----------------------------------------------------------------------------------------------
-BinaryCreature::BinaryCreature(Configuration* conf)
+BinaryCreature::BinaryCreature(Configuration* conf, Random& randomEngine/* = Random::default_engine*/)
     :configuration(conf)
 {
-    chromozome = generateChromosome(configuration->totalBitsNum); //create the creature data
+    chromozome = generateChromosome(configuration->totalBitsNum, randomEngine); //create the creature data
     // repair collisions and overflowing values(e.g: orientation is only allowed
     // to range from 0 to 5 but could become more due to the nature of the crossover
     // and mutation, so it needs to be fixed)
-    repairChromosome();
+    repairChromosome(randomEngine);
     calculateFittness();
 }
 
@@ -136,7 +136,7 @@ BinaryCreature& BinaryCreature::operator=(BinaryCreature&& move)
 // Output: A random DynamicBitSet of size totalBitsNum
 // Action: Creates a random DynamicBitSet with size totalBitsNum
 //-----------------------------------------------------------------------------------------------
-DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
+DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum, Random& randomEngine)
 {
     // get max value of long unsigned int
     long unsigned int  maxNum = 0;
@@ -153,7 +153,7 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
     {
         if (curTotalBitsNum > 64)
         {
-            chromosomeInput.push_back(longDistributaion(Random::default_engine.getGenerator()));
+            chromosomeInput.push_back(longDistributaion(randomEngine.getGenerator()));
             curTotalBitsNum -= 64;
         }
         else
@@ -161,7 +161,7 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
             long unsigned int reminderMaxNum = std::pow(2, curTotalBitsNum);
             reminderMaxNum--;
             std::uniform_int_distribution<long unsigned int> reminderDistributaion(0, reminderMaxNum);
-            chromosomeInput.push_back(reminderDistributaion(Random::default_engine.getGenerator()));
+            chromosomeInput.push_back(reminderDistributaion(randomEngine.getGenerator()));
             curTotalBitsNum -= curTotalBitsNum;
         }
     }
@@ -183,7 +183,7 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
 //     std::uniform_int_distribution<long unsigned int> itemDistributaion(0, configuration->items.size() - 1);
 //     for (int i = 0; i < 10; i++)
 //     {
-//         itemMask[itemDistributaion(Random::default_engine.getGenerator()) * configuration->bitsPerItem + (3 + 3 * configuration->coordinateBits)] = 0;
+//         itemMask[itemDistributaion(randomEngine.getGenerator()) * configuration->bitsPerItem + (3 + 3 * configuration->coordinateBits)] = 0;
 //     }
 //     
 //     itemMask.flip();
@@ -199,7 +199,7 @@ DynamicBitSet BinaryCreature::generateChromosome(long unsigned int totalBitsNum)
 // Action: checks for invalid values in chromozome amd fixes them
 // * invalid values are X,Y,Z that puts the item outside the container
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::repairChromosome()
+void BinaryCreature::repairChromosome(Random& randomEngine)
 {
     std::vector<Box> itemBoxes;
     std::vector<long int> valuesOfItems;
@@ -216,7 +216,7 @@ void BinaryCreature::repairChromosome()
             if (itemInfo.orientaion > 5)
             {
                 std::uniform_int_distribution<unsigned int> orientaionDist(0, 5);
-                itemInfo.orientaion = orientaionDist(Random::default_engine.getGenerator());
+                itemInfo.orientaion = orientaionDist(randomEngine.getGenerator());
                 itemInfo.width = configuration->items[i].dim.w;
                 itemInfo.height = configuration->items[i].dim.h;
                 itemInfo.depth = configuration->items[i].dim.d;
@@ -228,7 +228,7 @@ void BinaryCreature::repairChromosome()
             if (itemInfo.x + itemInfo.width > configuration->dim.w)
             {
                 std::uniform_int_distribution<unsigned int> xDist(0, configuration->dim.w - itemInfo.width);
-                itemInfo.x = xDist(Random::default_engine.getGenerator());
+                itemInfo.x = xDist(randomEngine.getGenerator());
                 //itemInfo.x = configuration->dim.w - itemInfo.width;
                 wasRepaired = true;
             }
@@ -236,7 +236,7 @@ void BinaryCreature::repairChromosome()
             if (itemInfo.y + itemInfo.height > configuration->dim.h)
             {
                 std::uniform_int_distribution<unsigned int> yDist(0, configuration->dim.h - itemInfo.height);
-                itemInfo.y = yDist(Random::default_engine.getGenerator());
+                itemInfo.y = yDist(randomEngine.getGenerator());
                 //itemInfo.y = configuration->dim.h - itemInfo.height;
                 wasRepaired = true;
             }
@@ -244,7 +244,7 @@ void BinaryCreature::repairChromosome()
             if (itemInfo.z + itemInfo.depth > configuration->dim.d)
             {
                 std::uniform_int_distribution<unsigned int> zDist(0, configuration->dim.d - itemInfo.depth);
-                itemInfo.z = zDist(Random::default_engine.getGenerator());
+                itemInfo.z = zDist(randomEngine.getGenerator());
                 //itemInfo.z = configuration->dim.d - itemInfo.depth;
                 wasRepaired = true;
             }
@@ -333,7 +333,7 @@ void BinaryCreature::repairChromosome()
 	{
 		//force every 1 out of 3 creatures to have dblf heuristics applied to it
 		/*std::uniform_int_distribution<long unsigned int> trinDist(0, 1);
-		int DBLFchance = trinDist(Random::default_engine.getGenerator());
+		int DBLFchance = trinDist(randomEngine.getGenerator());
 		if (DBLFchance != 0) return;
 		*/
 
@@ -471,12 +471,12 @@ void BinaryCreature::adjustDimensionsToOrientation(int orientation, long unsigne
 // Output: the this chromozome is mutated
 // Action: mutate the chromozome based on the chance of  mutationChance per bit to flip
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::mutate(float mutationChance)
+void BinaryCreature::mutate(float mutationChance, Random& randomEngine/* = Random::default_engine*/)
 {
     std::vector<float> mutateVec = {mutationChance, 1 - mutationChance};
 
 	std::uniform_real_distribution<> flipChance(0.01f, 0.08f);
-	float singleBitflipRate = flipChance(Random::default_engine.getGenerator());
+	float singleBitflipRate = flipChance(randomEngine.getGenerator());
 
     std::vector<float> mutatePerBitVec = { singleBitflipRate, 1 - singleBitflipRate };
     std::discrete_distribution<int> mutateDist(mutateVec.begin(), mutateVec.end());
@@ -484,15 +484,15 @@ void BinaryCreature::mutate(float mutationChance)
     
     unsigned int choromozomeSize = (unsigned int)chromozome.size();
    
-    if (mutateDist(Random::default_engine.getGenerator()) == 0)
+    if (mutateDist(randomEngine.getGenerator()) == 0)
     {
         for (unsigned int i = 0; i <choromozomeSize; i++)
         {
-            if (mutatePerBitDist(Random::default_engine.getGenerator()) == 0)
+            if (mutatePerBitDist(randomEngine.getGenerator()) == 0)
                 chromozome.flip(i);
         }
     }
-    repairChromosome();
+    repairChromosome(randomEngine);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -501,10 +501,10 @@ void BinaryCreature::mutate(float mutationChance)
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
+void BinaryCreature::crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine/* = Random::default_engine*/) const
 {
-    //uniformCrossover(parent2, population);
-    onePointCrossover(parent2, population);
+    //uniformCrossover(parent2, population, randomEngine);
+    onePointCrossover(parent2, population, randomEngine);
 }
 //-----------------------------------------------------------------------------------------------
 // Name : onePointCrossover
@@ -512,12 +512,12 @@ void BinaryCreature::crossover(const BinaryCreature& parent2, std::vector<Binary
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using single point crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
+void BinaryCreature::onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const
 {
     const DynamicBitSet& parent1 = chromozome;
         
     std::uniform_int_distribution<int> joinBitDist(1, parent1.size() - 1);
-    int joinBitLocation = (int)joinBitDist(Random::default_engine.getGenerator());
+    int joinBitLocation = (int)joinBitDist(randomEngine.getGenerator());
     joinBitLocation = (int)(parent1.size() - joinBitLocation);
     
     // mask starts as numberOfBits ones
@@ -545,7 +545,7 @@ void BinaryCreature::onePointCrossover(const BinaryCreature& parent2, std::vecto
 // Output: vector with 2 children made from the 2 parents
 // Action: Creates 2 children from this and parent2 using unifrom crossover
 //-----------------------------------------------------------------------------------------------
-void BinaryCreature::uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population) const
+void BinaryCreature::uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const
 {
     const DynamicBitSet& parent1 = chromozome;
     const DynamicBitSet& parent22 = parent2.chromozome;
@@ -556,7 +556,7 @@ void BinaryCreature::uniformCrossover(const BinaryCreature& parent2, std::vector
     for (int i = 0; i < chromozome.size(); i++)
     {
         std::uniform_int_distribution<int> joinBitDist(1, 2);     
-        if (joinBitDist(Random::default_engine.getGenerator()) == 1)
+        if (joinBitDist(randomEngine.getGenerator()) == 1)
         {
             child[i] = parent1[i];
             //child2[i] = parent22[i];
@@ -567,7 +567,7 @@ void BinaryCreature::uniformCrossover(const BinaryCreature& parent2, std::vector
             //child2[i] = parent1[i];
         }
         
-        if (joinBitDist(Random::default_engine.getGenerator()) == 1)
+        if (joinBitDist(randomEngine.getGenerator()) == 1)
         {
             child2[i] = parent1[i];
         }

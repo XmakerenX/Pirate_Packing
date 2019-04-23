@@ -19,8 +19,8 @@ public:
     PermutationCreature& operator=(const PermutationCreature& copy);
     PermutationCreature& operator=(PermutationCreature&& move);
     
-	void mutate(float mutationChance);
-	void crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population) const;
+	void mutate(float mutationChance, Random& randomEngine = Random::default_engine);
+	void crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population, Random& randomEngine = Random::default_engine) const;
     int calculateFittness();
     std::vector<BoxInfo> getBoxPositions();
     Configuration* getConfiguration() const;
@@ -34,7 +34,7 @@ public:
     
 
 private:
-	void initializeCrossOverPoints(int& startPos, int& endPos) const;
+	void initializeCrossOverPoints(int& startPos, int& endPos, Random& randomEngine) const;
 	void createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
 						   Chromozome parent1_chromozome, Chromozome parent2_chromozome) const;
 	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap) const;

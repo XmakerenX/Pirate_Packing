@@ -14,8 +14,8 @@ public:
 	DBLF_core(Configuration* config);
 	DBLF_core(Configuration* conf, Chromozome chrom, int numberOfItems);
 
-	void mutate(float mutationChance);
-	void crossover(DBLF_core parent2, std::vector<DBLF_core>& population);
+	void mutate(float mutationChance, Random& randomEngine = Random::default_engine);
+	void crossover(DBLF_core parent2, std::vector<DBLF_core>& population, Random& randomEngine = Random::default_engine);
 	int calculateFittness();
 	std::vector<BoxInfo> getBoxPositions();
 	Configuration* getConfiguration() const;
@@ -26,7 +26,7 @@ public:
 
 
 private:
-	void initializeCrossOverPoints(int& startPos, int& endPos);
+	void initializeCrossOverPoints(int& startPos, int& endPos, Random& randomEngine);
 	void createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
 		Chromozome parent1_chromozome, Chromozome parent2_chromozome);
 	int swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap);
