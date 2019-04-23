@@ -122,7 +122,7 @@ void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulati
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std::discrete_distribution<int> roulette)
+void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std::discrete_distribution<int>& roulette)
 {
 	//choose one parent:
 	parent1Index = roulette(Random::default_engine.getGenerator());
