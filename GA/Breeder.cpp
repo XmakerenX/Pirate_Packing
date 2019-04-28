@@ -79,7 +79,7 @@ void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>&
 	std::thread SemiBreeder1(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder1), currentPopulationSize / 4, settings);
 	std::thread SemiBreeder2(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder2), currentPopulationSize / 4, settings);
 	std::thread SemiBreeder3(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder3), currentPopulationSize / 4, settings);
-	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder4), currentPopulationSize / 4, settings);
+	std::thread SemiBreeder4(semiBreeder, currentPopulation, roulette, std::move(promoiseSemiBreeder4), currentPopulationSize - 3 * (currentPopulationSize / 4), settings);
 
 	//wait for all the SemiBreeders to finish
 	SemiBreeder1.join();
