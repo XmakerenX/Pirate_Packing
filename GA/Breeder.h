@@ -12,9 +12,9 @@ template <class Creature>
 class Breeder
 {
 public:
-	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation, const GA_Settings& settings, bool multiThread = true);
+	static std::vector<Creature> generateNextGeneration(std::vector<Creature>& currentPopulation, const GA_Settings& settings, Random& randomEngine = Random::default_engine);
 private:
-        static void generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings);
+        static void generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings, Random& randomEngine);
         static void generateNextGenerationMultiThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings);
 	static void semiBreeder(const std::vector<Creature>& currentPopulation,std::discrete_distribution<int> roulette,
 							std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair, const GA_Settings& settings);

@@ -4,21 +4,22 @@
 
 //------------------------------------------------------------------------------------------
 template <class Creature>
-std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, const GA_Settings& settings, bool multiThread/* = true*/)
+std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, const GA_Settings& settings,
+                                                                Random& randomEngine/* = Random::default_engine*/)
 {
 	//create new generation vector:
 	std::vector<Creature> newPopulation;
 	newPopulation.reserve(currentPopulation.size() * 2);
 	int currentPopulationSize = currentPopulation.size();
 
-	if (multiThread)
+	if (settings.multiThread)
 		generateNextGenerationMultiThread(currentPopulation, newPopulation, settings);
 	else
-		generateNextGenerationSingleThread(currentPopulation, newPopulation, settings);
+		generateNextGenerationSingleThread(currentPopulation, newPopulation, settings, randomEngine);
 
 	if (settings.nitchingEnabled)
 	{
-		calculateSharedFitness(newPopulation);
+		calculateSharedFitness(newPopulation, settings.multiThread);
 		//sort the population by their share fitness
 		std::sort(currentPopulation.begin(), currentPopulation.end(), 
 			[](const Creature& a, const Creature& b){
@@ -39,24 +40,24 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 }
 //------------------------------------------------------------------------------------
 template <class Creature>
-void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings)
+void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings, Random& randomEngine)
 {
 	std::discrete_distribution<int> roulette = createRoulette(currentPopulation, settings.nitchingEnabled);
 	float mutationChance = settings.mutationRate;
 	int currentPopulationSize = currentPopulation.size();
 	for (int i = 0; i < currentPopulationSize; i++)
 	{
-		int parent1Index = roulette(Random::default_engine.getGenerator());
+		int parent1Index = roulette(randomEngine.getGenerator());
 		int parent2Index;
 		do
 		{
-			parent2Index = roulette(Random::default_engine.getGenerator());
+			parent2Index = roulette(randomEngine.getGenerator());
 		} while (parent2Index == parent1Index);
 
-		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation);
-		newPopulation[newPopulation.size() - 1].mutate(mutationChance);
+		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation, randomEngine);
+		newPopulation[newPopulation.size() - 1].mutate(mutationChance, randomEngine);
 		newPopulation[newPopulation.size() - 1].calculateFittness();
-		newPopulation[newPopulation.size() - 2].mutate(mutationChance);
+		newPopulation[newPopulation.size() - 2].mutate(mutationChance, randomEngine);
 		newPopulation[newPopulation.size() - 2].calculateFittness();
 	}
 }

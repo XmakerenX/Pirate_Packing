@@ -7,33 +7,55 @@ QMutex GAThread::mutex;
 
 //------------------------------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, int nItems)
-	:configuration(containerDimensions, nItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false),
-	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5)
+	:configuration(containerDimensions, nItems, randomEngine),
+	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5),
+	 hybrid(randomEngine),
+	 binary(randomEngine),
+	 stopGeneticAlgorithm(false),
+	 exitGeneticAlgorithm(false)
 {
 }
 //----------------------------------------------------------------------
+GAThread::GAThread(Dimensions containerDimensions, int nItems, unsigned long int seed)
+	:randomEngine(seed),
+	 configuration(containerDimensions, nItems, randomEngine),
+	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5),
+	 hybrid(randomEngine),
+	 binary(randomEngine),
+	 stopGeneticAlgorithm(false),
+	 exitGeneticAlgorithm(false)
+{}
+//----------------------------------------------------------------------
 GAThread::GAThread(Dimensions containerDimensions, std::vector<Item> givenItems)
-	:configuration(containerDimensions, givenItems), stopGeneticAlgorithm(false), exitGeneticAlgorithm(false),
-	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5)
+	:configuration(containerDimensions, givenItems),
+	 settings(GA_Method::PureGenetic, 0.2, 200, 100, 5),
+	 hybrid(randomEngine),
+	 binary(randomEngine),
+	 stopGeneticAlgorithm(false),
+	 exitGeneticAlgorithm(false)
 {
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(const GAThread& copy)
 	 :configuration(copy.configuration),
+	  settings(copy.settings),
+	  randomEngine(copy.randomEngine),
+	  hybrid(randomEngine),
+	  binary(randomEngine),
 	  stopGeneticAlgorithm(copy.stopGeneticAlgorithm),
-	  exitGeneticAlgorithm(copy.exitGeneticAlgorithm),
-	  settings(copy.settings)
+	  exitGeneticAlgorithm(copy.exitGeneticAlgorithm)
 {
-    
 }
 //----------------------------------------------------------------------
 GAThread::GAThread(GAThread&& move)
 	 :configuration(std::move(move.configuration)),
+	  randomEngine(std::move(move.randomEngine)),
+	  settings(move.settings),
+	  hybrid(randomEngine),
+	  binary(randomEngine),
 	  stopGeneticAlgorithm(move.stopGeneticAlgorithm),
-	  exitGeneticAlgorithm(move.exitGeneticAlgorithm),
-	  settings(move.settings)
+	  exitGeneticAlgorithm(move.exitGeneticAlgorithm)
 {
-    
 }
 //----------------------------------------------------------------------
 std::vector<BoxInfo>& GAThread::getBoxesInfo(int index)
@@ -61,7 +83,7 @@ void GAThread::emitBoxReady(int generationBoxesSize)
 //-----------------------------------------------------------------------------------------------
 void GAThread::run()
 {
-	std::cout << "seed " << Random::default_engine.getSeed() << "\n";
+	std::cout << "seed " << randomEngine.getSeed() << "\n";
         
 	emit GAStarted();
 	std::clock_t start; double duration; start = std::clock();
@@ -93,7 +115,7 @@ void GAThread::run()
 			binaryPopulations.push_back(binary);
 			for (int pop = 0; pop < numberOfPopulations-1; pop++)
 			{
-				binaryPopulations.push_back(GA_Core<BinaryCreature>());
+				binaryPopulations.push_back(GA_Core<BinaryCreature>(randomEngine));
 			}
 			//--------init all populations----------------//
 			for (GA_Core<BinaryCreature>& population : binaryPopulations)
@@ -156,7 +178,7 @@ void GAThread::run()
 //------------------------------------------------------------------------------------------------
 void GAThread::resetConfiguration()
 {
-	configuration.Reset();
+	configuration.Reset(randomEngine);
 }
 //------------------------------------------------------------------------------------------------
 void GAThread::saveConfiguration()

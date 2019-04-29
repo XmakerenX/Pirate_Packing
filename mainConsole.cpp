@@ -141,7 +141,7 @@ int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
         
 		GA_Settings settings(method, _mutationRate, _numberOfGenerations, _populationSize, _populationSize * _elitismPercentage);
         
-		threads.emplace_back(dim, items.size());
+		threads.emplace_back(dim, items.size(), Random::default_engine.getSeed());
 		threads.back().setConfigurationData(dim, items);
 		threads.back().setSettings(settings);
     }

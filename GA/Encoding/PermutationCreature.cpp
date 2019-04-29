@@ -5,7 +5,7 @@
 //input:  Configuration
 //output: A new random encoding
 //action: Creates a random encoding based on the configuration
-PermutationCreature::PermutationCreature(Configuration* conf)
+PermutationCreature::PermutationCreature(Configuration* conf, Random& randomEngine/* = Random::default_engine*/)
 	:configuration(conf)
 {
 	booleanGraphsSpaces = nullptr;

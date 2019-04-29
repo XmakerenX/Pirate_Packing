@@ -1,13 +1,14 @@
 #pragma once
-#include "Item.h"
 #include <vector>
 #include "../includes/structs.h"
+#include "Item.h"
+#include "GA_Random.h"
 #include <boost/dynamic_bitset.hpp>
 
 class Configuration
 {
 public:
-	Configuration(const Dimensions& _dim, int _numberOfItems);
+	Configuration(const Dimensions& _dim, int _numberOfItems, Random& randomEngine = Random::default_engine);
 	Configuration(const Dimensions& _dim, std::vector<Item>& givenItems);
 	Configuration(const Dimensions& _dim, std::vector<Item>&& givenItems);
 	Configuration(const Configuration& copy);
@@ -17,8 +18,8 @@ public:
 	Configuration& operator=(const Configuration& copy);
 	Configuration& operator=(Configuration&& move);
     
-	void Reset();
-	void generateItems();
+	void Reset(Random& randomEngine = Random::default_engine);
+	void generateItems(Random& randomEngine);
 	void saveToFile();
 	void setBinaryUtilValues();
         

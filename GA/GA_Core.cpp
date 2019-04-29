@@ -1,7 +1,14 @@
 #include "GA_Core.h"
+#include <sstream>
 #include <fstream>
 #include <qdir.h>
 
+//---------------------------------------------------------------------------------------
+template <class Creature>
+GA_Core<Creature>::GA_Core(Random& _randomEngine)
+    :randomEngine(_randomEngine)
+{
+}
 //---------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::initGeneticAlgorithm(Configuration& configuration, const GA_Settings& settings)
@@ -71,7 +78,7 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
 	auto timeStart = std::chrono::high_resolution_clock::now();
 	
 	//create new population based on the current one
-	population = Breeder<Creature>::generateNextGeneration(population, settings);
+	population = Breeder<Creature>::generateNextGeneration(population, settings, randomEngine);
 	selectSurvivors(population, settings);
 	
         //population = generateFirstGeneration(configuration);
@@ -89,7 +96,6 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
                   << "\tBest fittness: " << currentGenerationData.bestCreatureFittness << "  \tTime passed: " << timeDuration.count() << "\n"
                   << "\toverall Value " << currentGenerationData.bestCreatureValuePercentage << "%"
                   << "  \toverall Volume " << currentGenerationData.bestCreatureVolumeFilled << "%\n";
-
 
 	gen++;
 
@@ -154,7 +160,7 @@ std::vector<Creature> GA_Core<Creature>::generateFirstGeneration(Configuration& 
 	randomCreatures.reserve(settings.populationSize);
 	for (int i = 0; i < settings.populationSize; i++)
 	{
-		randomCreatures.emplace_back(&configuration);
+		randomCreatures.emplace_back(&configuration, randomEngine);
 	}
 	return randomCreatures;
 }

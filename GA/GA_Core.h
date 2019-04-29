@@ -17,6 +17,7 @@ template <class Creature>
 class GA_Core
 {
 public:
+	GA_Core(Random& _randomEngine);
 	void initGeneticAlgorithm(Configuration& configuration, const GA_Settings& settings);
 	bool nextGeneration(Configuration& configuration, const GA_Settings& settings);
 	std::vector<BoxInfo>& getBoxesInfo(int index);
@@ -33,7 +34,8 @@ private:
 	void getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration, const GA_Settings& settings);
 	void selectSurvivors(std::vector<Creature>& population, const GA_Settings& settings);
 	
-	//Configuration configuration;
+	Random& randomEngine;
+        
 	int overallMaximumFitness;
 	int generationMaximumFitness;
 	

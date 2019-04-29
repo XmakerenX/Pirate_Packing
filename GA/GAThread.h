@@ -53,6 +53,7 @@ class GAThread : public QThread
 {
 public:
 	GAThread(Dimensions containerDimensions, int nItems);
+	GAThread(Dimensions containerDimensions, int nItems, unsigned long int seed);
 	GAThread(Dimensions containerDimensions, std::vector<Item> givenItems);
 	GAThread(const GAThread& copy);
 	GAThread(GAThread&& move);
@@ -83,6 +84,7 @@ signals:
 	void generationPassed(int generationNumber);
 
 private:
+	Random randomEngine;
 	Configuration configuration;
 	GA_Settings settings;
 	GA_Core<PermutationCreature> hybrid;

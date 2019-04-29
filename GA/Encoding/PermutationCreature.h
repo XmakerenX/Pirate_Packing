@@ -11,7 +11,7 @@ class PermutationCreature
 {
     
 public:
-    PermutationCreature(Configuration* config);
+    PermutationCreature(Configuration* config, Random& randomEngine = Random::default_engine);
     PermutationCreature(Configuration* conf, Chromozome chrom);
     PermutationCreature(const PermutationCreature& copy);
     PermutationCreature(PermutationCreature&& move);

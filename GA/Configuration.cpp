@@ -3,10 +3,10 @@
 #include <fstream>
 #include <qdir.h>
 
-Configuration::Configuration(const Dimensions& _dim, int _numberOfItems)
+Configuration::Configuration(const Dimensions& _dim, int _numberOfItems, Random& randomEngine/* = Random::default_engine*/)
 	:dim(_dim), numberOfItems(_numberOfItems)
 {
-	generateItems();
+	generateItems(randomEngine);
 	setBinaryUtilValues();
 }
 //------------------------------------------------------------------------------------
@@ -81,12 +81,12 @@ Configuration& Configuration::operator=(Configuration&& move)
 	return *this;
 }
 //-----------------------------------------------------------------------------------
-void Configuration::Reset()
+void Configuration::Reset(Random& randomEngine/* = Random::default_engine*/)
 {
-	generateItems();
+	generateItems(randomEngine);
 }
 //------------------------------------------------------------------------------------
-void Configuration::generateItems()
+void Configuration::generateItems(Random& randomEngine)
 {
 	std::uniform_int_distribution<int> itemWidthDist(1, dim.w);
 	std::uniform_int_distribution<int> itemHeightDist(1, dim.h);
@@ -94,7 +94,7 @@ void Configuration::generateItems()
 	std::uniform_int_distribution<int> itemValueDist(1, 10000);
 	std::uniform_int_distribution<int> sizeDist(1, 20);
 	
-	int sizeFactor = sizeDist(Random::default_engine.getGenerator());
+	int sizeFactor = sizeDist(randomEngine.getGenerator());
 	std::cout << "size Factor " << sizeFactor << "\n";
     
 	maxiumValue = 0;
@@ -102,18 +102,18 @@ void Configuration::generateItems()
 	for (int i = 0; i < numberOfItems; i++)
 	{
 		//generate a random value
-		int itemValue = itemValueDist(Random::default_engine.getGenerator());
+		int itemValue = itemValueDist(randomEngine.getGenerator());
 		//generate dimensions
 		Dimensions itemDim;
 		do
 		{
-			itemDim.w  = itemWidthDist(Random::default_engine.getGenerator());
-			itemDim.h = itemHeightDist(Random::default_engine.getGenerator());
-			itemDim.d  = itemDepthDist(Random::default_engine.getGenerator());
+			itemDim.w  = itemWidthDist(randomEngine.getGenerator());
+			itemDim.h = itemHeightDist(randomEngine.getGenerator());
+			itemDim.d  = itemDepthDist(randomEngine.getGenerator());
 		} while (itemDim.w * itemDim.h * itemDim.d > (dim.w * dim.h * dim.d) / sizeFactor);
 
 		maxiumValue += itemValue;
-		items.emplace_back(itemDim, itemValue, i);
+		items.emplace_back(itemDim, itemValue, i, randomEngine);
 	}
 }
 //------------------------------------------------------------------------------------

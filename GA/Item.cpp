@@ -1,11 +1,10 @@
 #include "Item.h"
-#include "GA_Random.h"
 
 /*
 	Item reffers to a 3D Treasure box
 */
 //------------------------------------------------------------------------------------
-Item::Item(const Dimensions& _dim, int _value, int _id)
+Item::Item(const Dimensions& _dim, int _value, int _id, Random& randomEngine/* = Random::default_engine*/)
     :dim(_dim)
 {
 	this->value = _value;
@@ -13,9 +12,9 @@ Item::Item(const Dimensions& _dim, int _value, int _id)
 	
 	//Set a random color
 	std::uniform_int_distribution<int> colorDist(0, 255);
-	this->color.r = colorDist(Random::default_engine.getGenerator());
-	this->color.g = colorDist(Random::default_engine.getGenerator());
-	this->color.b = colorDist(Random::default_engine.getGenerator());
+	this->color.r = colorDist(randomEngine.getGenerator());
+	this->color.g = colorDist(randomEngine.getGenerator());
+	this->color.b = colorDist(randomEngine.getGenerator());
 }
 //------------------------------------------------------------------------------------
 Item::~Item()
