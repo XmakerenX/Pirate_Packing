@@ -85,13 +85,13 @@ int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
 	{
 		std::cout << "\nFormat is: <filename> <method> <settings info> <method> <settings info> ... <method> <settings info>\n";
 		std::cout << "method parameters:\n -h  = hybrids\n -b  = pure genetics\n";
-		std::cout << "Format of settings info : <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage>\n";
+		std::cout << "Format of settings info : <populationSize> <numberOfGenerations> <MutationRate> <elitePercentage> <-S/-M> <-eN/-dN>\n";
 
 		return -1;
 	}
 	std::cout << "number of arguments given " << argc << "\n";
 	
-	if (argc <= 6 || ((argc - 2) % 5 != 0) )
+	if (argc <= 8 || ((argc - 2) % 7 != 0) )
 	{
 		std::cout << "not enough arugments given or invalid format\n";
 		return -1;
@@ -111,9 +111,9 @@ int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
 		return -1;
 	}
     
-	for (int i = 0; i < (argc - 2) / 5 ; i++)
+	for (int i = 0; i < (argc - 2) / 7 ; i++)
 	{
-		QString methodStr  = argv[2 + i*5];
+		QString methodStr  = argv[2 + i*7];
 		std::cout << methodStr.toStdString()<<"\n";
 		GA_Method method;
 		if (methodStr == "-h")
@@ -129,17 +129,43 @@ int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
 			}
 		}
 
-		int _populationSize = QString(argv[3 + i*5]).toInt();
-		int _numberOfGenerations = QString(argv[4 + i*5]).toInt();
-		float _mutationRate = QString(argv[5+ i*5]).toFloat();
-		float _elitismPercentage = QString(argv[6 + i*5]).toFloat();  
+		int _populationSize = QString(argv[3 + i*7]).toInt();
+		int _numberOfGenerations = QString(argv[4 + i*7]).toInt();
+		float _mutationRate = QString(argv[5+ i*7]).toFloat();
+		float _elitismPercentage = QString(argv[6 + i*7]).toFloat();
+                
+		bool multiThread = false;
+		QString threadMethod(argv[7 + i*7]);
+		if (threadMethod == "-S")
+			multiThread = false;
+		else
+			if (threadMethod == "-M")
+				multiThread = true;
+			else
+			{
+				std::cout << "Invaid Thread method given\n";
+				return -1;                        
+			}
+			
+		bool nitching = false;
+		QString nitchingMethod(argv[8 + i*7]);
+		if (nitchingMethod == "-eN")
+			nitching = true;
+		else
+			if(nitchingMethod == "-dN")
+				nitching = false;
+			else
+			{
+				std::cout << "Invaid nitching parameter given\n";
+				return -1;                          
+			}
         
 		std::cout << _populationSize << "\n";
 		std::cout << _numberOfGenerations << "\n";
 		std::cout << _mutationRate << "\n";
 		std::cout << _elitismPercentage << "\n";
         
-		GA_Settings settings(method, _mutationRate, _numberOfGenerations, _populationSize, _populationSize * _elitismPercentage);
+		GA_Settings settings(method, _mutationRate, _numberOfGenerations, _populationSize, _populationSize * _elitismPercentage, multiThread, nitching);
         
 		threads.emplace_back(dim, items.size(), Random::default_engine.getSeed());
 		threads.back().setConfigurationData(dim, items);

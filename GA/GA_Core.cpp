@@ -55,7 +55,14 @@ std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefi
 	std::to_string(settings.populationSize) + "_" +
 	std::to_string(settings.numberOfGenerations) + "_" + 
 	mutationRateStr + "_" +
-	std::to_string(settings.elitismSizeGroup) + "_" + timeAndDate;
+	std::to_string(settings.elitismSizeGroup);
+        
+        if (settings.nitchingEnabled)
+            fileName += "_NE_";
+        else
+            fileName += "_ND_";
+        
+        fileName += timeAndDate;
     
 	std::ofstream file(fileName);   
 	for (int i = 0; i < generationData.size(); i++)
