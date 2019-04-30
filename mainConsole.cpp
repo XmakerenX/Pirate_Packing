@@ -57,6 +57,7 @@ int main(int argc, char** argv)
 	if(plotData.empty())
 		return -1;
     
+	#ifndef _WIN32
 	if (plotData != "")
 	{
 		plotData.pop_back(); // remove the last ','
@@ -75,6 +76,7 @@ int main(int argc, char** argv)
 		//gp << "set output 'output.png' " << std::endl;
 		gp << "plot " <<  plotData << std::endl;
 	}
+	#endif
     
 	return 0;
 }
