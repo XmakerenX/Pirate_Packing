@@ -75,18 +75,25 @@ void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = 
 
 	if (mutateDist(randomEngine.getGenerator()) == 0)
 	{
-		std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
-		int index1, index2;
-		//get the first index
-		index1 = IndexeshDist(randomEngine.getGenerator());
+                std::uniform_int_distribution<int> swapsDist(1,5);
+                int numberOfSwaps = swapsDist(randomEngine.getGenerator());
+            
+                
+                for(int j=0;j<numberOfSwaps;j++)
+                {
+                    std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
+                    int index1, index2;
+                    //get the first index
+                    index1 = IndexeshDist(randomEngine.getGenerator());
 
-		//get the second unique index
-		do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
+                    //get the second unique index
+                    do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
 
-		//switch between the indexes
-		int temp = this->chromozome[index1];
-		this->chromozome[index1] = this->chromozome[index2];
-		this->chromozome[index2] = temp;
+                    //switch between the indexes
+                    int temp = this->chromozome[index1];
+                    this->chromozome[index1] = this->chromozome[index2];
+                    this->chromozome[index2] = temp;
+                }
 	}
 
 }
