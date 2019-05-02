@@ -131,36 +131,36 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration, const GA_Settings& settings)
 {
-	generationMaximumFitness = std::numeric_limits<int>::min();
 	int currentGenPopulationFitness = 0;
-	Creature& bestCreature = population[0];
+        int bestCreatureIndex = 0;
+	generationMaximumFitness = population[0].getFitness();
 
 	//find best creature
-	for (Creature& indiviual : population)
-	{
-		currentGenPopulationFitness += indiviual.getFitness();
-		int individualFittness = indiviual.getFitness();
-		if (generationMaximumFitness < individualFittness)
-		{
-			generationMaximumFitness = individualFittness;
-			bestCreature = indiviual;
-		}
-	}
-	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
-        
-        if (!bestCreature.validateConstraints())
+        for (int i = 1; i < population.size(); i++)
         {
-            // if Constraints are invalid apply the new penalty 
-            for (int i = 0; i < population.size(); i++)
+            currentGenPopulationFitness += population[i].getFitness();
+            if (generationMaximumFitness < population[i].getFitness())
             {
-                population[i].calculateFittness();
+                generationMaximumFitness = population[i].getFitness();
+                bestCreatureIndex = i;
             }
         }
+
+	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
+        
+	if (!population[bestCreatureIndex].validateConstraints())
+	{
+		// if Constraints are invalid apply the new penalty 
+		for (int i = 0; i < population.size(); i++)
+		{
+			population[i].calculateFittness();
+		}
+        }
 	
-	Configuration * conf = bestCreature.getConfiguration();
+	Configuration * conf = population[bestCreatureIndex].getConfiguration();
 	float containerVolume = conf->dim.w * conf->dim.h * conf->dim.d;
 	
-	generationData.emplace_back(bestCreature.getBoxPositions(),
+	generationData.emplace_back(population[bestCreatureIndex].getBoxPositions(),
                                     currentGenPopulationFitness / (float)settings.populationSize, // avarageFittness
                                     generationMaximumFitness,
                                     overallMaximumFitness,
