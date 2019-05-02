@@ -42,12 +42,13 @@ private:
 	BoxInfo bottomLeftFill(Item item);
 	bool isIndexFit(int i, int j,int k, Item item);
 
-    bool*** booleanGraphsSpaces;
+	    bool*** booleanGraphsSpaces;
 	int fitness;
 	int sharedFitness;
-    std::vector<BoxInfo> boxesPositions;
-    std::vector<int> chromozome;
-    Configuration* configuration;
+	std::vector<BoxInfo> boxesPositions;
+	std::vector<int> chromozome;
+	std::vector<int> activeItems;
+	Configuration* configuration;
     
 };
 

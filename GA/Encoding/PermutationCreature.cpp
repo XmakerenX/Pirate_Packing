@@ -26,7 +26,7 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 }
 
 PermutationCreature::PermutationCreature(const PermutationCreature& copy)
-    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), configuration(copy.configuration)
+    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), activeItems(copy.activeItems), configuration(copy.configuration)
 {
     booleanGraphsSpaces = nullptr;
     fitness = copy.fitness;
@@ -34,7 +34,7 @@ PermutationCreature::PermutationCreature(const PermutationCreature& copy)
 }
 
 PermutationCreature::PermutationCreature(PermutationCreature&& move)
-    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), configuration(move.configuration)
+    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), activeItems(std::move(move.activeItems)), configuration(move.configuration)
 {
     booleanGraphsSpaces = nullptr;
     fitness = move.fitness;
@@ -50,6 +50,7 @@ PermutationCreature& PermutationCreature::operator=(const PermutationCreature& c
     fitness = copy.fitness;
     sharedFitness = copy.sharedFitness;
     boxesPositions = copy.boxesPositions;
+    activeItems = copy.activeItems;
         
     return *this;
 }
@@ -63,6 +64,7 @@ PermutationCreature& PermutationCreature::operator=(PermutationCreature&& move)
     fitness = move.fitness;
     sharedFitness = move.sharedFitness;
     boxesPositions = std::move(move.boxesPositions);
+    activeItems = std::move(move.activeItems);
     
     return *this;
 }
@@ -210,13 +212,16 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 int PermutationCreature::hammingDistance(PermutationCreature& other)
 {
 	int hammingDist = 0;
-	for (int index = 0; index < this->configuration->numberOfItems; index++)
+	
+	int minItems = std::min(activeItems.size(), other.activeItems.size());
+	for (int index = 0; index < minItems; index++)
 	{
-		if (this->chromozome[index] != other.chromozome[index])
+		if (this->activeItems[index] != other.activeItems[index])
 		{
 			hammingDist++;
 		}
 	}
+	
 	return hammingDist;
 }
 //---------------------------------------------
@@ -253,6 +258,7 @@ int PermutationCreature::calculateFittness()
 		}
 	}
 
+	activeItems.clear();
 	//continue placing items untill its not possible
 	for (int i = 0; i < configuration->numberOfItems; i++)
 	{
@@ -261,6 +267,7 @@ int PermutationCreature::calculateFittness()
 			int currentItemIndex = chromozome[i];
 			Item item = configuration->items[currentItemIndex];
 			this->boxesPositions.push_back(bottomLeftFill(item));
+			activeItems.push_back(currentItemIndex);
 			fitness += item.value;
 		}
 		catch (CantFitException cantfitEx) // break if you can't
