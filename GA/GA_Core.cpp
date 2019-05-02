@@ -84,12 +84,21 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
 	std::clock_t start; double duration; start = std::clock();
 	auto timeStart = std::chrono::high_resolution_clock::now();
 	
+	std::sort(population.begin(), population.end(),
+			[](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
+        
+        std::vector<Creature> eliteGroup;
+	int elitismGroupSize = population.size() * (settings.elitismSizeGroup / 100.0f);
+	for (int i = 0; i < elitismGroupSize; i++)
+		eliteGroup.push_back(population[i]);
+        
 	//create new population based on the current one
 	population = Breeder<Creature>::generateNextGeneration(population, settings, randomEngine);
 	selectSurvivors(population, settings);
 	
-        //population = generateFirstGeneration(configuration);
-        
+	for (int i = 0; i < eliteGroup.size(); i++)
+		population[population.size() - 1 - i] = eliteGroup[i];
+                
 	//get data from this generation
 	getDataFromGeneration(population, configuration, settings);
 	//stop timer

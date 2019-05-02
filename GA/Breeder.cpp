@@ -18,23 +18,7 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 		generateNextGenerationSingleThread(currentPopulation, newPopulation, settings, randomEngine);
 
 	if (settings.nitchingEnabled)
-	{
 		calculateSharedFitness(newPopulation, settings.multiThread);
-		//sort the population by their share fitness
-		std::sort(currentPopulation.begin(), currentPopulation.end(), 
-			[](const Creature& a, const Creature& b){
-			return (a.getSharedFitness() > b.getSharedFitness());
-		});
-	}
-	else
-	{
-		std::sort(currentPopulation.begin(), currentPopulation.end(),
-			[](const Creature& a, const Creature& b) {return (a.getFitness() > b.getFitness()); });
-	}
-	
-	int elitismGroupSize = currentPopulationSize * (settings.elitismSizeGroup / 100.0f);
-	for (int i = 0; i < elitismGroupSize; i++)
-		newPopulation.push_back(currentPopulation[i]);
 
 	return newPopulation;
 }
