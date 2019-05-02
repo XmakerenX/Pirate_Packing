@@ -63,7 +63,7 @@ public:
 	void saveConfiguration();
 	std::string saveResults();
 	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>& givenItems);
-    void setSettings(const GA_Settings _settings);
+	void setSettings(const GA_Settings& _settings);
 	void setConfigurationData(const Dimensions& containerDimensions, std::vector<Item>&& givenItems);
 	const GenerationData& getGenerationData(int index);   
 	std::vector<Item>& getConfigurationItems();

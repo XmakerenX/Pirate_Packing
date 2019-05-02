@@ -211,7 +211,7 @@ void GAThread::setConfigurationData(const Dimensions& containerDimensions, std::
     configuration = Configuration(containerDimensions, std::move(givenItems));
 }
 //------------------------------------------------------------------------------------------------
-void GAThread::setSettings(const GA_Settings _settings)
+void GAThread::setSettings(const GA_Settings& _settings)
 {
     settings = _settings;
 }
