@@ -20,7 +20,9 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#ifndef _WIN32
 #include "GraphUtil/gnuplot-iostream.h"
+#endif
 
 int  processArgs(int argc, char** argv, std::vector<GAThread>& threads);
 void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList);
