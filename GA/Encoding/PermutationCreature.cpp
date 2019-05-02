@@ -380,3 +380,12 @@ int PermutationCreature::getFitness() const
 {
 	return this->fitness;
 }
+
+//-----------------------------------------------------------------------------------------------
+// Name : getMinDist
+// Action: return the minDist for shared fitness based on the configuration
+//-----------------------------------------------------------------------------------------------
+unsigned int PermutationCreature::getMinDist()
+{
+    return configuration->items.size() * 0.3f;
+}

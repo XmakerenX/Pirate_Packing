@@ -28,5 +28,6 @@ private:
         static void calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation);
         static void calculateSharedFitnessMultiThread(std::vector<Creature>& currentPopulation);
         static void semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex);
+        static int  calcualteNiches(std::vector<Creature>&currentPopulation);
         
 };

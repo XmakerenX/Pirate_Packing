@@ -31,6 +31,7 @@ public:
 
 	int hammingDistance(PermutationCreature& other);
     bool validateConstraints() {return true;};
+    unsigned int getMinDist();
     
 
 private:

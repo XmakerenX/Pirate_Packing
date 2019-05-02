@@ -10,8 +10,9 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 	//create new generation vector:
 	std::vector<Creature> newPopulation;
 	newPopulation.reserve(currentPopulation.size() * 2);
-	int currentPopulationSize = currentPopulation.size();
 
+	std::cout << "\nNumber of that niches found:" << calcualteNiches(currentPopulation) << "\n";
+        
 	if (settings.multiThread)
 		generateNextGenerationMultiThread(currentPopulation, newPopulation, settings);
 	else
@@ -191,38 +192,17 @@ std::discrete_distribution<int> Breeder<Creature>::createNitchingRoulette(std::v
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitness(std::vector<Creature>& currentPopulation, bool multiThread/* = true*/)
 {
-
 	if (multiThread)
 		calculateSharedFitnessMultiThread(currentPopulation);
 	else
 		calculateSharedFitnessSingleThread(currentPopulation);
-
-// 	std::vector<int> creatures;
-// 	for (int i = 0; i < populationSize; i++) creatures.push_back(1);
-// 	int numberOfNiches = 0;
-// 	for (int i = 0; i < populationSize; i++)
-// 	{
-// 		if (creatures[i] != -1)
-// 		{
-// 			creatures[i] = -1;
-// 			for (int j = i + 1; j < populationSize; j++)
-// 			{
-// 				if (currentPopulation[i].hammingDistance(currentPopulation[j]) < minDistance)
-// 				{
-// 					creatures[j] = -1;
-// 				}
-// 			}
-// 			numberOfNiches++;
-// 		}
-// 	}
-// 	std::cout << "\nNumber of that niches found:" << numberOfNiches << "\n";
 }
 
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation)
 {
 	//parameters:
-	int minDistance = 30;
+	int minDistance = currentPopulation[0].getMinDist();
 	std::vector<double> starvationFactor(currentPopulation.size(), 1);
 
 	int populationSize = currentPopulation.size();
@@ -264,7 +244,7 @@ void Breeder<Creature>::calculateSharedFitnessMultiThread(std::vector<Creature>&
 template <class Creature>
 void Breeder<Creature>::semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex)
 {
-	int minDistance = 30;
+	int minDistance = currentPopulation[0].getMinDist();
 
 	int populationSize = currentPopulation.size();
 	//for each creature in the population
@@ -285,6 +265,33 @@ void Breeder<Creature>::semiCalculateSharedFitness(std::vector<Creature>& curren
 		double sharedFitness = currentPopulation[i].getFitness() / starvationFactor;
 		currentPopulation[i].setSharedFitness(sharedFitness);
 	}
+}
+//------------------------------------------------------------------------------------
+template <class Creature>
+int  Breeder<Creature>::calcualteNiches(std::vector<Creature>&currentPopulation)
+{
+	int populationSize = currentPopulation.size();
+	int minDistance = currentPopulation[0].getMinDist();
+	std::vector<int> creatures;
+	for (int i = 0; i < populationSize; i++) creatures.push_back(1);
+	int numberOfNiches = 0;
+	for (int i = 0; i < populationSize; i++)
+	{
+		if (creatures[i] != -1)
+		{
+			creatures[i] = -1;
+			for (int j = i + 1; j < populationSize; j++)
+			{
+				if (currentPopulation[i].hammingDistance(currentPopulation[j]) < minDistance)
+				{
+					creatures[j] = -1;
+				}
+			}
+			numberOfNiches++;
+		}
+	}
+	
+	return numberOfNiches;
 }
 //------------------------------------------------------------------------------------
 // Force instantiation of BinaryCreature and PermutationCreature

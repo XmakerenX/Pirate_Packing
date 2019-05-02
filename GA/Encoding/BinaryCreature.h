@@ -169,6 +169,7 @@ public:
 
     void setSharedFitness(int newSharedFitness);
     int getSharedFitness() const;
+    unsigned int getMinDist();
     int hammingDistance(BinaryCreature& b);
     
     static int penaltyWeight;
