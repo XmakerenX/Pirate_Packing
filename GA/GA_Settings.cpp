@@ -18,5 +18,6 @@ GA_Settings::GA_Settings(const GA_Settings& copy)
 	  numberOfGenerations(copy.numberOfGenerations),
 	  populationSize(copy.populationSize),
 	  elitismSizeGroup(copy.elitismSizeGroup),
+	  multiThread(copy.multiThread),
 	  nitchingEnabled(copy.nitchingEnabled)
 {}
