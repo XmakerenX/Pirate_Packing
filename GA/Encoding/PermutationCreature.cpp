@@ -387,5 +387,5 @@ int PermutationCreature::getFitness() const
 //-----------------------------------------------------------------------------------------------
 unsigned int PermutationCreature::getMinDist()
 {
-    return configuration->items.size() * 0.3f;
+    return configuration->items.size() * 0.15f;
 }
