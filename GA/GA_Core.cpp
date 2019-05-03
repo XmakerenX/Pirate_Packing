@@ -65,10 +65,13 @@ std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefi
         fileName += timeAndDate;
     
 	std::ofstream file(fileName);   
+	file << "#Value\n";
 	for (int i = 0; i < generationData.size(); i++)
-	{
 		file << i << " " << generationData[i].overallValue << "\n";
-	}
+        
+	file << "\n#Averge\n";
+	for (int i = 0; i < generationData.size(); i++)
+		file << i << " " << generationData[i].avarageFittness << "\n";
 	
 	file.close();
     
