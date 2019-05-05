@@ -188,6 +188,7 @@ private:
     int sharedFitness;
     std::vector<BoxInfo> boxesPositions;
     DynamicBitSet chromozome;
+    DynamicBitSet activeItemsMask;
     Configuration* configuration;
 };
 

@@ -74,7 +74,7 @@ BinaryCreature::BinaryCreature(Configuration* config, DynamicBitSet&& _chromozom
 // * copies copy.chromozome
 //-----------------------------------------------------------------------------------------------
 BinaryCreature::BinaryCreature(const BinaryCreature& copy)
-    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), configuration(copy.configuration)
+    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), activeItemsMask(copy.activeItemsMask) ,configuration(copy.configuration)
 {
     fitness = copy.fitness;
     sharedFitness = copy.sharedFitness;
@@ -88,7 +88,7 @@ BinaryCreature::BinaryCreature(const BinaryCreature& copy)
 // * moves the move.chromozome
 //-----------------------------------------------------------------------------------------------
 BinaryCreature::BinaryCreature(BinaryCreature&& move)
-    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), configuration(move.configuration)
+    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), activeItemsMask(std::move(move.activeItemsMask)),configuration(move.configuration)
 {
     fitness = move.fitness;
     sharedFitness = move.sharedFitness;
@@ -105,6 +105,7 @@ BinaryCreature& BinaryCreature::operator=(const BinaryCreature& copy)
 {
     boxesPositions = copy.boxesPositions;
     chromozome = copy.chromozome;
+    activeItemsMask = copy.activeItemsMask;
     configuration = copy.configuration;
     fitness = copy.fitness;
     sharedFitness = copy.sharedFitness;
@@ -123,6 +124,7 @@ BinaryCreature& BinaryCreature::operator=(BinaryCreature&& move)
 {
     boxesPositions = std::move(move.boxesPositions);
     chromozome = std::move(move.chromozome);
+    activeItemsMask = std::move(move.activeItemsMask);
     configuration = move.configuration;
     fitness = move.fitness;
     sharedFitness = move.sharedFitness;
@@ -314,7 +316,9 @@ void BinaryCreature::repairChromosome(Random& randomEngine)
             // calcuate how much volume is overlapping between boxes 
             if (box.getWidth() > 0 && box.getHeight() > 0 && box.getDepth() > 0)
             {
-                if (valuesOfItems[i] > valuesOfItems[j])
+                std::uniform_int_distribution<int> whoToKeepDist(1,2);
+                int keep = whoToKeepDist(randomEngine.getGenerator());
+                if (keep == 1)
                 {
                     chromozome[configuration->bitsPerItem * boxId[j] + (3 + 3 * configuration->coordinateBits)] = 0;
                     isItemStillIn[j] = false;
@@ -433,7 +437,7 @@ int BinaryCreature::getSharedFitness() const
 //-----------------------------------------------------------------------------------------------
 unsigned int BinaryCreature::getMinDist()
 {
-    return chromozome.size() * 0.3f;
+    return chromozome.size() * 0.1f;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -612,12 +616,14 @@ int BinaryCreature::calculateFittness()
 	minY = std::numeric_limits<long unsigned int>::max(),
 	minZ = std::numeric_limits<long unsigned int>::max();
 	long unsigned int maxX = 0, maxY = 0, maxZ = 0;
+    activeItemsMask = DynamicBitSet(chromozome.size(), 0);
     DynamicBitSet itemMask = configuration->itemMask;
 	for (int i = 0; i < configuration->items.size(); i++)
 	{
         ItemInfo itemInfo;
         if (getItemInfo(itemMask, i, itemInfo))
 		{
+            activeItemsMask = activeItemsMask | itemMask;
 			nItem++;
 			value += configuration->items[i].value;
 			minX = std::min(minX, itemInfo.x);
@@ -642,11 +648,11 @@ int BinaryCreature::calculateFittness()
 	int overlappedVolume = 0;
 	int cornerBonus = 0;
 	int connectBonus = 0;
-	int touchBonus = 0;
-
+    int distance = 0;
 	for (int i = 0; i < itemBoxes.size(); i++)
 	{
-		//add item volume to the total volume of the packing
+		std::vector<Box> currentVolume;
+		currentVolume.push_back(itemBoxes[i]);
 		totalVolume += (itemBoxes[i].getWidth() * itemBoxes[i].getHeight() * itemBoxes[i].getDepth());
 
 		for (int j = i + 1; j < itemBoxes.size(); j++)
@@ -660,28 +666,66 @@ int BinaryCreature::calculateFittness()
 				overlappedVolume -= (box.getWidth() * box.getHeight() * box.getDepth() * penaltyWeight);
 			}
 
-			//encourage the act of connecting boxes 
-			if (Box::boxConnected(itemBoxes[i], itemBoxes[j]))
-			{
+			if (box.getWidth() == 0)
 				connectBonus += valuesOfItems[i] / 4;
-				//touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
+            
+			if (box.getHeight() == 0)
+				connectBonus += valuesOfItems[i] / 4;
+            
+			if (box.getDepth() == 0)
+				connectBonus += valuesOfItems[i] / 4;
+            
+			int dWidth, dHieght, dLength;
+			if (box.getWidth() < 0 || box.getHeight() < 0 || box.getDepth() < 0)
+			{
+				if (box.getWidth() != 0)
+					dWidth = std::abs(box.getWidth());
+				else
+					dWidth = 1;
+                
+				if (box.getHeight() != 0)
+					dHieght = std::abs(box.getHeight());
+				else
+					dHieght = 1;
+                
+				if (box.getDepth() != 0)
+					dLength = std::abs(box.getDepth());
+				else
+					dLength = 1;
+                
+				int temp = (dWidth*dHieght*dLength);
+				int temp2 = (configuration->dim.w*configuration->dim.h*configuration->dim.d);
+				float temp3 = (float)temp / temp2;
+				int temp4 = temp3 * valuesOfItems[j];
+				distance -= temp4;
 			}
 		}
 		
-		//encourage the act of putting boxes at the corners 
-		if (Box::isBoxAtCorner(configuration, itemBoxes[i]))
-		{
+		if (configuration->dim.w - itemBoxes[i].right == 0)
 			cornerBonus += valuesOfItems[i];
-		}
+        
+		if (itemBoxes[i].left == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (configuration->dim.h - itemBoxes[i].top == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (itemBoxes[i].bottom == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (configuration->dim.d - itemBoxes[i].front == 0)
+			cornerBonus += valuesOfItems[i];
+        
+		if (itemBoxes[i].back == 0)
+			cornerBonus += valuesOfItems[i];
 	}
 
-	//fitness =value* 1.25 + cornerBonus + connectBonus/4 +touchBonus;
-	
-	fitness = value + touchBonus;
-
-	assert(fitness != 0);
+	fitness = value + cornerBonus + connectBonus / 4;
+    
 	return fitness;
 }
+
+
 //-----------------------------------------------------------------------------------------------
 // Name : getBoxPositions
 // Input: this chromozome
@@ -772,8 +816,11 @@ bool BinaryCreature::validateConstraints()
 // This is better than comparing all of their bits, since  two creatures may differentiate mostly by the bits of the items which
 // they dont take into the container, and thus their normal hamming distance be quite large, even though they are the same.
 int BinaryCreature::hammingDistance(BinaryCreature& other)
-{	
-	DynamicBitSet diffBits = chromozome ^ other.chromozome;
+{
+    DynamicBitSet sharedMask = activeItemsMask | other.activeItemsMask;
+    DynamicBitSet diffBits = chromozome ^ other.chromozome;
+    diffBits = diffBits & sharedMask;
+    
 	return diffBits.count();
 }
 
