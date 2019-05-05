@@ -49,7 +49,8 @@ int main(int argc, char** argv)
 		if (resultFile != "")
 		{
 			std::cout << "Result save to " << resultFile << "\n";
-			plotData = plotData + "'" + resultFile + "' with line,";
+			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
+                        "'" + resultFile + "'" + " index 'Averge' with line, ";
 		}
 		else
 			std::cout << "Result has failed to save\n";
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
         
 		Gnuplot gp; 
 		gp << "set terminal png size 1280,960" << std::endl;
+		gp << "set key right bottom" << std::endl;
 		gp << "set output 'Graph/" << timeAndDate << "'" << std::endl;
 		//gp << "set output 'output.png' " << std::endl;
 		gp << "plot " <<  plotData << std::endl;
