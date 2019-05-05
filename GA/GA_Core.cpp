@@ -73,6 +73,20 @@ std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefi
 	for (int i = 0; i < generationData.size(); i++)
 		file << i << " " << generationData[i].avarageFittness << "\n";
 	
+	file << "\n#finalBoxPosition\n";
+        std::vector<BoxInfo>& bestBoxPosition = generationData.back().bestCreatureBoxInfo;
+	for (int i = 0; i < bestBoxPosition.size(); i++)
+	{
+		file << bestBoxPosition[i].startingPoint.x() << " " << 
+		bestBoxPosition[i].startingPoint.y() << " " <<
+		bestBoxPosition[i].startingPoint.z() << " " <<
+		bestBoxPosition[i].boxWidth << " " << 
+		bestBoxPosition[i].boxHeight << " " << 
+		bestBoxPosition[i].boxLength << " " << 
+		bestBoxPosition[i].value << "\n";
+	}
+	
+        
 	file.close();
     
 	fileName = fileName.substr(0, fileName.find_first_of('\0'));
