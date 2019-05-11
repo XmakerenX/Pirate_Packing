@@ -2,7 +2,9 @@
 #include <vector>
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <QVector3D>
+#include "GA/GA_Random.h"
 
 
 
@@ -27,6 +29,19 @@ struct BoxInfo
 	BoxInfo(QPoint3D _startingPoint, RGB _color, int _boxWidth, int _boxHeight, int _boxLength, int _value, int _id)
 		:startingPoint(_startingPoint), color(_color), boxWidth(_boxWidth), boxHeight(_boxHeight), boxLength(_boxLength), value(_value), id(_id)
 	{}
+	
+	BoxInfo(std::ifstream& inputFile)
+        {
+            float x,y,z;
+            inputFile >> x >> y >> z;
+            startingPoint = QPoint3D(x,y,z);
+            inputFile >> boxWidth >> boxHeight >> boxLength;
+            inputFile >> value;
+            std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
+            color = RGB(colorDist(Random::default_engine.getGenerator()),
+                        colorDist(Random::default_engine.getGenerator()),
+                        colorDist(Random::default_engine.getGenerator()));
+        }
 
 	QPoint3D startingPoint;
 	RGB color;
