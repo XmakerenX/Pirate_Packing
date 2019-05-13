@@ -77,7 +77,7 @@ struct Box
 		return false;
 	}
 
-	static int touch(const Box& a, const Box& b)
+	static int touch(const Box& a, const Box& b,int val1,int val2)
 	{
 		APoint box1StartPosition(a.left, a.bottom, a.back );
 		APoint box1EndPosition(a.left + (a.right - a.left), a.bottom + (a.top - a.bottom), a.back + (a.front - a.back));
@@ -102,7 +102,7 @@ struct Box
 
 			}
 		}
-		return touchArea;
+		return (touchArea*(double)val1/4 +touchArea*(double)val2/4);
 
 
 
@@ -174,6 +174,8 @@ public:
     
     static int penaltyWeight;
     static bool applyDBLF;
+	static bool test;
+
 
 private:
     DynamicBitSet generateChromosome(long unsigned int totalBitsNum, Random& randomEngine);

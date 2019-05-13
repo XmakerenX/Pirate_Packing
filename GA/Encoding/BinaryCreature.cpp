@@ -2,6 +2,7 @@
 #include "DBLF_core.h"
 int BinaryCreature::penaltyWeight = 1;
 bool BinaryCreature::applyDBLF = false;
+bool BinaryCreature::test = false;
 
 
 //Binary Creature:
@@ -664,7 +665,7 @@ int BinaryCreature::calculateFittness()
 			if (Box::boxConnected(itemBoxes[i], itemBoxes[j]))
 			{
 				connectBonus += valuesOfItems[i] / 4;
-				//touchBonus += Box::touch(itemBoxes[i], itemBoxes[j]);
+				touchBonus += Box::touch(itemBoxes[i], itemBoxes[j], valuesOfItems[i], valuesOfItems[j]);
 			}
 		}
 		
@@ -674,11 +675,11 @@ int BinaryCreature::calculateFittness()
 			cornerBonus += valuesOfItems[i];
 		}
 	}
-
-	//fitness =value* 1.25 + cornerBonus + connectBonus/4 +touchBonus;
+	//fitness = touchBonus;
+	//fitness =value + cornerBonus + connectBonus/4 +touchBonus;
 	
-	fitness = value + touchBonus;
-
+	//if (test)
+	fitness = 1.25*value + 0.02*touchBonus;
 	assert(fitness != 0);
 	return fitness;
 }

@@ -132,17 +132,7 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
 
 	gen++;
 
-	/*
-	if (gen == 100)
-	{
-		BinaryCreature::applyDBLF = true;
-	}
-	if (gen == 110)
-	{
-		BinaryCreature::applyDBLF = false;
-	}
-	*/
-	return (gen < settings.numberOfGenerations);
+		return (gen < settings.numberOfGenerations);
 }
 //------------------------------------------------------------------------------------------------------------
 template <class Creature>

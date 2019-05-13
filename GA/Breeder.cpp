@@ -39,10 +39,15 @@ void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>
 			parent2Index = roulette(randomEngine.getGenerator());
 		} while (parent2Index == parent1Index);
 
+		std::uniform_int_distribution<int> numberOfMutations(1, 4);
+		int numberOfMutationsForChild1 = numberOfMutations(randomEngine.getGenerator());
+		int numberOfMutationsForChild2 = numberOfMutations(randomEngine.getGenerator());
 		currentPopulation[parent1Index].crossover(currentPopulation[parent2Index], newPopulation, randomEngine);
-		newPopulation[newPopulation.size() - 1].mutate(mutationChance, randomEngine);
+		for(int i = 0;i<numberOfMutationsForChild1;i++)
+			newPopulation[newPopulation.size() - 1].mutate(mutationChance, randomEngine);
 		newPopulation[newPopulation.size() - 1].calculateFittness();
-		newPopulation[newPopulation.size() - 2].mutate(mutationChance, randomEngine);
+		for (int i = 0; i<numberOfMutationsForChild2; i++)
+			newPopulation[newPopulation.size() - 2].mutate(mutationChance, randomEngine);
 		newPopulation[newPopulation.size() - 2].calculateFittness();
 	}
 }
@@ -201,24 +206,27 @@ void Breeder<Creature>::calculateSharedFitness(std::vector<Creature>& currentPop
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation)
 {
-	//parameters:
-	int minDistance = currentPopulation[0].getMinDist();
+	//parameter:
+	int minDistance = currentPopulation[0].getMinDist(); // for binary --> about 30% of the chromozome 
+														 // for hybrid --> about 15% of the chromozome 
+	
+	//at the start of the algorithm, init each of the creatures starvation factors to be 1(as if they are the only creatures of their niches)
 	std::vector<double> starvationFactor(currentPopulation.size(), 1);
-
 	int populationSize = currentPopulation.size();
+	
 	//for each creature in the population
 	for (int i = 0; i < populationSize; i++)
 	{
-		//double starvationFactor = 1;
 		for (int j = i + 1; j < populationSize; j++)
 		{
 			//calculate current distance
 			int distance = currentPopulation[i].hammingDistance(currentPopulation[j]);
+			
 			if (distance < minDistance)
 			{
 				//increase the starvation factor for each creature that is close to the current one
 				starvationFactor[i] += (1 - ((double)distance / minDistance));
-                                starvationFactor[j] += (1 - ((double)distance / minDistance));
+                starvationFactor[j] += (1 - ((double)distance / minDistance));
 			}
 		}
 		double sharedFitness = currentPopulation[i].getFitness() / starvationFactor[i];
@@ -226,6 +234,7 @@ void Breeder<Creature>::calculateSharedFitnessSingleThread(std::vector<Creature>
 	}
 }
 //------------------------------------------------------------------------------------
+
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitnessMultiThread(std::vector<Creature>& currentPopulation)
 {
@@ -245,7 +254,6 @@ template <class Creature>
 void Breeder<Creature>::semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex)
 {
 	int minDistance = currentPopulation[0].getMinDist();
-
 	int populationSize = currentPopulation.size();
 	//for each creature in the population
 	for (int i = startIndex; i < endIndex; i++)
