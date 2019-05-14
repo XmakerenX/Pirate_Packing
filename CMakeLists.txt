@@ -57,6 +57,10 @@ set(VIEWER_SRC
     GUI/viewerOnlyWindow.cpp
     mainViewer.cpp)
 
+set(DBLFDEBUG_SRC
+    GUI/dblfDebugWindow.cpp
+    mainDBLFDebug.cpp)
+    
 add_library(${GA_LIBRARY_NAME} ${GA_SRC})
 add_library(${GUI_LIBRARY_NAME} ${GUI_SRC})
 
@@ -67,15 +71,18 @@ if (WIN32)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
 		add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
+		add_executable(Pirate_Packing_dblf ${DBLFDEBUG_SRC})
 		add_executable(Pirate_Packing_console mainConsole.cpp)
 	else()
 		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
 		add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
+		add_executable(Pirate_Packing_dblf ${DBLFDEBUG_SRC})
 		add_executable(Pirate_Packing_console mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
 	add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
 	add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
+	add_executable(Pirate_Packing_dblf ${DBLFDEBUG_SRC})
 	add_executable(Pirate_Packing_console mainConsole.cpp)
 	target_link_libraries(Pirate_Packing_console Boost::iostreams)
 endif(WIN32)
@@ -85,6 +92,7 @@ target_link_libraries(${GA_LIBRARY_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${GUI_LIBRARY_NAME} ${GA_LIBRARY_NAME})
 target_link_libraries(Pirate_Packing_gui ${GUI_LIBRARY_NAME})
 target_link_libraries(Pirate_Packing_viewer ${GUI_LIBRARY_NAME})
+target_link_libraries(Pirate_Packing_dblf ${GUI_LIBRARY_NAME})
 target_link_libraries(Pirate_Packing_console ${GA_LIBRARY_NAME})
 
 # Copy resources folder to the build folder
