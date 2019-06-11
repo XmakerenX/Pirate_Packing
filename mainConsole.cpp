@@ -21,6 +21,8 @@
 #include <thread>
 #include <chrono>
 #include "GraphUtil/gnuplot-iostream.h"
+#include <fstream>
+
 
 int  processArgs(int argc, char** argv, std::vector<GAThread>& threads);
 void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList);
@@ -29,6 +31,7 @@ void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItem
 
 int main(int argc, char** argv)
 {
+	
 	std::vector<GAThread> threads;
 	int argsProcessedOK = processArgs(argc, argv, threads);
 	if (argsProcessedOK != 0)
@@ -41,13 +44,31 @@ int main(int argc, char** argv)
 	for (GAThread& GA : threads)
 		GA.wait();
     
+
+
+	
+	//tell the user about the current action
 	std::cout << "Saving results in Output folder...\n";
 	std::string plotData = "";
+
+	//open log file:
+	std::ofstream binaryLogFile;
+	std::ofstream hybridLogFile;
+	binaryLogFile.open("log_binary.txt", std::ios_base::app);
+	hybridLogFile.open("log_hybrid.txt", std::ios_base::app);
+
+	binaryLogFile << "Mutation:" << threads[0].getSettings().mutationRate << "\n";
+	hybridLogFile << "Mutation:" << threads[0].getSettings().mutationRate << "\n";
+
 	for (GAThread& GA : threads)
 	{
 		std::string resultFile = GA.saveResults();
 		if (resultFile != "")
 		{
+			std::string method    = GA.getSettings().method == GA_Method::HybridGenetic ? "Hybrid" : "Binary";
+			std::ofstream* logFile = GA.getSettings().method == GA_Method::HybridGenetic ? &hybridLogFile : &binaryLogFile;
+			int finalResult = GA.getGenerationData(GA.getSettings().populationSize - 1).overallValue;
+			*logFile << method << ":" << finalResult << "\n";
 			std::cout << "Result save to " << resultFile << "\n";
 			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
                         "'" + resultFile + "'" + " index 'Averge' with line, ";
@@ -55,6 +76,8 @@ int main(int argc, char** argv)
 		else
 			std::cout << "Result has failed to save\n";
 	}
+	binaryLogFile.close();
+	hybridLogFile.close();
 	if(plotData.empty())
 		return -1;
     
