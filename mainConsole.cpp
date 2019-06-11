@@ -57,18 +57,14 @@ int main(int argc, char** argv)
 	binaryLogFile.open("log_binary.txt", std::ios_base::app);
 	hybridLogFile.open("log_hybrid.txt", std::ios_base::app);
 
-	binaryLogFile << "Mutation:" << threads[0].getSettings().mutationRate << "\n";
-	hybridLogFile << "Mutation:" << threads[0].getSettings().mutationRate << "\n";
-
 	for (GAThread& GA : threads)
 	{
 		std::string resultFile = GA.saveResults();
 		if (resultFile != "")
 		{
-			std::string method    = GA.getSettings().method == GA_Method::HybridGenetic ? "Hybrid" : "Binary";
 			std::ofstream* logFile = GA.getSettings().method == GA_Method::HybridGenetic ? &hybridLogFile : &binaryLogFile;
 			int finalResult = GA.getGenerationData(GA.getSettings().numberOfGenerations - 1).overallValue;
-			*logFile << method << ":" << finalResult << "\n";
+			*logFile <<"Mutation:" << GA.getSettings().mutationRate << " "<< finalResult << "\n";
 			std::cout << "Result save to " << resultFile << "\n";
 			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
                         "'" + resultFile + "'" + " index 'Averge' with line, ";
