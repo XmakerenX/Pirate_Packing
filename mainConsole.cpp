@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 		{
 			std::ofstream* logFile = GA.getSettings().method == GA_Method::HybridGenetic ? &hybridLogFile : &binaryLogFile;
 			int finalResult = GA.getGenerationData(GA.getSettings().numberOfGenerations - 1).overallValue;
-			*logFile <<"Mutation:" << GA.getSettings().mutationRate << " "<< finalResult << "\n";
+			*logFile << QString(argv[1]).toStdString()<<" Mutation:" << GA.getSettings().mutationRate << " "<< finalResult << "\n";
 			std::cout << "Result save to " << resultFile << "\n";
 			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
                         "'" + resultFile + "'" + " index 'Averge' with line, ";
