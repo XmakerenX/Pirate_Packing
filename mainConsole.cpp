@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 		{
 			std::string method    = GA.getSettings().method == GA_Method::HybridGenetic ? "Hybrid" : "Binary";
 			std::ofstream* logFile = GA.getSettings().method == GA_Method::HybridGenetic ? &hybridLogFile : &binaryLogFile;
-			int finalResult = GA.getGenerationData(GA.getSettings().populationSize - 1).overallValue;
+			int finalResult = GA.getGenerationData(GA.getSettings().numberOfGenerations - 1).overallValue;
 			*logFile << method << ":" << finalResult << "\n";
 			std::cout << "Result save to " << resultFile << "\n";
 			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
