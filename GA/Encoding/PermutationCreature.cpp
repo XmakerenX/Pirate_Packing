@@ -77,21 +77,20 @@ void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = 
 
 	if (mutateDist(randomEngine.getGenerator()) == 0)
 	{
-				const float swapPercentage = 0.05; //for now this value *cant* be greater than 0.5, as this will trigger
-												   //an out of boundry exception
-				const int numberOfSwaps = std::max<int>(1, this->chromozome.size() * swapPercentage);
-
-				//init a shuffled vector of all the items indexes 
-				std::vector<int> allItemsIndexes;
-				for (int itemIndex : chromozome) allItemsIndexes.push_back(itemIndex);
-				std::shuffle(allItemsIndexes.begin(), allItemsIndexes.end(), randomEngine.getGenerator());
-
-
-				//start swaping using the shuffled indexes, using neighbors cells as the swap candidates
-				for(int j=0;j<numberOfSwaps;j++)
+                std::uniform_int_distribution<int> swapsDist(1,5);
+                int numberOfSwaps = swapsDist(randomEngine.getGenerator());
+            
+                
+                for(int j=0;j<numberOfSwaps;j++)
                 {
-					int index1 = allItemsIndexes[j * 2];
-					int index2 = allItemsIndexes[j * 2 +1];
+                    std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
+                    int index1, index2;
+                    //get the first index
+                    index1 = IndexeshDist(randomEngine.getGenerator());
+
+                    //get the second unique index
+                    do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
+
                     //switch between the indexes
                     int temp = this->chromozome[index1];
                     this->chromozome[index1] = this->chromozome[index2];
