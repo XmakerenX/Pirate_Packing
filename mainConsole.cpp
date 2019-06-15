@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 		timeAndDate = timeAndDate.substr(0, timeAndDate.find_first_of('\0'));
         
 		Gnuplot gp; 
-		gp << "set terminal png size 1280,960" << std::endl;
+		gp << "set terminal png linewidth 3 size 1280,960" << std::endl;
 		gp << "set key right bottom" << std::endl;
 		gp << "set output 'Graph/" << timeAndDate << "'" << std::endl;
 		//gp << "set output 'output.png' " << std::endl;
