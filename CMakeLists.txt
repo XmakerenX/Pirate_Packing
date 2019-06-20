@@ -9,6 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(GA_LIBRARY_NAME "GALib")
+set(GUI_LIBRARY_NAME "GUILib")
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
@@ -46,31 +47,44 @@ set(GUI_SRC
   GUI/OpenGL/Object.cpp
   GUI/OpenGL/Solutionviewer.cpp
   GUI/ItemTableModel.cpp
-  GUI/mainwindow.cpp
 )
 
+set(MAINGUI_SRC
+    GUI/mainwindow.cpp
+    mainGUI.cpp)
+
+set(VIEWER_SRC
+    GUI/viewerOnlyWindow.cpp
+    mainViewer.cpp)
+
 add_library(${GA_LIBRARY_NAME} ${GA_SRC})
+add_library(${GUI_LIBRARY_NAME} ${GUI_SRC})
 
 # Tell CMake to create the executable
 if (WIN32)
 	#set(qttest_SRC ${qttest_SRC} resources/2D_Lego_Packing_Solver.rc)
 	#set_source_files_properties(favicon.ico 2D_Lego_Packing_Solver.rc2 PROPERTIES LANGUAGE RC)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
-		add_executable(Pirate_Packing_gui ${GUI_SRC} mainGUI.cpp)
+		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
+		add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
 		add_executable(Pirate_Packing_console mainConsole.cpp)
 	else()
-		add_executable(Pirate_Packing_gui ${GUI_SRC} mainGUI.cpp)
+		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
+		add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
 		add_executable(Pirate_Packing_console mainConsole.cpp)
 	endif(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
-	add_executable(Pirate_Packing_gui ${GUI_SRC} mainGUI.cpp)
+	add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
+	add_executable(Pirate_Packing_viewer ${VIEWER_SRC})
 	add_executable(Pirate_Packing_console mainConsole.cpp)
-	target_link_libraries(Pirate_Packing_console Qt5::Widgets Boost::iostreams)
+	target_link_libraries(Pirate_Packing_console Boost::iostreams)
 endif(WIN32)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(${GA_LIBRARY_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(Pirate_Packing_gui ${GA_LIBRARY_NAME})
+target_link_libraries(${GUI_LIBRARY_NAME} ${GA_LIBRARY_NAME})
+target_link_libraries(Pirate_Packing_gui ${GUI_LIBRARY_NAME})
+target_link_libraries(Pirate_Packing_viewer ${GUI_LIBRARY_NAME})
 target_link_libraries(Pirate_Packing_console ${GA_LIBRARY_NAME})
 
 # Copy resources folder to the build folder
