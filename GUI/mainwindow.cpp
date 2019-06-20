@@ -143,7 +143,7 @@ void MainWindow::on_loadDataButton_clicked()
 
 		//set settings menu:
 		pageStack.push(0);
-		moveToSettings();
+        moveToEnterData(false);
 	}
 	catch (InvalidInputException exeption)
 	{
@@ -236,7 +236,10 @@ void MainWindow::parseInput(std::string input)
 		throw InvalidInputException();
 	}
 
-	GA->setConfigurationData(containerDim, std::move(givenItemList));
+	ui->containerWidthTextbox->setText(QString::number(containerDim.w));
+	ui->containerHeightTextbox->setText(QString::number(containerDim.h));
+	ui->containerDepthTextbox->setText(QString::number(containerDim.d));
+	itemTable.setItemsInTable(std::move(givenItemList));
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
