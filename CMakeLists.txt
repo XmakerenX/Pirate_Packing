@@ -63,7 +63,7 @@ add_library(${GUI_LIBRARY_NAME} ${GUI_SRC})
 # Tell CMake to create the executable
 if (WIN32)
 	set(MAINGUI_SRC ${MAINGUI_SRC} resources/pirate_packing.rc)
-	set(MAINGUI_SRC ${VIEWER_SRC} resources/pirate_packing.rc)
+	set(VIEWER_SRC ${VIEWER_SRC} resources/pirate_packing.rc)
 	set_source_files_properties(favicon.ico pirate_packing.rc2 PROPERTIES LANGUAGE RC)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
