@@ -466,7 +466,7 @@ void MainWindow::moveToViewer()
 
 	viewer->clearAllBoxes();
 	ui->stackedWidget->setCurrentIndex(1);
-	this->setFixedSizeAndMoveToCenter(1000, 900);
+	this->setFixedSizeAndMoveToCenter(1030, 900);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::moveToPreviousPage()
