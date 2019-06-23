@@ -100,6 +100,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 		if (ui->tableView->hasFocus())
 		{
 			itemTable.addNewRow();
+			ui->tableView->scrollToBottom();
 			return;
 		}
 	}
