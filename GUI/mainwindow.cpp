@@ -100,6 +100,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 		if (ui->tableView->hasFocus())
 		{
 			itemTable.addNewRow();
+			ui->tableView->scrollToBottom();
 			return;
 		}
 	}
@@ -544,6 +545,28 @@ void MainWindow::on_enterDataBackButton_clicked()
 	std::cout << "Enter Data back button clicked\n";
 	moveToPreviousPage();
 }
+//------------------------------------------------------------------------------------
+void MainWindow::on_addRow_clicked()
+{
+	itemTable.addNewRow();
+	ui->tableView->scrollToBottom();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_removeRow_clicked()
+{
+	QItemSelectionModel* select;
+	select = ui->tableView->selectionModel();
+	QModelIndexList selectedRows = select->selectedRows();
+	int minR = std::numeric_limits<int>::max();
+	int maxR = 0;
+	for (auto& modelIndex : selectedRows)
+	{
+		minR = std::min(minR, modelIndex.row());
+		maxR = std::max(maxR, modelIndex.row());
+	}
+	itemTable.removeRows(minR, maxR - minR + 1);
+}
+
 //------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_HybridGenetics_clicked()
 {
