@@ -38,7 +38,9 @@ public slots:
 	void on_resultsResetButton_clicked();
 
 	void on_enterDataConfirmButton_clicked();
-	void on_enterDataBackButton_clicked();        
+	void on_enterDataBackButton_clicked();      
+	void on_addRow_clicked();
+	void on_removeRow_clicked();
         
 	void on_radioButton_HybridGenetics_clicked();
 	void on_radioButton_pureGenetics_clicked();
