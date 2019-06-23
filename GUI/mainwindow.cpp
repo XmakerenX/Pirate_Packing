@@ -254,10 +254,7 @@ void MainWindow::on_enterDataButton_clicked()
 void MainWindow::on_wumpusButton_clicked()
 {
 	std::cout << "Wumpus button clicked\n";
-	GA->resetConfiguration();
-	pageStack.push(0);
-	//pageStack.push(3);  // uncomment me to be able to edit the generated items
-	moveToSettings();
+	close();
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
