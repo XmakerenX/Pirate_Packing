@@ -573,7 +573,7 @@ background-color: rgb(72,101,130)</string>
        </font>
       </property>
       <property name="text">
-       <string>Reset</string>
+       <string>Load Data</string>
       </property>
      </widget>
      <widget class="QProgressBar" name="progressBar">

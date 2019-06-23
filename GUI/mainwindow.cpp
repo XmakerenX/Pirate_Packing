@@ -139,7 +139,12 @@ void MainWindow::on_loadDataButton_clicked()
 	try
 	{
 		validateInput(input_numbersOnly);
-		parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+		Configuration loadedConfig =  parseInput(input_numbersOnly);
+
+		ui->containerWidthTextbox->setText(QString::number(loadedConfig.dim.w));
+		ui->containerHeightTextbox->setText(QString::number(loadedConfig.dim.h));
+		ui->containerDepthTextbox->setText(QString::number(loadedConfig.dim.d));
+		itemTable.setItemsInTable(std::move(loadedConfig.items));
 
 		//set settings menu:
 		pageStack.push(0);
@@ -197,7 +202,7 @@ void MainWindow::validateInput(std::string inputString)
 	}
 }
 //-----------------------------------------------------------------------------------
-void MainWindow::parseInput(std::string input)
+Configuration MainWindow::parseInput(std::string input)
 {
 	std::vector<Item> givenItemList;
 	try
@@ -236,10 +241,7 @@ void MainWindow::parseInput(std::string input)
 		throw InvalidInputException();
 	}
 
-	ui->containerWidthTextbox->setText(QString::number(containerDim.w));
-	ui->containerHeightTextbox->setText(QString::number(containerDim.h));
-	ui->containerDepthTextbox->setText(QString::number(containerDim.d));
-	itemTable.setItemsInTable(std::move(givenItemList));
+	return Configuration(containerDim, givenItemList);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
@@ -372,7 +374,7 @@ void MainWindow::on_resultsBackButton_clicked()
 	ui->generationComboBox->setEnabled(false);
 	ui->generationComboBox->clear();
 	ui->startButton->setText("Start");
-	ui->resultsResetButton->setEnabled(false);
+	ui->resultsResetButton->setEnabled(true);
 	ui->generationComboBox->setEnabled(false);
 	if (GA->isRunning())
 	{
@@ -385,17 +387,31 @@ void MainWindow::on_resultsBackButton_clicked()
 //------------------------------------------------------------------------------------
 void MainWindow::on_resultsResetButton_clicked()
 {
-	GA->resetConfiguration();
-	ui->progressBar->setValue(0);
-	ui->AvaregeFittness->setText("");
-	ui->BestGenerationalFIttnessTextBox->setText("");
-	ui->VolumeFilledTextBox->setText("");
-	ui->ValuePercentageTextBox->setText("");
-	ui->bestFittnessOverallTextBox->setText("");
-	ui->generationComboBox->setEnabled(false);
-	ui->generationComboBox->clear();
-	viewer->clearAllBoxes();
-	on_startButton_clicked();
+	//get input:
+	std::string input = readFileFromUser();
+	if (input == "") return;
+	std::regex rexp("[^\\d | \\. | \\b | \\n]");//regex to keep only numbers
+	std::string input_numbersOnly = std::regex_replace(input, rexp, "");
+
+	//validate
+	try
+	{
+		validateInput(input_numbersOnly);
+		Configuration loadedConfig = parseInput(input_numbersOnly);
+
+		viewer->setContainerDimensions(loadedConfig.dim);
+		GA->setConfigurationData(loadedConfig.dim, std::move(loadedConfig.items));
+	}
+	catch (InvalidInputException exeption)
+	{
+		std::cout << exeption.what();//report exception
+		QMessageBox messageBox;//create a new messege box
+		messageBox.critical(0, "Error", exeption.what());
+		messageBox.setFixedSize(500, 200);
+
+		messageBox.show();
+		return;
+	}
 }
 //------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
