@@ -100,6 +100,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 		if (ui->tableView->hasFocus())
 		{
 			itemTable.addNewRow();
+			ui->tableView->scrollToBottom();
 			return;
 		}
 	}
@@ -143,7 +144,7 @@ void MainWindow::on_loadDataButton_clicked()
 
 		//set settings menu:
 		pageStack.push(0);
-		moveToSettings();
+        moveToEnterData(false);
 	}
 	catch (InvalidInputException exeption)
 	{
@@ -236,7 +237,10 @@ void MainWindow::parseInput(std::string input)
 		throw InvalidInputException();
 	}
 
-	GA->setConfigurationData(containerDim, std::move(givenItemList));
+	ui->containerWidthTextbox->setText(QString::number(containerDim.w));
+	ui->containerHeightTextbox->setText(QString::number(containerDim.h));
+	ui->containerDepthTextbox->setText(QString::number(containerDim.d));
+	itemTable.setItemsInTable(std::move(givenItemList));
 }
 //------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
@@ -463,7 +467,7 @@ void MainWindow::moveToViewer()
 
 	viewer->clearAllBoxes();
 	ui->stackedWidget->setCurrentIndex(1);
-	this->setFixedSizeAndMoveToCenter(1000, 900);
+	this->setFixedSizeAndMoveToCenter(1030, 900);
 }
 //------------------------------------------------------------------------------------
 void MainWindow::moveToPreviousPage()
@@ -528,6 +532,28 @@ void MainWindow::on_enterDataBackButton_clicked()
 	std::cout << "Enter Data back button clicked\n";
 	moveToPreviousPage();
 }
+//------------------------------------------------------------------------------------
+void MainWindow::on_addRow_clicked()
+{
+	itemTable.addNewRow();
+	ui->tableView->scrollToBottom();
+}
+//------------------------------------------------------------------------------------
+void MainWindow::on_removeRow_clicked()
+{
+	QItemSelectionModel* select;
+	select = ui->tableView->selectionModel();
+	QModelIndexList selectedRows = select->selectedRows();
+	int minR = std::numeric_limits<int>::max();
+	int maxR = 0;
+	for (auto& modelIndex : selectedRows)
+	{
+		minR = std::min(minR, modelIndex.row());
+		maxR = std::max(maxR, modelIndex.row());
+	}
+	itemTable.removeRows(minR, maxR - minR + 1);
+}
+
 //------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_HybridGenetics_clicked()
 {

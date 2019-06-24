@@ -38,7 +38,7 @@ struct BoxInfo
             inputFile >> boxWidth >> boxHeight >> boxLength;
             inputFile >> value;
             std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
-            color = RGB(colorDist(Random::default_engine.getGenerator()),
+            color = QVector3D(colorDist(Random::default_engine.getGenerator()),
                         colorDist(Random::default_engine.getGenerator()),
                         colorDist(Random::default_engine.getGenerator()));
         }

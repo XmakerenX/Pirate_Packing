@@ -66,8 +66,9 @@ add_library(${GUI_LIBRARY_NAME} ${GUI_SRC})
 
 # Tell CMake to create the executable
 if (WIN32)
-	#set(qttest_SRC ${qttest_SRC} resources/2D_Lego_Packing_Solver.rc)
-	#set_source_files_properties(favicon.ico 2D_Lego_Packing_Solver.rc2 PROPERTIES LANGUAGE RC)
+	set(MAINGUI_SRC ${MAINGUI_SRC} resources/pirate_packing.rc)
+	set(VIEWER_SRC ${VIEWER_SRC} resources/pirate_packing.rc)
+	set_source_files_properties(favicon.ico pirate_packing.rc2 PROPERTIES LANGUAGE RC)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		add_executable(Pirate_Packing_gui ${MAINGUI_SRC})
 		add_executable(Pirate_Packing_viewer ${VIEWER_SRC})

@@ -77,25 +77,27 @@ void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = 
 
 	if (mutateDist(randomEngine.getGenerator()) == 0)
 	{
-                std::uniform_int_distribution<int> swapsDist(1,5);
-                int numberOfSwaps = swapsDist(randomEngine.getGenerator());
-            
-                
-                for(int j=0;j<numberOfSwaps;j++)
-                {
-                    std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
-                    int index1, index2;
-                    //get the first index
-                    index1 = IndexeshDist(randomEngine.getGenerator());
+		//get number of swaps
+		int minSwaps = std::max<int>(1, this->chromozome.size() *0.01);
+		int maxSwaps = std::max<int>(1, this->chromozome.size() *0.08);
+		std::uniform_int_distribution<int> swapsDist(minSwaps, maxSwaps);
+		int numberOfSwaps = swapsDist(randomEngine.getGenerator());
 
-                    //get the second unique index
-                    do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
+		for (int j = 0; j<numberOfSwaps; j++)
+		{
+			std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
+			int index1, index2;
+			//get the first index
+			index1 = IndexeshDist(randomEngine.getGenerator());
 
-                    //switch between the indexes
-                    int temp = this->chromozome[index1];
-                    this->chromozome[index1] = this->chromozome[index2];
-                    this->chromozome[index2] = temp;
-                }
+			//get the second unique index
+			do { index2 = IndexeshDist(randomEngine.getGenerator()); } while (index1 == index2);
+
+			//switch between the indexes
+			int temp = this->chromozome[index1];
+			this->chromozome[index1] = this->chromozome[index2];
+			this->chromozome[index2] = temp;
+		}
 	}
 
 }

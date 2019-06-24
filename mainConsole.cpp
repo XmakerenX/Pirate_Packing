@@ -21,6 +21,8 @@
 #include <thread>
 #include <chrono>
 #include "GraphUtil/gnuplot-iostream.h"
+#include <fstream>
+
 
 int  processArgs(int argc, char** argv, std::vector<GAThread>& threads);
 void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList);
@@ -29,6 +31,7 @@ void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItem
 
 int main(int argc, char** argv)
 {
+	
 	std::vector<GAThread> threads;
 	int argsProcessedOK = processArgs(argc, argv, threads);
 	if (argsProcessedOK != 0)
@@ -41,13 +44,27 @@ int main(int argc, char** argv)
 	for (GAThread& GA : threads)
 		GA.wait();
     
+
+
+	
+	//tell the user about the current action
 	std::cout << "Saving results in Output folder...\n";
 	std::string plotData = "";
+
+	//open log file:
+	std::ofstream binaryLogFile;
+	std::ofstream hybridLogFile;
+	binaryLogFile.open("log_binary.txt", std::ios_base::app);
+	hybridLogFile.open("log_hybrid.txt", std::ios_base::app);
+
 	for (GAThread& GA : threads)
 	{
 		std::string resultFile = GA.saveResults();
 		if (resultFile != "")
 		{
+			std::ofstream* logFile = GA.getSettings().method == GA_Method::HybridGenetic ? &hybridLogFile : &binaryLogFile;
+			int finalResult = GA.getGenerationData(GA.getSettings().numberOfGenerations - 1).overallValue;
+			*logFile << QString(argv[1]).toStdString()<<" Mutation:" << GA.getSettings().mutationRate << " "<< finalResult << "\n";
 			std::cout << "Result save to " << resultFile << "\n";
 			plotData = plotData + "'" + resultFile + "' index 'Value' with line," +
                         "'" + resultFile + "'" + " index 'Averge' with line, ";
@@ -55,6 +72,8 @@ int main(int argc, char** argv)
 		else
 			std::cout << "Result has failed to save\n";
 	}
+	binaryLogFile.close();
+	hybridLogFile.close();
 	if(plotData.empty())
 		return -1;
     
@@ -71,7 +90,7 @@ int main(int argc, char** argv)
 		timeAndDate = timeAndDate.substr(0, timeAndDate.find_first_of('\0'));
         
 		Gnuplot gp; 
-		gp << "set terminal png size 1280,960" << std::endl;
+		gp << "set terminal png linewidth 3 size 1280,960" << std::endl;
 		gp << "set key right bottom" << std::endl;
 		gp << "set output 'Graph/" << timeAndDate << "'" << std::endl;
 		//gp << "set output 'output.png' " << std::endl;
