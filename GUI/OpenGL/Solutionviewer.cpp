@@ -1,7 +1,9 @@
 #include "Solutionviewer.h"
 
 //-----------------------------------------------------------------------------
-// Name : SolutionViewer (constructor)
+// Name   : SolutionViewer (constructor)
+// input  : parent - the parent widget of this widget
+// action : construct a new SolutionViewer
 //-----------------------------------------------------------------------------
 SolutionViewer::SolutionViewer(QWidget *parent)
     :containerDim(10, 10, 10)
@@ -17,6 +19,10 @@ SolutionViewer::SolutionViewer(QWidget *parent)
     setContainerDimensions(containerDim);
 }
 
+//-----------------------------------------------------------------------------
+// Name   : SolutionViewer (Destructor)
+// Action : destroys the SolutionViewer and frees the memory it allocated
+//-----------------------------------------------------------------------------
 SolutionViewer::~SolutionViewer()
 {
     // make sure that our opengl context is set
@@ -37,7 +43,8 @@ SolutionViewer::~SolutionViewer()
 }
 
 //-----------------------------------------------------------------------------
-// Name : mousePressEvent
+// Name  : mousePressEvent
+// Action: saves the position of the last mouse press
 //-----------------------------------------------------------------------------
 void SolutionViewer::mousePressEvent(QMouseEvent* event) 
 {
@@ -46,7 +53,8 @@ void SolutionViewer::mousePressEvent(QMouseEvent* event)
 }
 
 //-----------------------------------------------------------------------------
-// Name : mouseMoveEvent
+// Name   : mouseMoveEvent
+// Action : calcualtes by how much the mouse move and rotates the camera
 //-----------------------------------------------------------------------------
 void SolutionViewer::mouseMoveEvent(QMouseEvent * event) 
 {

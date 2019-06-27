@@ -2,9 +2,12 @@
 #include <algorithm>    //for std::max
 #include <string>
 
-//input:  Configuration
-//output: A new random encoding
-//action: Creates a random encoding based on the configuration
+//--------------------------------------------------------------------------------------------------
+// Name:   PermutationCreature(constructor)
+// Input : Configuration, randomEngine
+// Output: A new random encoding
+// Action: Creates a random encoding based on the configuration
+//--------------------------------------------------------------------------------------------------
 PermutationCreature::PermutationCreature(Configuration* conf, Random& randomEngine/* = Random::default_engine*/)
 	:configuration(conf)
 {
@@ -14,10 +17,13 @@ PermutationCreature::PermutationCreature(Configuration* conf, Random& randomEngi
 	std::random_shuffle(chromozome.begin(), chromozome.end());
 	calculateFittness();
 }
-//------------------------------------------------------------------
-//input:  Configuration,  chromozome vector
-//output: A new encoding based on the given chromozome
-//action: Creates a random encoding based on the configuration
+
+//--------------------------------------------------------------------------------------------------
+// Name:   PermutationCreature(constructor)
+// Input:  Configuration,  chromozome vector
+// Output: A new encoding based on the given chromozome
+// Action: Creates a random encoding based on the configuration
+//--------------------------------------------------------------------------------------------------
 PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	:configuration(conf)
 {
@@ -25,51 +31,81 @@ PermutationCreature::PermutationCreature(Configuration* conf, Chromozome chrom)
 	for (int i = 0; i < conf->numberOfItems; i++) { this->chromozome.push_back(chrom[i]); }
 }
 
+//--------------------------------------------------------------------------------------------------
+// Name:   PermutationCreature(copy constructor)
+// Input:  PermutationCreature to be copied
+// Output: A copy encoding of the given PermutationCreature
+// Action: copy constructor for PermutationCreature
+//--------------------------------------------------------------------------------------------------
 PermutationCreature::PermutationCreature(const PermutationCreature& copy)
-    :boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), activeItems(copy.activeItems), configuration(copy.configuration)
+	:boxesPositions(copy.boxesPositions), chromozome(copy.chromozome), activeItems(copy.activeItems), configuration(copy.configuration)
 {
-    booleanGraphsSpaces = nullptr;
-    fitness = copy.fitness;
-    sharedFitness = copy.sharedFitness;
+	booleanGraphsSpaces = nullptr;
+	fitness = copy.fitness;
+	sharedFitness = copy.sharedFitness;
 }
 
+//--------------------------------------------------------------------------------------------------
+// Name:   PermutationCreature(move constructor)
+// Input:  PermutationCreature to be moved
+// Output: A moved encoding of the given PermutationCreature
+// Action: move constructor for PermutationCreature
+//--------------------------------------------------------------------------------------------------
 PermutationCreature::PermutationCreature(PermutationCreature&& move)
-    :boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), activeItems(std::move(move.activeItems)), configuration(move.configuration)
+	:boxesPositions(std::move(move.boxesPositions)), chromozome(std::move(move.chromozome)), activeItems(std::move(move.activeItems)), configuration(move.configuration)
 {
-    booleanGraphsSpaces = nullptr;
-    fitness = move.fitness;
-    sharedFitness = move.sharedFitness;
+	booleanGraphsSpaces = nullptr;
+	fitness = move.fitness;
+	sharedFitness = move.sharedFitness;
 }
 
+//--------------------------------------------------------------------------------------------------
+// Name:   operator= (copy)
+// Input:  PermutationCreature to be copied
+// Output: A copy encoding of the given PermutationCreature
+// Action: copy assignment operator for PermutationCreature
+//--------------------------------------------------------------------------------------------------
 PermutationCreature& PermutationCreature::operator=(const PermutationCreature& copy)
 {
-    booleanGraphsSpaces = nullptr;
-    chromozome = copy.chromozome;
-    configuration = copy.configuration;
+	booleanGraphsSpaces = nullptr;
+	chromozome = copy.chromozome;
+	configuration = copy.configuration;
     
-    fitness = copy.fitness;
-    sharedFitness = copy.sharedFitness;
-    boxesPositions = copy.boxesPositions;
-    activeItems = copy.activeItems;
+	fitness = copy.fitness;
+	sharedFitness = copy.sharedFitness;
+	boxesPositions = copy.boxesPositions;
+	activeItems = copy.activeItems;
         
-    return *this;
+	return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+// Name:   operator= (move)
+// Input:  PermutationCreature to be moved
+// Output: A moved encoding of the given PermutationCreature
+// Action: move assignment operator for PermutationCreature
+//--------------------------------------------------------------------------------------------------
 PermutationCreature& PermutationCreature::operator=(PermutationCreature&& move)
 {
-    booleanGraphsSpaces = nullptr;
-    chromozome = std::move(move.chromozome);
-    configuration = move.configuration;
+	booleanGraphsSpaces = nullptr;
+	chromozome = std::move(move.chromozome);
+	configuration = move.configuration;
     
-    fitness = move.fitness;
-    sharedFitness = move.sharedFitness;
-    boxesPositions = std::move(move.boxesPositions);
-    activeItems = std::move(move.activeItems);
+	fitness = move.fitness;
+	sharedFitness = move.sharedFitness;
+	boxesPositions = std::move(move.boxesPositions);
+	activeItems = std::move(move.activeItems);
     
-    return *this;
+	return *this;
 }
 
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Name:   mutate
+// Input:  mutationChance - the percent chance for mutation to occur
+//         randomEngine   - the random number generator to use for random numbers
+// Output: none
+// Action: based on mutationChance mutate the chromozome of PermutationCreature
+//--------------------------------------------------------------------------------------------------
 void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = Random::default_engine*/)
 {
 	std::vector<float> mutateVec = { mutationChance, 1 - mutationChance };
@@ -77,13 +113,14 @@ void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = 
 
 	if (mutateDist(randomEngine.getGenerator()) == 0)
 	{
-		//get number of swaps
+		// randomly choose number of swaps which is between 1%-8% of chromozome size
 		int minSwaps = std::max<int>(1, this->chromozome.size() *0.01);
 		int maxSwaps = std::max<int>(1, this->chromozome.size() *0.08);
 		std::uniform_int_distribution<int> swapsDist(minSwaps, maxSwaps);
 		int numberOfSwaps = swapsDist(randomEngine.getGenerator());
 
-		for (int j = 0; j<numberOfSwaps; j++)
+                // swap indexes around based on numberOfSwaps
+		for (int j = 0; j < numberOfSwaps; j++)
 		{
 			std::uniform_int_distribution<int> IndexeshDist(0, this->configuration->numberOfItems - 1);
 			int index1, index2;
@@ -101,7 +138,14 @@ void PermutationCreature::mutate(float mutationChance, Random& randomEngine/* = 
 	}
 
 }
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Name:   crossover
+// Input:  parent2 - the encoding with which to crossover
+//         population  - the vector of population to which to add the newly created children
+//         randomEngine   - the random number generator to use for random numbers
+// Output: none
+// Action: create 2 new children from this encding and parent2 encoding using PMX crossover and adds them to population
+//--------------------------------------------------------------------------------------------------
 void PermutationCreature::crossover(const PermutationCreature& parent2, std::vector<PermutationCreature>& population, Random& randomEngine/* = Random::default_engine*/) const
 {
 	//genereate crossing points
@@ -121,7 +165,14 @@ void PermutationCreature::crossover(const PermutationCreature& parent2, std::vec
 	population.emplace_back(this->configuration, child1Chromozome);
 	population.emplace_back(this->configuration, child2Chromozome);
 }
-//------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Name:   initializeCrossOverPoints
+// Input:  none
+// Output: startPos - the starting index for the PMX crossover
+//         endPos  -  the ending index for the PMX corssover
+//         randomEngine   - the random number generator to use for random numbers
+// Action: randomly choose what indexes to use for the PMX corssover
+//--------------------------------------------------------------------------------------------------
 void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos, Random& randomEngine) const
 {
 	std::uniform_int_distribution<int> cromozomesIndexes(0, this->configuration->numberOfItems - 1);
@@ -140,10 +191,19 @@ void PermutationCreature::initializeCrossOverPoints(int& startPos, int& endPos, 
 	endPos = std::max(PMX_StartIndex, PMX_EndIndex);
 }
 //--------------------------------------------------------------------------------------------------
+// Name:   createTwoChildren
+// Input:  min - 
+//         max - 
+//         parent1_chromozome - the first parent chromozome to use for crossover
+//         parent2_chromozome - the second parent chromozome to use for crossover
+// Output: child1 - the chromozome for the first child
+//         child2 - the chromozome for the Second child
+//         randomEngine   - the random number generator to use for random numbers
+// Action: randomly choose what indexes to use for the PMX corssover
+//--------------------------------------------------------------------------------------------------
 void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& child2, int min, int max,
-	Chromozome parent1_chromozome, Chromozome parent2_chromozome) const
+	const Chromozome& parent1_chromozome, const Chromozome& parent2_chromozome) const
 {
-
 	std::unordered_map<int, int> child1Hash, child2Hash;
 
 	for (int i = min; i < max; i++)
@@ -186,19 +246,14 @@ void PermutationCreature::createTwoChildren(Chromozome& child1, Chromozome& chil
 			child2.push_back(swapRepetition(child2Hash, parent2_chromozome[i]));
 	}
 }
-//Name: setSharedFitness
-//-----------------------------------------------------------------------------------------------
-void PermutationCreature::setSharedFitness(int newSharedFitness)
-{
-	sharedFitness = newSharedFitness;
-}
-//-----------------------------------------------------------------------------------------------
-// Name : getSharedFitness
-int PermutationCreature::getSharedFitness() const
-{
-	return sharedFitness;
-}
-//---------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name : swapRepetition
+// Input:  hash - tells to what value to swap the given value
+//         valueToSwap - the value needed to be swapped 
+// Output: the value to swap valueToSwap
+// Action: returns to what value to swap the given value(valueToSwap)
+//--------------------------------------------------------------------------------------------------
 int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int valueToSwap) const
 {
 	int newValue = hash[valueToSwap];
@@ -209,8 +264,30 @@ int PermutationCreature::swapRepetition(std::unordered_map<int, int>& hash, int 
 
 	return newValue;
 }
-//---------------------------------------------
-//calculate the number of cells that are different between two permutation creatures chromozomes
+
+//--------------------------------------------------------------------------------------------------
+//Name: setSharedFitness
+//--------------------------------------------------------------------------------------------------
+void PermutationCreature::setSharedFitness(int newSharedFitness)
+{
+	sharedFitness = newSharedFitness;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Name : getSharedFitness
+//--------------------------------------------------------------------------------------------------
+int PermutationCreature::getSharedFitness() const
+{
+	return sharedFitness;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Name :  hammingDistance
+// Input:  other - the PermutationCreature to check the hammingDistance to
+//         valueToSwap - the value needed to be swapped 
+// Output: how many different active indexes are between this chromozome and other's chromozome
+// Action: return how many different active indexes are between this chromozome and other's chromozome
+//--------------------------------------------------------------------------------------------------
 int PermutationCreature::hammingDistance(PermutationCreature& other)
 {
 	int hammingDist = 0;
@@ -226,7 +303,13 @@ int PermutationCreature::hammingDistance(PermutationCreature& other)
 	
 	return hammingDist;
 }
-//---------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name :  calculateFittness
+// Input:  this chromozome
+// Output: the fitness of this creature
+// Action: calculates this creature fitness using DBLF heuristics
+//--------------------------------------------------------------------------------------------------
 int PermutationCreature::calculateFittness()
 {
 	fitness = 0;
@@ -289,6 +372,13 @@ int PermutationCreature::calculateFittness()
 
 	return fitness;
 }
+
+//--------------------------------------------------------------------------------------------------
+// Name :  bottomLeftFill
+// Input:  item - 
+// Output: BoxInfo - 
+// Action: 
+//--------------------------------------------------------------------------------------------------
 BoxInfo PermutationCreature::bottomLeftFill(Item item)
 {
 	BoxInfo placedPosition(QPoint3D(0, 0, 0), RGB(item.color.r / 256.0f, item.color.g / 256.0f, item.color.b / 256.0f),
@@ -319,7 +409,16 @@ BoxInfo PermutationCreature::bottomLeftFill(Item item)
 
 	throw CantFitException();
 }
-//--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name :  isIndexFit
+// Input:  x -
+//         y -
+//         z - 
+//         item - 
+// Output:  
+// Action: 
+//--------------------------------------------------------------------------------------------------
 bool PermutationCreature::isIndexFit(int x, int y, int z, Item item)
 {
 	Dimensions ItemDim = item.dim;
@@ -354,6 +453,10 @@ bool PermutationCreature::isIndexFit(int x, int y, int z, Item item)
 	}
 	return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+// Name : getBoxPositions
+//--------------------------------------------------------------------------------------------------
 std::vector<BoxInfo> PermutationCreature::getBoxPositions()
 {
 	return this->boxesPositions;
@@ -367,7 +470,6 @@ Configuration* PermutationCreature::getConfiguration() const
 
 //-----------------------------------------------------------------------------------------------
 // Name : setFitness
-// sets the value of the fitness
 //-----------------------------------------------------------------------------------------------
 void PermutationCreature::setFitness(int newFitness)
 {
@@ -376,7 +478,6 @@ void PermutationCreature::setFitness(int newFitness)
 
 //-----------------------------------------------------------------------------------------------
 // Name : getFitness
-// Action: return the fitness of this encdoing
 //-----------------------------------------------------------------------------------------------
 int PermutationCreature::getFitness() const
 {

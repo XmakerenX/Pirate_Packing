@@ -15,45 +15,45 @@ typedef boost::dynamic_bitset<> DynamicBitSet;
 
 struct ItemInfo
 {
-    long unsigned int x;
-    long unsigned int y;
-    long unsigned int z;
-    long unsigned int width;
-    long unsigned int height;
-    long unsigned int depth;
-    int orientaion;
+	long unsigned int x;
+	long unsigned int y;
+	long unsigned int z;
+	long unsigned int width;
+	long unsigned int height;
+	long unsigned int depth;
+	int orientaion;
 };
 
 struct Box
 {
-    Box(int _left, int _bottom, int _back, int _right, int _top, int _front)
-        :left(_left), bottom(_bottom), back(_back), right(_right), top(_top), front(_front)
-    {}
+	Box(int _left, int _bottom, int _back, int _right, int _top, int _front)
+		:left(_left), bottom(_bottom), back(_back), right(_right), top(_top), front(_front)
+	{}
 	Box(int _left, int _right, int _bottom, int _top ,int _back, int _front,bool s)
 		:left(_left), bottom(_bottom), back(_back), right(_right), top(_top), front(_front)
 	{}
 
-
-    long int getWidth() const
-    {
-        return right - left;
-    }
+	long int getWidth() const
+	{
+		return right - left;
+	}
     
-    long int getHeight() const 
-    {
-        return top - bottom;
-    }
+	long int getHeight() const 
+	{
+		return top - bottom;
+	}
     
-    long int getDepth() const
-    {
-        return front - back;
-    }
+	long int getDepth() const
+	{
+		return front - back;
+	}
     
-    static Box intersect(const Box& a, const Box& b)
-    {
-        return Box(std::max(a.left, b.left), std::max(a.bottom, b.bottom), std::max(a.back, b.back),
-                   std::min(a.right, b.right), std::min(a.top, b.top), std::min(a.front, b.front));
-    }
+	static Box intersect(const Box& a, const Box& b)
+	{
+		return Box(std::max(a.left, b.left), std::max(a.bottom, b.bottom), std::max(a.back, b.back),
+			   std::min(a.right, b.right), std::min(a.top, b.top), std::min(a.front, b.front));
+	}
+	
 	static bool boxConnected(const Box& a, const Box& b)
 	{
 		Box box = Box::intersect(a, b);
@@ -103,93 +103,60 @@ struct Box
 			}
 		}
 		return touchArea;
-
-
-
-		/*
-		int touchX,touchY, touchZ;
-		touchX =  touchY =  touchZ = 1;
-
-
-		//get shared area in terms of X value
-		if (! (box2StartPosition.x > box1EndPosition.x) )
-		{
-			int startX =  std::max(box1StartPosition.x, box2StartPosition.x);
-			int endX   =  std::min(box1EndPosition.x, box2EndPosition.x);
-			touchX = std::max(1,std::abs(endX - startX));
-		}
-		//get shared area in terms of Y value
-		if (!(box2StartPosition.y > box1EndPosition.y))
-		{
-			int startY = std::max(box1StartPosition.y, box2StartPosition.y);
-			int endY = std::min(box1EndPosition.y, box2EndPosition.y);
-			touchY = std::max(1, std::abs(endY - startY));
-		}
-		//get shared area in terms of Z value
-		if (!(box2StartPosition.z > box1EndPosition.z))
-		{
-			int startZ = std::max(box1StartPosition.z, box2StartPosition.z);
-			int endZ = std::min(box1EndPosition.z, box2EndPosition.z);
-			touchZ = std::max(1, std::abs(endZ - startZ));
-		}
-
-		return touchX*touchY*touchZ;*/
-
 	}
 	
-    long  int left;
-    long  int bottom;
-    long  int back;
-    long  int right;
-    long  int top;
-    long  int front;
+	long  int left;
+	long  int bottom;
+	long  int back;
+	long  int right;
+	long  int top;
+	long  int front;
 };
 
 class BinaryCreature 
 {
 public:
-    BinaryCreature(Configuration* config, Random& randomEngine = Random::default_engine);
-    BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome);
-    BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
-    BinaryCreature(const BinaryCreature& copy);
-    BinaryCreature(BinaryCreature&& move);
+	BinaryCreature(Configuration* config, Random& randomEngine = Random::default_engine);
+	BinaryCreature(Configuration* config, const DynamicBitSet& _chromozome);
+	BinaryCreature(Configuration* config, DynamicBitSet&& _chromozome);
+	BinaryCreature(const BinaryCreature& copy);
+	BinaryCreature(BinaryCreature&& move);
     
-    BinaryCreature& operator=(const BinaryCreature& copy);
-    BinaryCreature& operator=(BinaryCreature&& move);
+	BinaryCreature& operator=(const BinaryCreature& copy);
+	BinaryCreature& operator=(BinaryCreature&& move);
     
-    void resetChromosome();
-    void mutate(float mutationChance, Random& randomEngine = Random::default_engine);
-    void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine = Random::default_engine) const;
-    int calculateFittness();
-    std::vector<BoxInfo> getBoxPositions();
-    Configuration* getConfiguration() const;
-    bool validateConstraints();
-    void setFitness(int newFitness); 
-    int getFitness() const;
+	void resetChromosome();
+	void mutate(float mutationChance, Random& randomEngine = Random::default_engine);
+	void crossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine = Random::default_engine) const;
+	int calculateFittness();
+	std::vector<BoxInfo> getBoxPositions();
+	Configuration* getConfiguration() const;
+	bool validateConstraints();
+	void setFitness(int newFitness); 
+	int getFitness() const;
 
-    void setSharedFitness(int newSharedFitness);
-    int getSharedFitness() const;
-    unsigned int getMinDist();
-    int hammingDistance(BinaryCreature& b);
+	void setSharedFitness(int newSharedFitness);
+	int getSharedFitness() const;
+	unsigned int getMinDist();
+	int hammingDistance(BinaryCreature& b);
     
-    static int penaltyWeight;
-    static bool applyDBLF;
+	static int penaltyWeight;
 
 private:
-    DynamicBitSet generateChromosome(long unsigned int totalBitsNum, Random& randomEngine);
-    void repairChromosome(Random& randomEngine);
-    void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
+	DynamicBitSet generateChromosome(long unsigned int totalBitsNum, Random& randomEngine);
+	void repairChromosome(Random& randomEngine);
+	void adjustDimensionsToOrientation(int orientation, long unsigned int& width, long unsigned int& height, long unsigned int& depth);
     
-    void onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
-    void uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
-    bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
+	void onePointCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
+	void uniformCrossover(const BinaryCreature& parent2, std::vector<BinaryCreature>& population, Random& randomEngine) const;
+	bool getItemInfo(DynamicBitSet& itemMask, int itemIndex, ItemInfo& itemInfo);
     
-    int fitness;
-    int sharedFitness;
-    std::vector<BoxInfo> boxesPositions;
-    DynamicBitSet chromozome;
-    DynamicBitSet activeItemsMask;
-    Configuration* configuration;
+	int fitness;
+	int sharedFitness;
+	std::vector<BoxInfo> boxesPositions;
+	DynamicBitSet chromozome;
+	DynamicBitSet activeItemsMask;
+	Configuration* configuration;
 };
 
 #endif // BINARYENCODING_H
