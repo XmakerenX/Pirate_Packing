@@ -3,13 +3,28 @@
 #include <fstream>
 #include <qdir.h>
 
+//-----------------------------------------------------------------------------------------------
+// Name : Configuration(constructor)
+// Input: dim - the container width, height and width
+//        numberOfItems - how many item to generate in the Configuration
+//        randomEngine   - the random number generator to use for random numbers
+// Output: A new Configuration with a container with size dim and numberOfItems random items
+// Action: Creates a Configuration with the given dim and numberOfItems random items
+//-----------------------------------------------------------------------------------------------
 Configuration::Configuration(const Dimensions& _dim, int _numberOfItems, Random& randomEngine/* = Random::default_engine*/)
 	:dim(_dim), numberOfItems(_numberOfItems)
 {
 	generateItems(randomEngine);
 	setBinaryUtilValues();
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name : Configuration(constructor)
+// Input: dim - the container width, height and width
+//        givenItems - the items to include in the Configuration
+// Output: A new Configuration with a container with size dim and the given items
+// Action: Creates a Configuration with the given dim and a copy of given items
+//-----------------------------------------------------------------------------------------------
 Configuration::Configuration(const Dimensions& _dim, std::vector<Item>& givenItems)
 	: dim(_dim), numberOfItems(givenItems.size()), items(givenItems)
 {
@@ -20,7 +35,14 @@ Configuration::Configuration(const Dimensions& _dim, std::vector<Item>& givenIte
 	}
 	setBinaryUtilValues();
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name : Configuration(constructor)
+// Input: dim - the container width, height and width
+//        givenItems - the items to include in the Configuration
+// Output: A new Configuration with a container with size dim and the given items
+// Action: Creates a Configuration with the given dim and the given items
+//-----------------------------------------------------------------------------------------------
 Configuration::Configuration(const Dimensions& _dim, std::vector<Item>&& givenItems)
 	: dim(_dim), numberOfItems(givenItems.size()), items(std::move(givenItems))
 {
@@ -31,7 +53,13 @@ Configuration::Configuration(const Dimensions& _dim, std::vector<Item>&& givenIt
 	}
 	setBinaryUtilValues();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   Configuration(copy constructor)
+// Input:  Configuration to be copied
+// Output: A copy Configuration of the given Configuration
+// Action: copy constructor for Configuration
+//--------------------------------------------------------------------------------------------------
 Configuration::Configuration(const Configuration& copy)
 {
 	dim = copy.dim;
@@ -41,7 +69,13 @@ Configuration::Configuration(const Configuration& copy)
     
 	setBinaryUtilValues();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   Configuration(move constructor)
+// Input:  Configuration to be moved
+// Output: A moved Configuration 
+// Action: move constructor for Configuration
+//--------------------------------------------------------------------------------------------------
 Configuration::Configuration(Configuration&& move)
 {
 	dim = move.dim;
@@ -56,7 +90,13 @@ Configuration::~Configuration()
 {
 
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   operator= (copy)
+// Input:  Configuration to be copied
+// Output: A copy of the given Configuration
+// Action: copy assignment operator for Configuration
+//--------------------------------------------------------------------------------------------------
 Configuration& Configuration::operator=(const Configuration& copy)
 {
 	dim = copy.dim;
@@ -68,7 +108,13 @@ Configuration& Configuration::operator=(const Configuration& copy)
     
 	return *this;
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   operator= (move)
+// Input:  Configuration to be moved
+// Output: A moved Configuration
+// Action: move assignment operator for Configuration
+//--------------------------------------------------------------------------------------------------
 Configuration& Configuration::operator=(Configuration&& move)
 {
 	dim = move.dim;
@@ -80,12 +126,21 @@ Configuration& Configuration::operator=(Configuration&& move)
     
 	return *this;
 }
-//-----------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name: Reset
+//--------------------------------------------------------------------------------------------------
 void Configuration::Reset(Random& randomEngine/* = Random::default_engine*/)
 {
 	generateItems(randomEngine);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   generateItems
+// Input:  randomEngine - the random number generator to use for random numbers
+// Output: random generated items for the Configuration
+// Action: generate random items for the Configuration
+//--------------------------------------------------------------------------------------------------
 void Configuration::generateItems(Random& randomEngine)
 {
 	std::uniform_int_distribution<int> itemWidthDist(1, dim.w);
@@ -116,7 +171,13 @@ void Configuration::generateItems(Random& randomEngine)
 		items.emplace_back(itemDim, itemValue, i, randomEngine);
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   saveToFile
+// Input:  this Configuration data
+// Output: a file in the Config folder containing the Configuration data
+// Action: Save the Configuration to file
+//--------------------------------------------------------------------------------------------------
 void Configuration::saveToFile()
 {
 	if (!QDir("Config").exists())
@@ -138,7 +199,13 @@ void Configuration::saveToFile()
         
         file.close();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   setBinaryUtilValues
+// Input:  this Configuration data
+// Output: help variables for binaryEncoding are set
+// Action: sets the binaryEncoding helper variables
+//--------------------------------------------------------------------------------------------------
 void Configuration::setBinaryUtilValues()
 {
 	long unsigned int maxDimensionValue = std::max(dim.w, std::max(dim.h, dim.d));
@@ -159,4 +226,3 @@ void Configuration::setBinaryUtilValues()
     
 	sevenMask = boost::dynamic_bitset<>(totalBitsNum, 7);
 }
-//------------------------------------------------------------------------------------

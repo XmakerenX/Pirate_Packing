@@ -26,7 +26,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 set(GA_SRC  
   #GA:
   GA/Encoding/BinaryCreature.cpp
-  GA/Encoding/DBLF_core.cpp
   GA/Encoding/PermutationCreature.cpp
   GA/Breeder.cpp
   GA/Configuration.cpp

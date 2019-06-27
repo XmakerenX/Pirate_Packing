@@ -29,6 +29,9 @@ void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& g
 void validateInput(std::string inputString);
 void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItemList);
 
+//-----------------------------------------------------------------------------
+// Name   : main
+//-----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
 	
@@ -99,7 +102,11 @@ int main(int argc, char** argv)
     
 	return 0;
 }
-//----------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Name   : processArgs 
+// Action : process the args passed to main
+//-----------------------------------------------------------------------------
 int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
 {
 	if ((argc == 2) || (QString(argv[1]) == "-help"))
@@ -195,7 +202,11 @@ int  processArgs(int argc, char** argv, std::vector<GAThread>& threads)
     
     return 0;
 }
-//----------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Name   : readFile 
+// Action : reads the configuration from file
+//-----------------------------------------------------------------------------
 void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& givenItemList)
 {
 	std::ifstream inFile;
@@ -219,7 +230,11 @@ void readFile(const std::string& filename, Dimensions& dim, std::vector<Item>& g
 	validateInput(input_numbersOnly);
 	parseInput(input_numbersOnly, dim, givenItemList);
 }
-//----------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Name   : validateInput 
+// Action : validate the file read had valid input
+//-----------------------------------------------------------------------------
 void validateInput(std::string inputString)
 {
 	if (inputString == "")
@@ -250,7 +265,11 @@ void validateInput(std::string inputString)
 		throw ex;
 	}
 }
-//-----------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Name   : parseInput 
+// Action : process the configuration input data
+//-----------------------------------------------------------------------------
 void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItemList)
 {
 	try
@@ -282,4 +301,3 @@ void parseInput(std::string input, Dimensions& dim, std::vector<Item>& givenItem
 		throw InvalidInputException();
 	}
 }
-//-------------------------------------------------------------------------------------------

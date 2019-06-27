@@ -22,9 +22,7 @@ public:
 	void generateItems(Random& randomEngine);
 	void saveToFile();
 	void setBinaryUtilValues();
-        
 
-        
 	Dimensions dim;
 	int numberOfItems;
 	std::vector<Item> items;
