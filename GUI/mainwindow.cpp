@@ -192,7 +192,7 @@ void MainWindow::on_loadDataButton_clicked()
 std::string MainWindow::readFileFromUser()
 {
 	//open input file:
-	QFile file(QFileDialog::getOpenFileName(this, tr("Open input data"), "/home/", tr("data Files (*.txt)")));
+	QFile file(QFileDialog::getOpenFileName(this, tr("Open input data"), ".", tr("data Files (*.txt)")));
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))    return "";
 	QString content = file.readAll();
 	return content.toStdString();
