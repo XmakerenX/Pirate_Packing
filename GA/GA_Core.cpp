@@ -3,13 +3,25 @@
 #include <fstream>
 #include <qdir.h>
 
-//---------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Name:   GA_Core(constructor)
+// Input : randomEngine - the random number generator to use for random numbers
+// Output: a constructed GA_Core
+// Action: Creates a GA_Core
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 GA_Core<Creature>::GA_Core(Random& _randomEngine)
     :randomEngine(_randomEngine)
 {
 }
-//---------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   initGeneticAlgorithm
+// Input : configuration - the probelm configuration
+//         settings - the GA algorithm settings
+// Output: none
+// Action: clear class data and creates first Generation
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::initGeneticAlgorithm(Configuration& configuration, const GA_Settings& settings)
 {
@@ -21,23 +33,23 @@ void GA_Core<Creature>::initGeneticAlgorithm(Configuration& configuration, const
 	population.clear();
 	population = generateFirstGeneration(configuration, settings);
 }
-//---------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   getPopulation
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 std::vector<Creature> GA_Core<Creature>:: getPopulation()
 {
 	return population;
 }
-//---------------------------------------------------------------------------------------
-template <class Creature>
-void GA_Core<Creature>:: replacePopulation(std::vector<Creature>& newPopulation)
-{
-	population.clear();
-	for (Creature& creature : newPopulation)
-	{
-		population.push_back(creature);
-	}
-}
-//---------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   saveGenerationData
+// Input : methodPrefix - string repesting the used method for the GA_Core
+//         settings - the GA algorithm settings
+// Output: the path to the file with the saved generation data
+// Action: save the generation data for each generation to file
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefix, const GA_Settings& settings)
 {
@@ -57,12 +69,12 @@ std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefi
 	mutationRateStr + "_" +
 	std::to_string(settings.elitismSizeGroup);
         
-        if (settings.nitchingEnabled)
-            fileName += "_NE_";
-        else
-            fileName += "_ND_";
+	if (settings.nitchingEnabled)
+		fileName += "_NE_";
+	else
+		fileName += "_ND_";
         
-        fileName += timeAndDate;
+	fileName += timeAndDate;
     
 	std::ofstream file(fileName);   
 	file << "#Value\n";
@@ -92,7 +104,14 @@ std::string GA_Core<Creature>::saveGenerationData(const std::string& methodPrefi
 	fileName = fileName.substr(0, fileName.find_first_of('\0'));
 	return fileName;
 }
-//---------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   nextGeneration
+// Input : configuration - the probelm configuration
+//         settings - the GA algorithm settings
+// Output: is the run of the GA algorithm has ended
+// Action: create the next generation
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Settings& settings)
 {
@@ -131,37 +150,34 @@ bool GA_Core<Creature>::nextGeneration(Configuration& configuration, const GA_Se
                   << "  \toverall Volume " << currentGenerationData.bestCreatureVolumeFilled << "%\n";
 
 	gen++;
-
-	/*
-	if (gen == 100)
-	{
-		BinaryCreature::applyDBLF = true;
-	}
-	if (gen == 110)
-	{
-		BinaryCreature::applyDBLF = false;
-	}
-	*/
 	return (gen < settings.numberOfGenerations);
 }
-//------------------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   getDataFromGeneration
+// Input : population - the population to extract the data from
+//         configuration - the probelm configuration
+//         settings - the GA algorithm settings
+// Output: is the run of the GA algorithm has ended
+// Action: create the next generation
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population, Configuration& configuration, const GA_Settings& settings)
 {
 	int currentGenPopulationFitness = 0;
-        int bestCreatureIndex = 0;
+	int bestCreatureIndex = 0;
 	generationMaximumFitness = population[0].getFitness();
 
 	//find best creature
-        for (int i = 1; i < population.size(); i++)
-        {
-            currentGenPopulationFitness += population[i].getFitness();
-            if (generationMaximumFitness < population[i].getFitness())
-            {
-                generationMaximumFitness = population[i].getFitness();
-                bestCreatureIndex = i;
-            }
-        }
+	for (int i = 1; i < population.size(); i++)
+	{
+		currentGenPopulationFitness += population[i].getFitness();
+		if (generationMaximumFitness < population[i].getFitness())
+		{
+			generationMaximumFitness = population[i].getFitness();
+			bestCreatureIndex = i;
+		}
+	}
 
 	overallMaximumFitness = std::max(generationMaximumFitness, overallMaximumFitness);
         
@@ -184,8 +200,14 @@ void GA_Core<Creature>::getDataFromGeneration(std::vector<Creature>& population,
                                     containerVolume,
                                     conf->maxiumValue);                                   
 }
-//-----------------------------------------------------------------------------------------	
-//Creates an array of random creatures
+
+//--------------------------------------------------------------------------------------------------
+// Name:   generateFirstGeneration
+// Input : configuration - the probelm configuration
+//         settings - the GA algorithm settings
+// Output: a vector of random creatures
+// Action: create a random vector of creatures that will be the first generation
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 std::vector<Creature> GA_Core<Creature>::generateFirstGeneration(Configuration& configuration, const GA_Settings& settings)
 {
@@ -197,7 +219,14 @@ std::vector<Creature> GA_Core<Creature>::generateFirstGeneration(Configuration& 
 	}
 	return randomCreatures;
 }
-//---------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name:   selectSurvivors
+// Input : population - the current population
+//         settings - the GA algorithm settings
+// Output: none
+// Action: keep only the fittest creatures in the current population
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 void GA_Core<Creature>::selectSurvivors(std::vector<Creature>& population, const GA_Settings& settings)
 {
@@ -214,26 +243,37 @@ void GA_Core<Creature>::selectSurvivors(std::vector<Creature>& population, const
 	
 	population.erase(population.begin() + settings.populationSize, population.end());
 }
-//----------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name : getBoxesInfo
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 std::vector<BoxInfo>& GA_Core<Creature>::getBoxesInfo(int index)
 {
 	return generationData[index].bestCreatureBoxInfo;
 }
-//----------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name : getGenerationData
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 const GenerationData& GA_Core<Creature>::getGenerationData(int index)
 {
     return generationData[index];
 }
-//-----------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name : getGenerationDataIndex
+//--------------------------------------------------------------------------------------------------
 template <class Creature>
 int GA_Core<Creature>::getGenerationDataIndex()
 {
     return generationData.size() - 1;
 }
 
+//--------------------------------------------------------------------------------------------------
 // Force instantiation of BinaryCreature and PermutationCreature
+//--------------------------------------------------------------------------------------------------
 #include "Encoding/BinaryCreature.h"
 #include "Encoding/PermutationCreature.h"
 template class GA_Core<BinaryCreature>;

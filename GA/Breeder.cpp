@@ -2,9 +2,16 @@
 #include <algorithm>
 #include <sstream>
 
-//------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+// Name : generateNextGeneration
+// Input: currentPopulation - the population from whom to create new generation
+//        settings -  the GA algorithm settings
+//        randomEngine - the random number generator to use for random numbers
+// Output: The next generation population
+// Action: Creates the next generation population from the current population
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
-std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>&currentPopulation, const GA_Settings& settings,
+std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Creature>& currentPopulation, const GA_Settings& settings,
                                                                 Random& randomEngine/* = Random::default_engine*/)
 {
 	//create new generation vector:
@@ -23,7 +30,15 @@ std::vector<Creature> Breeder<Creature>::generateNextGeneration(std::vector<Crea
 
 	return newPopulation;
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  generateNextGenerationSingleThread
+// Input:  currentPopulation - the population from whom to create new generation
+//         settings -  the GA algorithm settings
+//         randomEngine   - the random number generator to use for random numbers
+// Output: newPopulation - The next generation population
+// Action: Creates the next generation population from the current population using a single thread
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings, Random& randomEngine)
 {
@@ -46,7 +61,14 @@ void Breeder<Creature>::generateNextGenerationSingleThread(std::vector<Creature>
 		newPopulation[newPopulation.size() - 2].calculateFittness();
 	}
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  generateNextGenerationMultiThread
+// Input:  currentPopulation - the population from whom to create new generation
+//         settings -  the GA algorithm settings
+// Output: newPopulation - The next generation population
+// Action: Creates the next generation population from the current population using a multiple threads
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>& currentPopulation, std::vector<Creature>& newPopulation, const GA_Settings& settings)
 {
@@ -84,7 +106,15 @@ void Breeder<Creature>::generateNextGenerationMultiThread(std::vector<Creature>&
 	for (Creature& creature : SemiPopulation4) newPopulation.emplace_back(std::move(creature));
 }
 
-//------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+// Name :  semiBreeder
+// Input:  currentPopulation - the population from whom to create new generation
+//         roulette -  use this roulette to select the parents
+//         numberOfParentsPair - how many parents to breed
+//         settings - the GA algorithm settings
+// Output: creaturesCreated - the part of the new generation created by the semiBreeder
+// Action: breeds parents based on numberOfParentsPair and output the children to creaturesCreated
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulation,std::discrete_distribution<int> roulette,
                                     std::promise<std::vector<Creature>>&& creaturesCreated,int numberOfParentsPair, const GA_Settings& settings)
@@ -115,7 +145,16 @@ void Breeder<Creature>::semiBreeder(const std::vector<Creature>& currentPopulati
 	
 	creaturesCreated.set_value(newCreatures);
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  chooseParents
+// Input:  currentPopulation - the population from whom to create new generation
+//         roulette -  use this roulette to select the parents
+//         randomEngine - the random number generator to use for random numbers
+// Output: parent1Index - the first parent index
+//         parent2Index - the second parent index
+// Action: select 2 index for parents based on the roulette
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std::discrete_distribution<int>& roulette, Random& randomEngine)
 {
@@ -128,7 +167,14 @@ void Breeder<Creature>::chooseParents(int& parent1Index, int& parent2Index, std:
 	} 
 	while (parent2Index == parent1Index);
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  createRoulette
+// Input:  currentPopulation - the population from whom to create new generation
+//         nitchingEnabled -  state if to use shared fitness or not
+// Output: a roulette to select pair of parents
+// Action: create a roulette based on the population and if shared fitness is enabled or not
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 std::discrete_distribution<int> Breeder<Creature>::createRoulette(std::vector<Creature>& currentPopulation, bool nitchingEnabled)
 {
@@ -139,7 +185,13 @@ std::discrete_distribution<int> Breeder<Creature>::createRoulette(std::vector<Cr
 	else                             
 		return createSelectionRoulette(currentPopulation);
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  createSelectionRoulette
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: a roulette to select pair of parents
+// Action: create a roulette based on the population where the fitter you are the more likly you will be choosen
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::vector<Creature>& currentPopulation)
 {
@@ -149,12 +201,18 @@ std::discrete_distribution<int> Breeder<Creature>::createSelectionRoulette(std::
 	std::discrete_distribution<int> roulette(fitness.begin(), fitness.end());
 	return roulette;
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  normalizePopulationFittnesses
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: population with non negative fitness 
+// Action: normalize all fitness value to positve values so a roulette can be created
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 std::vector<int>  Breeder<Creature>::normalizePopulationFittnesses(std::vector<Creature>& currentPopulation)
 {
-    std::vector<int> normalizedFitness;
-    normalizedFitness.reserve(currentPopulation.size());
+	std::vector<int> normalizedFitness;
+	normalizedFitness.reserve(currentPopulation.size());
 	int min = std::numeric_limits<int>::max();
 	//get minimum fittness in population
 	for (Creature& creature : currentPopulation)
@@ -172,7 +230,13 @@ std::vector<int>  Breeder<Creature>::normalizePopulationFittnesses(std::vector<C
 	
 	return normalizedFitness;
 }
-//----------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  createSelectionRoulette
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: a roulette to select pair of parents
+// Action: create a roulette based on the population where parent selection will more diverse and from different niches
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 std::discrete_distribution<int> Breeder<Creature>::createNitchingRoulette(std::vector<Creature>& currentPopulation)
 {
@@ -188,7 +252,14 @@ std::discrete_distribution<int> Breeder<Creature>::createNitchingRoulette(std::v
 	std::discrete_distribution<int> roulette(sharedFitnesses.begin(), sharedFitnesses.end());
 	return roulette;
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  calculateSharedFitness
+// Input:  currentPopulation - the population from whom to create new generation
+//         multiThread = states if to run the calcuation multiThreaded or not
+// Output: sets the shread fitness for the population creatures
+// Action: calculate the shared fitness for the creautres in the population
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitness(std::vector<Creature>& currentPopulation, bool multiThread/* = true*/)
 {
@@ -198,6 +269,12 @@ void Breeder<Creature>::calculateSharedFitness(std::vector<Creature>& currentPop
 		calculateSharedFitnessSingleThread(currentPopulation);
 }
 
+//-----------------------------------------------------------------------------------------------
+// Name :  calculateSharedFitnessSingleThread
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: sets the shread fitness for the population creatures
+// Action: calculate the shared fitness for the creautres in the population in a single thread
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation)
 {
@@ -225,7 +302,13 @@ void Breeder<Creature>::calculateSharedFitnessSingleThread(std::vector<Creature>
 		currentPopulation[i].setSharedFitness(sharedFitness);
 	}
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  calculateSharedFitnessMultiThread
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: sets the shread fitness for the population creatures
+// Action: calculate the shared fitness for the creautres in the population in a multiple threads
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::calculateSharedFitnessMultiThread(std::vector<Creature>& currentPopulation)
 {
@@ -240,7 +323,15 @@ void Breeder<Creature>::calculateSharedFitnessMultiThread(std::vector<Creature>&
 	SemiSharedFitness3.join();
 	SemiSharedFitness4.join();
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  calculateSharedFitnessMultiThread
+// Input:  currentPopulation - the population from whom to create new generation
+//         startIndex - the index from each to start calculating
+//         endIndex - the index to stop calculating
+// Output: sets the shread fitness for the population creatures in the given index range
+// Action: calculate the shared fitness for the creautres in the population in the given index range
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 void Breeder<Creature>::semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex)
 {
@@ -266,7 +357,13 @@ void Breeder<Creature>::semiCalculateSharedFitness(std::vector<Creature>& curren
 		currentPopulation[i].setSharedFitness(sharedFitness);
 	}
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// Name :  calcualteNiches
+// Input:  currentPopulation - the population from whom to create new generation
+// Output: The number of niches in the population
+// Action: calculate The number of niches in the population
+//-----------------------------------------------------------------------------------------------
 template <class Creature>
 int  Breeder<Creature>::calcualteNiches(std::vector<Creature>&currentPopulation)
 {
@@ -293,8 +390,10 @@ int  Breeder<Creature>::calcualteNiches(std::vector<Creature>&currentPopulation)
 	
 	return numberOfNiches;
 }
+
 //------------------------------------------------------------------------------------
-// Force instantiation of BinaryCreature and PermutationCreature
+// Force instantiation of Breeder<BinaryCreature> and Breeder<PermutationCreature>
+//------------------------------------------------------------------------------------
 #include "Encoding/BinaryCreature.h"
 #include "Encoding/PermutationCreature.h"
 template class Breeder<BinaryCreature>;

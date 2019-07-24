@@ -24,10 +24,9 @@ private:
 	static std::discrete_distribution<int> createSelectionRoulette(std::vector<Creature>& currentPopulation);
 	static std::vector<int>  normalizePopulationFittnesses(std::vector<Creature>& currentPopulation);
 	static std::discrete_distribution<int> createNitchingRoulette(std::vector<Creature>& currentPopulation);
-        static void calculateSharedFitness(std::vector<Creature>& currentPopulation, bool multiThread = true);
-        static void calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation);
-        static void calculateSharedFitnessMultiThread(std::vector<Creature>& currentPopulation);
-        static void semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex);
-        static int  calcualteNiches(std::vector<Creature>&currentPopulation);
-        
+	static void calculateSharedFitness(std::vector<Creature>& currentPopulation, bool multiThread = true);
+	static void calculateSharedFitnessSingleThread(std::vector<Creature>& currentPopulation);
+	static void calculateSharedFitnessMultiThread(std::vector<Creature>& currentPopulation);
+	static void semiCalculateSharedFitness(std::vector<Creature>& currentPopulation,int startIndex , int endIndex);
+	static int  calcualteNiches(std::vector<Creature>&currentPopulation);
 };

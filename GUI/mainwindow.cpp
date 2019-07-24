@@ -16,6 +16,11 @@
 #include <regex>
 #include <sstream>
 
+//--------------------------------------------------------------------------------------------------
+// Name:   MainWindow(constructor)
+// Input : parent - the parent widget of the window 
+// Action: Creates a new MainWindow
+//--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) 
 :	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -33,7 +38,11 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(GA, &GAThread::GAStarted, this, &MainWindow::updateGAStarted);
 	connect(GA, &GAThread::GAFinished, this, &MainWindow::updateGAFinished);
 }
-//------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Name   : MainWindow (Destructor)
+// Action : destroys the MainWindow and frees the memory it allocated
+//-----------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
 	delete ui;
@@ -47,6 +56,11 @@ MainWindow::~MainWindow()
 		delete GA;
 	}
 }
+
+//--------------------------------------------------------------------------------------------------
+// Name:   setForms
+// Action: setup the form widgets
+//--------------------------------------------------------------------------------------------------
 void MainWindow::setForms()
 {
 	//Form - Main window
@@ -92,7 +106,12 @@ void MainWindow::setForms()
 		ui->containerDepthTextbox->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), this));
 		ui->containerDepthTextbox->setMaxLength(5);                
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  :   setForms
+// Input : event - the key release event
+// Action: setup the form widgets
+//--------------------------------------------------------------------------------------------------
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key::Key_Return && event->modifiers() & Qt::ShiftModifier)
@@ -100,6 +119,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 		if (ui->tableView->hasFocus())
 		{
 			itemTable.addNewRow();
+			ui->tableView->scrollToBottom();
 			return;
 		}
 	}
@@ -125,8 +145,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 	// Call defualt key handler if no action was taken on the event
 	QMainWindow::keyReleaseEvent(event);
 }
-//------------------------------------------------------------------------------------
-//load data button:
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_loadDataButton_clicked
+// Action: Opens dialog to get what file to load and passes to enter data page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_loadDataButton_clicked()
 {
 	//get input:
@@ -139,11 +162,16 @@ void MainWindow::on_loadDataButton_clicked()
 	try
 	{
 		validateInput(input_numbersOnly);
-		parseInput(input_numbersOnly);//this creates a new instance for GA paramter
+		Configuration loadedConfig =  parseInput(input_numbersOnly);
+
+		ui->containerWidthTextbox->setText(QString::number(loadedConfig.dim.w));
+		ui->containerHeightTextbox->setText(QString::number(loadedConfig.dim.h));
+		ui->containerDepthTextbox->setText(QString::number(loadedConfig.dim.d));
+		itemTable.setItemsInTable(std::move(loadedConfig.items));
 
 		//set settings menu:
 		pageStack.push(0);
-		moveToSettings();
+        moveToEnterData(false);
 	}
 	catch (InvalidInputException exeption)
 	{
@@ -156,7 +184,11 @@ void MainWindow::on_loadDataButton_clicked()
 		return;
 	}	
 }
-//-----------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : readFileFromUser
+// Action: Opens dialog to get what file to load
+//--------------------------------------------------------------------------------------------------
 std::string MainWindow::readFileFromUser()
 {
 	//open input file:
@@ -165,7 +197,11 @@ std::string MainWindow::readFileFromUser()
 	QString content = file.readAll();
 	return content.toStdString();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : validateInput
+// Action: validate that the file loaded had valid input
+//--------------------------------------------------------------------------------------------------
 void MainWindow::validateInput(std::string inputString)
 {
 	if (inputString == "")
@@ -196,8 +232,12 @@ void MainWindow::validateInput(std::string inputString)
 		throw ex;
 	}
 }
-//-----------------------------------------------------------------------------------
-void MainWindow::parseInput(std::string input)
+
+//--------------------------------------------------------------------------------------------------
+// Name  : parseInput
+// Action: load the input from configuration file
+//--------------------------------------------------------------------------------------------------
+Configuration MainWindow::parseInput(std::string input)
 {
 	std::vector<Item> givenItemList;
 	try
@@ -236,31 +276,44 @@ void MainWindow::parseInput(std::string input)
 		throw InvalidInputException();
 	}
 
-	GA->setConfigurationData(containerDim, std::move(givenItemList));
+	return Configuration(containerDim, givenItemList);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_enterDataButton_clicked
+// Action: Open the enter data page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_enterDataButton_clicked()
 {
 	std::cout << "Enter data button clicked\n";
 	pageStack.push(0);
 	moveToEnterData();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_wumpusButton_clicked
+// Action: closes window and quit program
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_wumpusButton_clicked()
 {
 	std::cout << "Wumpus button clicked\n";
-	GA->resetConfiguration();
-	pageStack.push(0);
-	//pageStack.push(3);  // uncomment me to be able to edit the generated items
-	moveToSettings();
+	close();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_backButton_clicked
+// Action: goes back to previous page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_backButton_clicked()
 {
 	std::cout << "Settings back button clicked\n";
 	moveToPreviousPage();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_confirmButton_clicked
+// Action: save settings and move to viewer page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_confirmButton_clicked()
 {
 	std::cout << "Settings confirm button clicked\n";
@@ -300,7 +353,11 @@ void MainWindow::on_confirmButton_clicked()
 		messageBox.setFixedSize(500, 200);
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_startButton_clicked
+// Action: starts the GA algorithm
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_startButton_clicked()
 {
     std::cout << "start button clicked\n";
@@ -331,7 +388,11 @@ void MainWindow::on_startButton_clicked()
 		ui->startButton->setText("Stop");
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_generationComboBox_currentIndexChanged
+// Action: change the viewed generation data based on index selected by combobox
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 {
 	if (ui->generationComboBox->isEnabled()) 
@@ -345,19 +406,31 @@ void MainWindow::on_generationComboBox_currentIndexChanged(QString indexStr)
 		viewer->updateSolutionViewerWithGivenBoxes(chosenGeneration.bestCreatureBoxInfo);
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_saveConfiguration_clicked
+// Action: save the current configuration to file
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_saveConfiguration_clicked()
 {
 	std::cout << "saveConfiguration was pressed\n";    
 	GA->saveConfiguration();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_saveResults_clicked
+// Action: save the current GA algorithm to file
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_saveResults_clicked()
 {
     std::cout << "saveResults_clicked was pressed\n";
     GA->saveResults();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_saveResults_clicked
+// Action: go to previous page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_resultsBackButton_clicked()
 {
 	ui->progressBar->setValue(0);
@@ -369,7 +442,7 @@ void MainWindow::on_resultsBackButton_clicked()
 	ui->generationComboBox->setEnabled(false);
 	ui->generationComboBox->clear();
 	ui->startButton->setText("Start");
-	ui->resultsResetButton->setEnabled(false);
+	ui->resultsResetButton->setEnabled(true);
 	ui->generationComboBox->setEnabled(false);
 	if (GA->isRunning())
 	{
@@ -379,22 +452,45 @@ void MainWindow::on_resultsBackButton_clicked()
 
 	moveToPreviousPage();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_resultsResetButton_clicked
+// Action: load configuration from file
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_resultsResetButton_clicked()
 {
-	GA->resetConfiguration();
-	ui->progressBar->setValue(0);
-	ui->AvaregeFittness->setText("");
-	ui->BestGenerationalFIttnessTextBox->setText("");
-	ui->VolumeFilledTextBox->setText("");
-	ui->ValuePercentageTextBox->setText("");
-	ui->bestFittnessOverallTextBox->setText("");
-	ui->generationComboBox->setEnabled(false);
-	ui->generationComboBox->clear();
-	viewer->clearAllBoxes();
-	on_startButton_clicked();
+	//get input:
+	std::string input = readFileFromUser();
+	if (input == "") return;
+	std::regex rexp("[^\\d | \\. | \\b | \\n]");//regex to keep only numbers
+	std::string input_numbersOnly = std::regex_replace(input, rexp, "");
+
+	//validate
+	try
+	{
+		validateInput(input_numbersOnly);
+		Configuration loadedConfig = parseInput(input_numbersOnly);
+
+		viewer->setContainerDimensions(loadedConfig.dim);
+		GA->setConfigurationData(loadedConfig.dim, std::move(loadedConfig.items));
+	}
+	catch (InvalidInputException exeption)
+	{
+		std::cout << exeption.what();//report exception
+		QMessageBox messageBox;//create a new messege box
+		messageBox.critical(0, "Error", exeption.what());
+		messageBox.setFixedSize(500, 200);
+
+		messageBox.show();
+		return;
+	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : updateGuiDataCorrespondsToNewGeneration
+// Input : currentGeneration - the newest generation index to be displayed
+// Action: create a new random configuration
+//--------------------------------------------------------------------------------------------------
 void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 {
 	GenerationData data = GA->getGenerationData(currentGeneration);
@@ -408,14 +504,22 @@ void MainWindow::updateGuiDataCorrespondsToNewGeneration(int currentGeneration)
 	ui->generationComboBox->addItem(QString::number(currentGeneration+1));
 	ui->generationComboBox->setCurrentIndex(currentGeneration);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : updateGAStarted
+// Action: the GA algorithm started running
+//--------------------------------------------------------------------------------------------------
 void MainWindow::updateGAStarted()
 {
 	ui->resultsResetButton->setEnabled(false);
 	ui->generationComboBox->setEnabled(false);
 	ui->saveResults->setEnabled(false);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : updateGAFinished
+// Action: the GA algorithm finished running
+//--------------------------------------------------------------------------------------------------
 void MainWindow::updateGAFinished()
 {
 	ui->startButton->setText("Start");
@@ -423,13 +527,21 @@ void MainWindow::updateGAFinished()
 	ui->resultsResetButton->setEnabled(true);
 	ui->saveResults->setEnabled(true);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : moveToMainMenu
+// Action: moves the main menu page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::moveToMainMenu()
 {
 	ui->stackedWidget->setCurrentIndex(0);
 	this->setFixedSizeAndMoveToCenter(738, 539);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : moveToSettings
+// Action: moves the settings page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::moveToSettings()
 {
 	ui->stackedWidget->setCurrentIndex(2);
@@ -440,7 +552,11 @@ void MainWindow::moveToSettings()
 	ui->elitisimSizeTextBox->setText(QString::number(settings.elitismSizeGroup));
 	this->setFixedSizeAndMoveToCenter(813, 837);        
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : moveToEnterData
+// Action: moves the enter data page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::moveToEnterData(bool reset/* = true*/)
 {
 	ui->stackedWidget->setCurrentIndex(3);
@@ -453,7 +569,11 @@ void MainWindow::moveToEnterData(bool reset/* = true*/)
 	}
 	this->setFixedSizeAndMoveToCenter(813, 837);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : moveToViewer
+// Action: moves the view page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::moveToViewer()
 {
 	ui->progressBar->setMinimum(0);
@@ -463,9 +583,13 @@ void MainWindow::moveToViewer()
 
 	viewer->clearAllBoxes();
 	ui->stackedWidget->setCurrentIndex(1);
-	this->setFixedSizeAndMoveToCenter(1000, 900);
+	this->setFixedSizeAndMoveToCenter(1030, 900);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : moveToPreviousPage
+// Action: moves previous page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::moveToPreviousPage()
 {
 	int pageIndex = pageStack.top();
@@ -494,7 +618,11 @@ void MainWindow::moveToPreviousPage()
 		break;
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_enterDataConfirmButton_clicked
+// Action: save new the configuration data and moves to settings page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_enterDataConfirmButton_clicked()
 {
 	std::cout << "Enter Data confirm button clicked\n";
@@ -522,25 +650,72 @@ void MainWindow::on_enterDataConfirmButton_clicked()
 		messageBox.setFixedSize(500, 200);            
 	}
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_enterDataConfirmButton_clicked
+// Action: goes to previous page
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_enterDataBackButton_clicked()
 {
 	std::cout << "Enter Data back button clicked\n";
 	moveToPreviousPage();
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_addRow_clicked
+// Action: add a new row to the tableView
+//--------------------------------------------------------------------------------------------------
+void MainWindow::on_addRow_clicked()
+{
+	itemTable.addNewRow();
+	ui->tableView->scrollToBottom();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_removeRow_clicked
+// Action: removes a new row from tableView
+//--------------------------------------------------------------------------------------------------
+void MainWindow::on_removeRow_clicked()
+{
+	QItemSelectionModel* select;
+	select = ui->tableView->selectionModel();
+	QModelIndexList selectedRows = select->selectedRows();
+	int minR = std::numeric_limits<int>::max();
+	int maxR = 0;
+	for (auto& modelIndex : selectedRows)
+	{
+		minR = std::min(minR, modelIndex.row());
+		maxR = std::max(maxR, modelIndex.row());
+	}
+	itemTable.removeRows(minR, maxR - minR + 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_radioButton_HybridGenetics_clicked
+// Action: selects the hybrid method
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_HybridGenetics_clicked()
 {
 	ui->radioButton_pureGenetics->setChecked(false);
 	ui->radioButton_HybridGenetics->setChecked(true);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : on_radioButton_pureGenetics_clicked
+// Action: selects the binary method
+//--------------------------------------------------------------------------------------------------
 void MainWindow::on_radioButton_pureGenetics_clicked()
 {
 	ui->radioButton_HybridGenetics->setChecked(false);
 	ui->radioButton_pureGenetics->setChecked(true);
 }
-//------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Name  : setFixedSizeAndMoveToCenter
+// Input : windowWidth
+//         windowHeight
+// Action: changes the size of the window and center it
+//--------------------------------------------------------------------------------------------------
 void MainWindow::setFixedSizeAndMoveToCenter(int windowWidth, int windowHeight)
 {
 	this->setFixedSize(windowWidth, windowHeight);
