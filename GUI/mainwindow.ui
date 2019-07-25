@@ -123,8 +123,7 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>By:</string>
@@ -146,10 +145,6 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                 <font>
                  <pointsize>20</pointsize>
                 </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
                </property>
                <property name="text">
                 <string>Matan Keren</string>
@@ -174,10 +169,6 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                </property>
                <property name="layoutDirection">
                 <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
                </property>
                <property name="text">
                 <string>Ariel Berkovich</string>
@@ -444,10 +435,6 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
         <stylestrategy>PreferAntialias</stylestrategy>
        </font>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-      </property>
       <property name="text">
        <string>  Solution Viewer</string>
       </property>
@@ -504,9 +491,12 @@ background-color: rgb(72,101,130)</string>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true"> border-style: outset;
+       <string notr="true">QWidget#frame_results
+{
+ border-style: outset;
     border-width: 2px;
-    border-color: beige;</string>
+    border-color: beige;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -548,13 +538,6 @@ background-color: rgb(72,101,130)</string>
            <font>
             <pointsize>25</pointsize>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);
-background-color: rgb(72,101,130)</string>
           </property>
           <property name="text">
            <string>Results</string>
@@ -636,13 +619,6 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Avarage fittness:</string>
             </property>
@@ -661,13 +637,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Generation:</string>
             </property>
@@ -685,13 +654,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
             <bold>false</bold>
             <underline>true</underline>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
           </property>
           <property name="text">
            <string>Best solution in generation</string>
@@ -719,13 +681,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Volume filled:</string>
             </property>
@@ -743,13 +698,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
             </property>
             <property name="text">
              <string>Fittness:</string>
@@ -829,13 +777,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Value percentage:</string>
             </property>
@@ -902,13 +843,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
               <underline>true</underline>
               <strikeout>false</strikeout>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
             </property>
             <property name="text">
              <string>Best fittness:</string>
@@ -1152,9 +1086,12 @@ font-size: 25px;</string>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true"> border-style: outset;
+       <string notr="true">QWidget#frame_GAMethod
+{
+ border-style: outset;
     border-width: 2px;
-    border-color: beige;</string>
+    border-color: beige;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1168,7 +1105,7 @@ font-size: 25px;</string>
          <x>0</x>
          <y>0</y>
          <width>791</width>
-         <height>102</height>
+         <height>105</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1190,13 +1127,6 @@ font-size: 25px;</string>
            <font>
             <pointsize>25</pointsize>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);
-background-color: rgb(72,101,130)</string>
           </property>
           <property name="text">
            <string>GA Method</string>
@@ -1227,12 +1157,6 @@ background-color: rgb(72,101,130)</string>
               <underline>true</underline>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255,255,255)</string>
-            </property>
             <property name="text">
              <string>Method:</string>
             </property>
@@ -1254,12 +1178,6 @@ color: rgb(255,255,255)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);</string>
-            </property>
             <property name="text">
              <string>Pure genetics</string>
             </property>
@@ -1274,12 +1192,6 @@ color: rgb(255, 255, 255);</string>
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Hybrid Genetics </string>
@@ -1301,9 +1213,12 @@ color: rgb(255, 255, 255);</string>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true"> border-style: outset;
+       <string notr="true">QWidget#frame_4
+{
+ border-style: outset;
     border-width: 2px;
-    border-color: beige;</string>
+    border-color: beige;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1331,7 +1246,7 @@ color: rgb(255, 255, 255);</string>
          <number>5</number>
         </property>
         <property name="bottomMargin">
-         <number>5</number>
+         <number>10</number>
         </property>
         <item>
          <widget class="QLabel" name="label_param">
@@ -1345,13 +1260,6 @@ color: rgb(255, 255, 255);</string>
            <font>
             <pointsize>25</pointsize>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);
-background-color: rgb(72,101,130)</string>
           </property>
           <property name="text">
            <string>Parameters</string>
@@ -1376,12 +1284,6 @@ background-color: rgb(72,101,130)</string>
               <underline>true</underline>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:rgb(255, 255, 255)</string>
-            </property>
             <property name="text">
              <string>Population size:</string>
             </property>
@@ -1399,9 +1301,6 @@ color:rgb(255, 255, 255)</string>
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
             </property>
             <property name="text">
              <string>80</string>
@@ -1424,12 +1323,6 @@ color:rgb(255, 255, 255)</string>
               <underline>true</underline>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:rgb(255, 255, 255)</string>
-            </property>
             <property name="text">
              <string>Mutation rate:</string>
             </property>
@@ -1444,12 +1337,6 @@ color:rgb(255, 255, 255)</string>
               <bold>true</bold>
               <underline>true</underline>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:rgb(255, 255, 255)</string>
             </property>
             <property name="text">
              <string>Number of generations:</string>
@@ -1468,9 +1355,6 @@ color:rgb(255, 255, 255)</string>
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
             </property>
             <property name="text">
              <string>0.2</string>
@@ -1496,9 +1380,6 @@ color:rgb(255, 255, 255)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
             <property name="text">
              <string>100</string>
             </property>
@@ -1519,12 +1400,6 @@ color:rgb(255, 255, 255)</string>
               <bold>true</bold>
               <underline>true</underline>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 224, 255), stop:1 rgba(255, 255, 255, 255));</string>
             </property>
             <property name="text">
              <string>Elitisim percentage:</string>
@@ -1548,9 +1423,6 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 
                <font>
                 <pointsize>20</pointsize>
                </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true"/>
               </property>
               <property name="text">
                <string>5</string>
@@ -1578,12 +1450,6 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 
                 <bold>true</bold>
                 <underline>false</underline>
                </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 224, 255), stop:1 rgba(255, 255, 255, 255));</string>
               </property>
               <property name="text">
                <string>%</string>
@@ -1703,13 +1569,8 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 
       </widget>
      </widget>
      <zorder>background_3</zorder>
-     <zorder>radioButton_pureGenetics</zorder>
-     <zorder>SettingsLabel_2</zorder>
-     <zorder>SettingsLabel_7</zorder>
      <zorder>label_10</zorder>
-     <zorder>radioButton_HybridGenetics</zorder>
      <zorder>SettingsLabel</zorder>
-     <zorder>elitisimSizeTextBox</zorder>
      <zorder>frame_GAMethod</zorder>
      <zorder>frame_4</zorder>
      <zorder>frame_8</zorder>
@@ -1766,9 +1627,12 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(72, 183, 
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true"> border-style: outset;
+       <string notr="true">QWidget#frame_conDim
+{
+ border-style: outset;
     border-width: 2px;
-    border-color: beige;</string>
+    border-color: beige;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1857,13 +1721,6 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Depth:</string>
             </property>
@@ -1882,13 +1739,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
               <pointsize>20</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
-            </property>
             <property name="text">
              <string>Width:</string>
             </property>
@@ -1906,13 +1756,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
              <font>
               <pointsize>20</pointsize>
              </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
-</string>
             </property>
             <property name="text">
              <string>Height:</string>
@@ -1997,9 +1840,12 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true"> border-style: outset;
+       <string notr="true">QWidget#frame_itemData
+{
+ border-style: outset;
     border-width: 2px;
-    border-color: beige;</string>
+    border-color: beige;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -2036,13 +1882,6 @@ color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 2
             <pointsize>25</pointsize>
            </font>
           </property>
-          <property name="styleSheet">
-           <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-color: rgb(255, 255, 255);
-background-color: rgb(72,101,130)</string>
-          </property>
           <property name="text">
            <string>Items Data</string>
           </property>
@@ -2074,7 +1913,7 @@ background-color: rgb(72,101,130)</string>
              <bool>true</bool>
             </property>
             <attribute name="verticalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
            </widget>
           </item>
@@ -2091,11 +1930,11 @@ background-color: rgb(72,101,130)</string>
                 <height>28</height>
                </size>
               </property>
-              <property name="styleSheet">
-               <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-background-color:lightgray;</string>
+              <property name="maximumSize">
+               <size>
+                <width>41</width>
+                <height>28</height>
+               </size>
               </property>
               <property name="text">
                <string>+</string>
@@ -2110,11 +1949,11 @@ background-color:lightgray;</string>
                 <height>28</height>
                </size>
               </property>
-              <property name="styleSheet">
-               <string notr="true"> border-style: outset;
-    border-width: 0px;
-    border-color: beige;
-background-color:lightgray;</string>
+              <property name="maximumSize">
+               <size>
+                <width>41</width>
+                <height>28</height>
+               </size>
               </property>
               <property name="text">
                <string>-</string>
@@ -2156,7 +1995,7 @@ background-color:lightgray;</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -2242,12 +2081,8 @@ background-color:lightgray;</string>
      </widget>
      <zorder>background_4</zorder>
      <zorder>enterDataLabel</zorder>
-     <zorder>enterDataConfirmButton</zorder>
-     <zorder>enterDataBackButton</zorder>
      <zorder>frame_conDim</zorder>
      <zorder>frame_itemData</zorder>
-     <zorder>enterDataConfirmButton</zorder>
-     <zorder>enterDataBackButton</zorder>
      <zorder>frame_enterDataButtons</zorder>
     </widget>
    </widget>
