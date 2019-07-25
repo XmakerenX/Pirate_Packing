@@ -123,7 +123,7 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true"/>
+                <string notr="true">color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>By:</string>
@@ -145,6 +145,9 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                 <font>
                  <pointsize>20</pointsize>
                 </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>Matan Keren</string>
@@ -169,6 +172,9 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
                </property>
                <property name="layoutDirection">
                 <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>Ariel Berkovich</string>
@@ -435,6 +441,9 @@ border: 3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
         <stylestrategy>PreferAntialias</stylestrategy>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
       <property name="text">
        <string>  Solution Viewer</string>
       </property>
@@ -539,6 +548,9 @@ background-color: rgb(72,101,130)</string>
             <pointsize>25</pointsize>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
+          </property>
           <property name="text">
            <string>Results</string>
           </property>
@@ -619,6 +631,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Avarage fittness:</string>
             </property>
@@ -637,6 +652,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Generation:</string>
             </property>
@@ -654,6 +672,9 @@ background-color: rgb(72,101,130)</string>
             <bold>false</bold>
             <underline>true</underline>
            </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
            <string>Best solution in generation</string>
@@ -681,6 +702,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Volume filled:</string>
             </property>
@@ -698,6 +722,9 @@ background-color: rgb(72,101,130)</string>
              <font>
               <pointsize>20</pointsize>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Fittness:</string>
@@ -777,6 +804,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Value percentage:</string>
             </property>
@@ -843,6 +873,9 @@ background-color: rgb(72,101,130)</string>
               <underline>true</underline>
               <strikeout>false</strikeout>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Best fittness:</string>
@@ -1105,7 +1138,7 @@ font-size: 25px;</string>
          <x>0</x>
          <y>0</y>
          <width>791</width>
-         <height>105</height>
+         <height>101</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1119,7 +1152,7 @@ font-size: 25px;</string>
          <number>5</number>
         </property>
         <property name="bottomMargin">
-         <number>5</number>
+         <number>10</number>
         </property>
         <item>
          <widget class="QLabel" name="label_GAMethod">
@@ -1127,6 +1160,9 @@ font-size: 25px;</string>
            <font>
             <pointsize>25</pointsize>
            </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
            <string>GA Method</string>
@@ -1157,6 +1193,9 @@ font-size: 25px;</string>
               <underline>true</underline>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Method:</string>
             </property>
@@ -1178,6 +1217,9 @@ font-size: 25px;</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Pure genetics</string>
             </property>
@@ -1192,6 +1234,9 @@ font-size: 25px;</string>
              <font>
               <pointsize>20</pointsize>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Hybrid Genetics </string>
@@ -1261,6 +1306,9 @@ font-size: 25px;</string>
             <pointsize>25</pointsize>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
+          </property>
           <property name="text">
            <string>Parameters</string>
           </property>
@@ -1283,6 +1331,9 @@ font-size: 25px;</string>
               <bold>true</bold>
               <underline>true</underline>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Population size:</string>
@@ -1323,6 +1374,9 @@ font-size: 25px;</string>
               <underline>true</underline>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Mutation rate:</string>
             </property>
@@ -1337,6 +1391,9 @@ font-size: 25px;</string>
               <bold>true</bold>
               <underline>true</underline>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Number of generations:</string>
@@ -1401,6 +1458,9 @@ font-size: 25px;</string>
               <underline>true</underline>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Elitisim percentage:</string>
             </property>
@@ -1450,6 +1510,9 @@ font-size: 25px;</string>
                 <bold>true</bold>
                 <underline>false</underline>
                </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(255, 255, 255);</string>
               </property>
               <property name="text">
                <string>%</string>
@@ -1646,7 +1709,7 @@ font-size: 25px;</string>
          <x>0</x>
          <y>0</y>
          <width>791</width>
-         <height>192</height>
+         <height>191</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1721,6 +1784,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Depth:</string>
             </property>
@@ -1739,6 +1805,9 @@ background-color: rgb(72,101,130)</string>
               <pointsize>20</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
+            </property>
             <property name="text">
              <string>Width:</string>
             </property>
@@ -1756,6 +1825,9 @@ background-color: rgb(72,101,130)</string>
              <font>
               <pointsize>20</pointsize>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
              <string>Height:</string>
@@ -1882,6 +1954,9 @@ background-color: rgb(72,101,130)</string>
             <pointsize>25</pointsize>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
+          </property>
           <property name="text">
            <string>Items Data</string>
           </property>
@@ -1913,7 +1988,7 @@ background-color: rgb(72,101,130)</string>
              <bool>true</bool>
             </property>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
            </widget>
           </item>
