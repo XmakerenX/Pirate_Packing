@@ -64,7 +64,7 @@ MainWindow::~MainWindow()
 void MainWindow::setForms()
 {
 	//Form - Main window
-	this->setFixedSizeAndMoveToCenter(738, 539);
+	this->setFixedSizeAndMoveToCenter(740, 539);
 	moveToMainMenu();
 		//Set icon:
 		std::string iconPath = GuiUtils::getFullPath("favicon.ico");
@@ -567,6 +567,7 @@ void MainWindow::moveToEnterData(bool reset/* = true*/)
 		ui->containerDepthTextbox->setText("10");
 		itemTable.resetTable();
 	}
+	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	this->setFixedSizeAndMoveToCenter(813, 837);
 }
 
